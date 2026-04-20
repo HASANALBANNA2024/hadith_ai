@@ -41,43 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: scaffoldBg,
-      // appBar: AppBar(
-      //   backgroundColor: appBarBg,
-      //   elevation: 0,
-      //   centerTitle: true,
-      //   title: Center(
-      //     child: Container(
-      //       constraints: const BoxConstraints(maxWidth: 1100),
-      //       child: Row(
-      //         children: [
-      //           Text(
-      //             'আল-হাদীস',
-      //             style: TextStyle(
-      //               color: gold,
-      //               fontSize: isWeb ? 28 : 22,
-      //               fontWeight: FontWeight.bold,
-      //             ),
-      //           ),
-      //           const Spacer(),
-      //           Icon(
-      //             _isDark ? Icons.dark_mode : Icons.light_mode,
-      //             color: gold,
-      //             size: isWeb ? 24 : 18,
-      //           ),
-      //           Switch(
-      //             value: _isDark,
-      //             activeColor: gold,
-      //             onChanged: (value) => setState(() => _isDark = value),
-      //           ),
-      //           IconButton(
-      //             icon: Icon(Icons.search, color: gold, size: isWeb ? 30 : 24),
-      //             onPressed: () {},
-      //           ),
-      //         ],
-      //       ),
-      //     ),
-      //   ),
-      // ),
+
       appBar: PreferredSize(
         // এখানে হাইট কমিয়ে ৪৫-৫০ এর মধ্যে রাখলে এটি অনেক স্লিম দেখাবে
         preferredSize: Size.fromHeight(isWeb ? 60 : 48),

@@ -136,16 +136,19 @@ class _HadithListScreenState extends State<HadithListScreen> {
       ),
       child: InkWell(
         onTap: () {
-          // final currentHadith = HadithModel.fromJson(item);
-          // showModalBottomSheet(
-          //   context: context,
-          //   isScrollControlled: true,
-          //   backgroundColor: Colors.transparent,
-          //   builder: (context) => HadithDetailsSheet(
-          //     hadith: currentHadith,
-          //     isDark: isDark,
-          //   ),
-          // );
+          print("API Data: $item"); // এটি দিয়ে চেক করুন API থেকে কী কী নাম (Keys) আসছে
+
+          final currentHadith = HadithModel.fromJson(item);
+
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => HadithDetailSheet(
+              hadith: currentHadith,
+              isDark: isDark,
+            ),
+          );
         },
         borderRadius: BorderRadius.circular(15),
         child: Padding(

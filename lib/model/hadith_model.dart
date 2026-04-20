@@ -31,20 +31,26 @@ class HadithModel {
 
   // জেসন (JSON) থেকে ডাটা ম্যাপ করার জন্য ফ্যাক্টরি মেথড
   factory HadithModel.fromJson(Map<String, dynamic> json) {
+    // nested ডাটা থেকে কিতাব এবং অধ্যায়ের নাম বের করা
+    final bookData = json['book'] as Map<String, dynamic>? ?? {};
+    final chapterData = json['chapter'] as Map<String, dynamic>? ?? {};
+
     return HadithModel(
       hadithId: json['id'] ?? 0,
-      hadithNumber: json['hadith_number'] ?? '0',
-      narrator: json['narrator_name'] ?? '',
-      arabicText: json['text_arabic'] ?? '',
-      translation: json['text_translation'] ?? '',
-      grade: json['grade_status'] ?? 'Unknown',
-      gradeColor: json['grade_color'] ?? '0xFF808080',
-      bookName: json['book_name'] ?? '',
-      chapterName: json['chapter_name'] ?? '',
-      explanation: json['explanation_text'] ?? 'ব্যাখ্যা পাওয়া যায়নি।',
-      narratorBio: json['narrator_bio'] ?? 'জীবনী পাওয়া যায়নি।',
-      tags: List<String>.from(json['tags'] ?? []),
-      reference: json['reference_no'] ?? '',
+      hadithNumber: (json['hadithNumber'] ?? '0').toString(),
+      narrator: json['englishNarrator'] ?? '',
+      arabicText: json['hadithArabic'] ?? '',
+      translation: json['hadithEnglish'] ?? '', // ইংরেজি অনুবাদকে মেইন অনুবাদ হিসেবে ধরা হয়েছে
+      grade: json['status'] ?? 'Unknown', // API-তে 'status' হিসেবে 'Sahih' আছে
+      gradeColor: (json['status']?.toString().toLowerCase() == 'sahih')
+          ? '0xFF4CAF50' // সহীহ হলে সবুজ
+          : '0xFFFF5252', // অন্যথায় লাল (আপনি চাইলে ডাটাবেস থেকে কালার নিতে পারেন)
+      bookName: bookData['bookName'] ?? 'Unknown Book',
+      chapterName: chapterData['chapterEnglish'] ?? 'Unknown Chapter',
+      explanation: json['hadithUrdu'] ?? 'ব্যাখ্যা পাওয়া যায়নি।', // আপনার ডাটাতে উর্দু ব্যাখ্যা আছে
+      narratorBio: 'জীবনী পাওয়া যায়নি।',
+      tags: [], // API-তে কোনো ট্যাগ লিস্ট দেখা যাচ্ছে না
+      reference: "Vol: ${json['volume'] ?? ''}", // ভলিউমকে রেফারেন্স হিসেবে রাখা হয়েছে
     );
   }
 }

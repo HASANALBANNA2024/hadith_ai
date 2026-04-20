@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hadith_ai/api_service/hadith_api_service.dart';
 import 'package:hadith_ai/model/chapter_model.dart';
-
 import 'hadith_list_screen.dart';
 
-class ChapterListScreen extends StatelessWidget {
+class ChapterListScreen extends StatefulWidget {
   final String bookTitle;
   final String bookSlug;
   final bool isDarkStatus;
@@ -17,22 +16,28 @@ class ChapterListScreen extends StatelessWidget {
   });
 
   @override
+  State<ChapterListScreen> createState() => _ChapterListScreenState();
+}
+
+class _ChapterListScreenState extends State<ChapterListScreen> {
+  // কালার ভেরিয়েবলগুলো এখানে ডিফাইন করা হয়েছে যাতে পুরো ক্লাসে ব্যবহার করা যায়
+  final Color goldColor = const Color(0xFFE4C381);
+  final Color primaryTeal = const Color(0xFF14532D);
+  final Color darkBg = const Color(0xFF0D1F1D);
+  final Color darkCardBg = const Color(0xFF111817);
+
+  @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
-    // এখানে ১১০০ এর বদলে ৭০০/৮০০ দিলে ছোট ওয়েব উইন্ডোতেও ওয়েব লেআউট কাজ করবে
+    // ছোট ওয়েব উইন্ডোতেও ওয়েব লেআউট কাজ করার জন্য ১১০০ পিক্সেল কন্ডিশন
     final bool isLargeScreen = screenWidth > 1100;
 
-    const Color goldColor = Color(0xFFE4C381);
-    const Color primaryTeal = Color(0xFF14532D);
-    const Color darkBg = Color(0xFF0D1F1D);
-    const Color darkCardBg = Color(0xFF111817);
-
     return Scaffold(
-      backgroundColor: isDarkStatus ? darkBg : const Color(0xFFF3F4F6),
+      backgroundColor: widget.isDarkStatus ? darkBg : const Color(0xFFF3F4F6),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: Container(
-          color: isDarkStatus ? const Color(0xFF112A27) : primaryTeal,
+          color: widget.isDarkStatus ? const Color(0xFF112A27) : primaryTeal,
           child: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
@@ -46,7 +51,7 @@ class ChapterListScreen extends StatelessWidget {
               onPressed: () => Navigator.pop(context),
             ),
             title: Text(
-              bookTitle,
+              widget.bookTitle,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
@@ -58,19 +63,19 @@ class ChapterListScreen extends StatelessWidget {
       ),
       body: Center(
         child: Container(
-          // web screen view
+          // web screen view constraints
           constraints: BoxConstraints(
             maxWidth: isLargeScreen ? 900 : double.infinity,
           ),
           child: Column(
             children: [
-              _buildTopActions(isDarkStatus, primaryTeal),
+              _buildTopActions(widget.isDarkStatus, primaryTeal),
               Expanded(
                 child: FutureBuilder<List<ChapterModel>>(
-                  future: HadithApiService().fetchChapters(bookSlug),
+                  future: HadithApiService().fetchChapters(widget.bookSlug),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
+                      return Center(
                         child: CircularProgressIndicator(color: goldColor),
                       );
                     } else if (snapshot.hasError) {
@@ -89,45 +94,44 @@ class ChapterListScreen extends StatelessWidget {
                       );
                     }
 
-                    // debug print
                     final chapters = snapshot.data!;
                     return isLargeScreen
                         ? GridView.builder(
-                            padding: const EdgeInsets.all(16),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2, // ওয়েবে পাশাপাশি ২টা কার্ড
-                                  childAspectRatio: 5.0,
-                                  crossAxisSpacing: 16,
-                                  mainAxisSpacing: 16,
-                                ),
-                            itemCount: chapters.length,
-                            itemBuilder: (context, index) => _buildChapterCard(
-                              context,
-                              chapters[index],
-                              isDarkStatus,
-                              goldColor,
-                              primaryTeal,
-                              darkCardBg,
-                            ),
-                          )
+                      padding: const EdgeInsets.all(16),
+                      gridDelegate:
+                      const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2, // ওয়েবে পাশাপাশি ২টা কার্ড
+                        childAspectRatio: 5.0,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                      ),
+                      itemCount: chapters.length,
+                      itemBuilder: (context, index) => _buildChapterCard(
+                        context,
+                        chapters[index],
+                        widget.isDarkStatus,
+                        goldColor,
+                        primaryTeal,
+                        darkCardBg,
+                      ),
+                    )
                         : ListView.separated(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 10,
-                            ),
-                            itemCount: chapters.length,
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(height: 12),
-                            itemBuilder: (context, index) => _buildChapterCard(
-                              context,
-                              chapters[index],
-                              isDarkStatus,
-                              goldColor,
-                              primaryTeal,
-                              darkCardBg,
-                            ),
-                          );
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      itemCount: chapters.length,
+                      separatorBuilder: (context, index) =>
+                      const SizedBox(height: 12),
+                      itemBuilder: (context, index) => _buildChapterCard(
+                        context,
+                        chapters[index],
+                        widget.isDarkStatus,
+                        goldColor,
+                        primaryTeal,
+                        darkCardBg,
+                      ),
+                    );
                   },
                 ),
               ),
@@ -135,8 +139,7 @@ class ChapterListScreen extends StatelessWidget {
           ),
         ),
       ),
-      // ওয়েব এ বটম নেভবার ছোট দেখানোর জন্য
-      bottomNavigationBar: _buildBottomNav(isDarkStatus, goldColor, darkBg),
+      bottomNavigationBar: _buildBottomNav(widget.isDarkStatus, goldColor, darkBg),
     );
   }
 
@@ -179,15 +182,14 @@ class ChapterListScreen extends StatelessWidget {
       ),
       color: isDark ? darkCard : Colors.white,
       child: InkWell(
-        // ListTile এর বদলে InkWell ব্যবহার করছি একদম নিখুঁত সেন্টারিং এর জন্য
         borderRadius: BorderRadius.circular(12),
         onTap: () {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => HadithListScreen(
-                bookTitle: bookTitle,
-                bookSlug: bookSlug,
+                bookTitle: widget.bookTitle, // StatefulWidget হওয়ার কারণে widget. ব্যবহার করা হয়েছে
+                bookSlug: widget.bookSlug,
                 chapterId: chapter.chapterId.toString(),
                 chapterTitle: chapter.chapterTitle,
                 isDarkStatus: isDark,
@@ -198,12 +200,9 @@ class ChapterListScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Row(
-            mainAxisAlignment:
-            MainAxisAlignment.center, // পুরো রো মাঝখানে থাকবে
-            crossAxisAlignment:
-            CrossAxisAlignment.center, // ভার্টিক্যালি সেন্টারে থাকবে
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // অধ্যায় নম্বর
               Container(
                 width: 35,
                 height: 35,
@@ -225,7 +224,6 @@ class ChapterListScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              // অধ্যায় টাইটেল
               Expanded(
                 child: Text(
                   chapter.chapterTitle,
@@ -238,7 +236,6 @@ class ChapterListScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              // অ্যারো আইকন
               Icon(
                 Icons.arrow_forward_ios,
                 color: Colors.grey.withOpacity(0.5),
@@ -251,19 +248,15 @@ class ChapterListScreen extends StatelessWidget {
     );
   }
 
-
-  // bottom navigation
   Widget _buildBottomNav(bool isDark, Color gold, Color darkBg) {
     return Container(
-      // এই কালারটি পুরো স্ক্রিনের উইডথ জুড়ে থাকবে
       color: isDark ? darkBg : Colors.white,
       child: SafeArea(
         child: Column(
-          mainAxisSize: MainAxisSize.min, // এটি খুবই গুরুত্বপূর্ণ
+          mainAxisSize: MainAxisSize.min,
           children: [
             Center(
               child: Container(
-                // এখানে উইডথ কন্ট্রোল করা হচ্ছে
                 constraints: const BoxConstraints(maxWidth: 1100),
                 decoration: BoxDecoration(
                   border: Border(
@@ -276,32 +269,16 @@ class ChapterListScreen extends StatelessWidget {
                 child: BottomNavigationBar(
                   currentIndex: 1,
                   type: BottomNavigationBarType.fixed,
-                  backgroundColor:
-                      Colors.transparent, // ট্রান্সপারেন্ট রাখতে হবে
+                  backgroundColor: Colors.transparent,
                   elevation: 0,
                   selectedItemColor: gold,
                   unselectedItemColor: Colors.grey,
                   items: const [
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.home_filled),
-                      label: 'হোম',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.menu_book),
-                      label: 'গ্রন্থসমূহ',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.search),
-                      label: 'অনুসন্ধান',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.bookmark_outline),
-                      label: 'সংরক্ষিত',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.settings),
-                      label: 'সেটিংস',
-                    ),
+                    BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'হোম'),
+                    BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: 'গ্রন্থসমূহ'),
+                    BottomNavigationBarItem(icon: Icon(Icons.search), label: 'অনুসন্ধান'),
+                    BottomNavigationBarItem(icon: Icon(Icons.bookmark_outline), label: 'সংরক্ষিত'),
+                    BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'সেটিংস'),
                   ],
                 ),
               ),
