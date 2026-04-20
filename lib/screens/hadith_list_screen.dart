@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:hadith_ai/model/hadith_model.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class HadithListScreen extends StatefulWidget {
   final String bookTitle;
@@ -9,351 +10,211 @@ class HadithListScreen extends StatefulWidget {
   final bool isDarkStatus;
 
   const HadithListScreen({
-    super.key,
+    Key? key,
     required this.bookTitle,
     required this.bookSlug,
     required this.chapterId,
     required this.chapterTitle,
     required this.isDarkStatus,
-  });
+  }) : super(key: key);
 
   @override
-  State<HadithListScreen> createState() => _HadithListScreenState();
+  _HadithListScreenState createState() => _HadithListScreenState();
 }
 
 class _HadithListScreenState extends State<HadithListScreen> {
+  List<dynamic> hadiths = [];
+  bool isLoading = true;
+  int _selectedIndex = 1; // 'গ্রন্থসমূহ' সিলেক্টেড থাকবে
+
+  // API Key - ডলারে আগে অবশ্যই ব্যাকস্ল্যাশ (\$) থাকবে
+  final String apiKey = "\$2y\$10\$K92YhAwUhG4o6upA4YPrGO4pfUM8DdBznR6Zueejhg9zPevBI6e";
+
+  @override
+  void initState() {
+    super.initState();
+    fetchHadiths();
+  }
+
+  Future<void> fetchHadiths() async {
+    final String url = "https://hadithapi.com/api/hadiths?apiKey=$apiKey&book=${widget.bookSlug}&chapter=${widget.chapterId}";
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['hadiths'] != null && data['hadiths']['data'] != null) {
+          setState(() {
+            hadiths = data['hadiths']['data'];
+            isLoading = false;
+          });
+        }
+      } else {
+        setState(() { isLoading = false; });
+      }
+    } catch (e) {
+      setState(() { isLoading = false; });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final bool isWeb = screenWidth > 1100;
-
+    final isDarkMode = widget.isDarkStatus;
     const Color goldColor = Color(0xFFE4C381);
-    const Color primaryTeal = Color(0xFF14532D);
-    const Color darkBg = Color(0xFF0D1F1D);
-    const Color darkCardBg = Color(0xFF111817);
+    const Color darkGreen = Color(0xFF004D40);
+
+    final Color bgColor = isDarkMode ? const Color(0xFF0F0F0F) : const Color(0xFFF5F7F9);
+    final Color cardColor = isDarkMode ? const Color(0xFF1E1E1E) : Colors.white;
+    final Color textColor = isDarkMode ? Colors.white : Colors.black87;
+
+    // Web check
+    double screenWidth = MediaQuery.of(context).size.width;
+    bool isWeb = screenWidth > 700;
 
     return Scaffold(
-      backgroundColor: widget.isDarkStatus ? darkBg : const Color(0xFFF3F4F6),
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: Container(
-          color: widget.isDarkStatus ? const Color(0xFF112A27) : primaryTeal,
-          child: Center(
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 1100),
-              child: AppBar(
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                centerTitle: !isWeb,
-                leading: IconButton(
-                  icon: const Icon(
-                    Icons.arrow_back_ios,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                title: Column(
-                  crossAxisAlignment: isWeb
-                      ? CrossAxisAlignment.start
-                      : CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      widget.bookTitle,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.white70,
-                      ),
-                    ),
-                    Text(
-                      widget.chapterTitle,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.search, color: Colors.white),
-                    onPressed: () {},
-                  ),
-                  const SizedBox(width: 8),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-      body: Stack(
-        children: [
-          Center(
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 1100),
-              child: FutureBuilder<List<HadithModel>>(
-                // future: HadithApiService().fetchHadiths(widget.bookSlug, widget.chapterId),
-                future: Future.value([]), // আপনার এপিআই কল এখানে দিন
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(color: goldColor),
-                    );
-                  } else if (snapshot.hasError) {
-                    return const Center(
-                      child: Text(
-                        "লোড করতে সমস্যা হয়েছে!",
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    );
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        "কোনো হাদিস পাওয়া যায়নি।",
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    );
-                  }
-
-                  final hadiths = snapshot.data!;
-
-                  return ListView.separated(
-                    padding: const EdgeInsets.only(
-                      top: 16,
-                      left: 16,
-                      right: 16,
-                      bottom: 100,
-                    ),
-                    itemCount: hadiths.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 16),
-                    itemBuilder: (context, index) {
-                      return _buildHadithCard(
-                        hadiths[index],
-                        widget.isDarkStatus,
-                        isWeb,
-                        goldColor,
-                        primaryTeal,
-                        darkCardBg,
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-          ),
-
-          Positioned(
-            bottom: 20,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 1100),
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                alignment: Alignment.centerLeft,
-                child: FloatingActionButton.extended(
-                  onPressed: () => Navigator.pop(context),
-                  backgroundColor: primaryTeal,
-                  elevation: 4,
-                  icon: const Icon(Icons.menu_open, color: Colors.white),
-                  label: const Text(
-                    'সূচিপত্র',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        color: widget.isDarkStatus ? darkBg : Colors.white,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+      backgroundColor: bgColor,
+      appBar: AppBar(
+        title: Column(
           children: [
-            Container(
-              constraints: const BoxConstraints(maxWidth: 1100),
-              width: screenWidth,
-              child: _buildBottomNav(widget.isDarkStatus, goldColor, isWeb),
-            ),
+            Text(widget.chapterTitle, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            Text(widget.bookTitle, style: const TextStyle(fontSize: 10, color: goldColor)),
           ],
         ),
+        backgroundColor: darkGreen,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: goldColor),
+        elevation: 0,
       ),
+      body: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 1100), // Web View 1100px limit
+          child: isLoading
+              ? const Center(child: CircularProgressIndicator(color: goldColor))
+              : hadiths.isEmpty
+              ? const Center(child: Text("কোনো হাদিস পাওয়া যায়নি।"))
+              : ListView.builder(
+            padding: const EdgeInsets.all(15),
+            itemCount: hadiths.length,
+            itemBuilder: (context, index) {
+              final item = hadiths[index];
+              return _buildHadithCard(item, cardColor, textColor, goldColor, isDarkMode);
+            },
+          ),
+        ),
+      ),
+      bottomNavigationBar: _buildBottomNav(isDarkMode, bgColor, goldColor, isWeb),
     );
   }
 
-  Widget _buildHadithCard(
-    HadithModel hadith,
-    bool isDark,
-    bool isWeb,
-    Color gold,
-    Color teal,
-    Color darkCard,
-  ) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
+  Widget _buildHadithCard(dynamic item, Color cardColor, Color textColor, Color goldColor, bool isDark) {
+    bool isSahih = (item['status'] ?? "").toString().toLowerCase().contains("sahih");
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: cardColor,
         borderRadius: BorderRadius.circular(15),
-        side: BorderSide(
-          color: isDark
-              ? Colors.white.withOpacity(0.08)
-              : Colors.black.withOpacity(0.05),
-        ),
+        border: Border.all(color: goldColor.withOpacity(0.1)),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
       ),
-      color: isDark ? darkCard : Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  hadith.hadithNumber,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    color: isDark ? gold : teal,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    "হাদিস নং: ${hadith.hadithNumber}",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: isDark ? gold : teal,
-                    ),
-                  ),
-                ),
-                // হাদিসের গ্রেড (সহীহ/হাসান) দেখানো
-                if (hadith.grade.isNotEmpty)
+      child: InkWell(
+        onTap: () {
+          // Details screen navigation here
+        },
+        borderRadius: BorderRadius.circular(15),
+        child: Padding(
+          padding: const EdgeInsets.all(18.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Color(
-                        int.parse(hadith.gradeColor),
-                      ).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(5),
+                      color: isSahih ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: isSahih ? Colors.green : Colors.red, width: 0.5),
                     ),
                     child: Text(
-                      hadith.grade,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Color(int.parse(hadith.gradeColor)),
-                        fontWeight: FontWeight.bold,
-                      ),
+                      item['status'] ?? "Unknown",
+                      style: TextStyle(color: isSahih ? Colors.green : Colors.red, fontSize: 10, fontWeight: FontWeight.bold),
                     ),
                   ),
-              ],
-            ),
-            const Divider(height: 24, thickness: 0.5),
-            Text(
-              hadith.narrator,
-              style: const TextStyle(
-                fontSize: 13,
-                color: Colors.grey,
-                fontWeight: FontWeight.w600,
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: goldColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: goldColor.withOpacity(0.3)),
+                    ),
+                    child: Text(
+                      "H${item['hadithNumber']}",
+                      style:  TextStyle(color: goldColor, fontWeight: FontWeight.bold, fontSize: 11),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 12),
-            if (hadith.arabicText.isNotEmpty)
+              const SizedBox(height: 15),
               Align(
                 alignment: Alignment.centerRight,
                 child: Text(
-                  hadith.arabicText,
+                  item['hadithArabic'] ?? "",
                   textAlign: TextAlign.right,
                   style: TextStyle(
-                    fontSize: 22,
-                    height: 1.8,
-                    color: isDark ? Colors.white : Colors.black,
-                    fontFamily: 'Amiri',
+                    color: isDark ? goldColor : const Color(0xFF004D40),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-            const SizedBox(height: 12),
-            Text(
-              hadith.translation,
-              style: TextStyle(
-                fontSize: 15,
-                height: 1.6,
-                color: isDark ? Colors.white.withOpacity(0.9) : Colors.black87,
+              const SizedBox(height: 12),
+              Text(
+                item['hadithEnglish'] ?? "",
+                style: TextStyle(color: textColor, fontSize: 13, height: 1.5),
+                maxLines: 4,
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-
-            // ট্যাগস (যদি থাকে)
-            if (hadith.tags.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: Wrap(
-                  spacing: 8,
-                  children: hadith.tags
-                      .map(
-                        (tag) => Text(
-                          "#$tag",
-                          style: TextStyle(color: gold, fontSize: 12),
-                        ),
-                      )
-                      .toList(),
-                ),
+              const SizedBox(height: 10),
+               Align(
+                alignment: Alignment.bottomRight,
+                child: Icon(Icons.arrow_forward, size: 16, color: goldColor),
               ),
-
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _cardActionIcon(Icons.share_outlined, isDark),
-                _cardActionIcon(Icons.bookmark_border, isDark),
-                _cardActionIcon(Icons.copy_outlined, isDark),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _cardActionIcon(IconData icon, bool isDark) {
-    return Icon(icon, color: isDark ? Colors.white38 : Colors.grey, size: 22);
-  }
-
-  Widget _buildBottomNav(bool isDark, Color gold, bool isWeb) {
+  Widget _buildBottomNav(bool isDark, Color bg, Color gold, bool isWeb) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: isWeb ? 0 : 10),
+      padding: EdgeInsets.symmetric(horizontal: isWeb ? (MediaQuery.of(context).size.width - 1100) / 2 : 10),
       decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0D1F1D) : Colors.white,
         border: Border(
-          top: BorderSide(
-            color: isDark ? Colors.white.withOpacity(0.05) : Colors.black12,
-          ),
+          top: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
         ),
       ),
       child: BottomNavigationBar(
-        currentIndex: 1,
-        type: BottomNavigationBarType.fixed,
+        currentIndex: _selectedIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
         backgroundColor: Colors.transparent,
         elevation: 0,
         selectedItemColor: gold,
         unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed,
+        iconSize: isWeb ? 30 : 24,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'হোম'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.menu_book),
-            label: 'গ্রন্থসমূহ',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: 'গ্রন্থসমূহ'),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'অনুসন্ধান'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bookmark_outline),
-            label: 'সংরক্ষিত',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.bookmark_outline), label: 'সংরক্ষিত'),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'সেটিংস'),
         ],
       ),
