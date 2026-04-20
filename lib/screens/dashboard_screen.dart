@@ -732,7 +732,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool _isDark = true;
 
-  // প্রতিটি সেকশনের জন্য আলাদা কন্ট্রোল ভেরিয়েবল
+  // all section control variable
   bool _showAllBooks = false;
   bool _showAllQuickAccess = false;
   bool _showAllCategories = false;
@@ -799,7 +799,7 @@ class _HomeScreenState extends State<HomeScreen> {
         physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
-            // ১. সার্চ সেকশন
+            // search section
             Container(
               color: appBarBg,
               width: double.infinity,
@@ -813,7 +813,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            // ২. বডি কন্টেন্ট
+            // body content
             Center(
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 1100),
@@ -916,7 +916,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // --- হেল্পার উইজেটস ---
+  // ---Helper Widgets ---
 
   Widget _buildHeader(String title, Color color, bool isWeb) {
     return Padding(
@@ -1142,14 +1142,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        // যদি 'সব দেখুন' ক্লিক না করা হয়, তবে শুধু প্রথম সারিতে জায়গা অনুযায়ী ট্যাগ দেখাবে
+        // all show more
         List<String> displayedTags;
 
         if (_showAllCategories) {
           displayedTags = allTags;
         } else {
-          // এখানে একটি আনুমানিক হিসাব করা হয়েছে (ট্যাগের গড় উইডথ + স্পেসিং)
-          // মোবাইলে সাধারণত ৩-৪টি এবং ওয়েবে ৮-১০টি ট্যাগ এক লাইনে ধরে
+          // mobile view and web view
           double estimatedTagWidth = isWeb ? 120 : 90;
           int tagsPerRow = (constraints.maxWidth / estimatedTagWidth).floor();
           displayedTags = allTags.take(tagsPerRow).toList();
@@ -1322,22 +1321,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildBottomNav(bool isDark, Color bg, Color gold, bool isWeb) {
     return Container(
-      // গ্যাপ আরও বাড়ানোর জন্য এখানে ১৭০ পিক্সেল প্যাডিং দেওয়া হয়েছে
+      // gap of bottom
       padding: EdgeInsets.symmetric(horizontal: isWeb ? 0 : 10),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF0D1F1D) : Colors.white,
         boxShadow: [
           BoxShadow(
-            // লাইট মোডে খুব হালকা শ্যাডো যা বডি থেকে বারকে আলাদা করবে
+            // light mode
             color: Colors.black.withOpacity(isDark ? 0.4 : 0.06),
             // blurRadius: 15,
             // spreadRadius: 0,
-            offset: const Offset(0, -3), // শুধুমাত্র উপরের দিকে শ্যাডো
+            offset: const Offset(0, -3),
           ),
         ],
       ),
       child: BottomNavigationBar(
-        backgroundColor: Colors.transparent, // কন্টেইনারের কালার ব্যবহার করবে
+        backgroundColor: Colors.transparent,
         elevation: 0,
         selectedItemColor: gold,
         unselectedItemColor: Colors.grey,
