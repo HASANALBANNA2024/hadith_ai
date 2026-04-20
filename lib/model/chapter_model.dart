@@ -14,6 +14,7 @@ class ChapterModel {
   });
 
   factory ChapterModel.fromJson(Map<String, dynamic> json, String slug) {
+    // print("JSON Data: $json");
     return ChapterModel(
       chapterId: json['id'] is int
           ? json['id']
@@ -23,8 +24,9 @@ class ChapterModel {
           json['chapterBangla'] ?? json['chapterEnglish'] ?? 'শিরোনামহীন',
       bookSlug: slug,
       // এপিআই-এর hadiths_count কী (key) থেকে সরাসরি ডেটা নেওয়া হচ্ছে
-      hadithCount: (json['hadiths_count'] ?? json['hadith_count'] ?? '0')
-          .toString(),
+      hadithCount: int.tryParse(
+        json['hadiths_count'] ?? json['hadith_count'] ?? '0',
+      ).toString(),
     );
   }
 }

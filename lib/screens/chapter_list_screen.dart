@@ -89,9 +89,8 @@ class ChapterListScreen extends StatelessWidget {
                       );
                     }
 
+                    // debug print
                     final chapters = snapshot.data!;
-
-                    // ওয়েব এর জন্য GridView এবং মোবাইলের জন্য ListView
                     return isLargeScreen
                         ? GridView.builder(
                             padding: const EdgeInsets.all(16),
@@ -252,7 +251,7 @@ class ChapterListScreen extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          'হাদিস সংখ্যা: ${chapter.hadithCount}',
+          'হাদিস সংখ্যা: ${chapter.hadithCount ?? 0}', // null হলে ০ দেখাবে
           style: const TextStyle(color: Colors.grey, fontSize: 12),
         ),
         trailing: const Icon(
