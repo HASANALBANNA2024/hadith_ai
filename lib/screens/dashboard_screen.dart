@@ -23,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
-    final bool isWeb = screenWidth > 950;
+    final bool isWeb = screenWidth > 1100;
 
     final Color gold = AppThemes.accentGold;
     final Color scaffoldBg = _isDark

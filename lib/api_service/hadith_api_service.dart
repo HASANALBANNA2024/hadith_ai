@@ -97,7 +97,7 @@ class HadithApiService {
         List dynamicList = data['books'] ?? [];
 
         // কনসোলে চেক করার জন্য প্রিন্ট (ঐচ্ছিক)
-        print("DEBUG: API Data for UI -> ${json.encode(dynamicList)}");
+        // print("DEBUG: API Data for UI -> ${json.encode(dynamicList)}");
 
         return dynamicList.map((item) {
           String slug = item['bookSlug'] ?? '';

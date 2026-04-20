@@ -20,7 +20,7 @@ class ChapterListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
     // এখানে ১১০০ এর বদলে ৭০০/৮০০ দিলে ছোট ওয়েব উইন্ডোতেও ওয়েব লেআউট কাজ করবে
-    final bool isLargeScreen = screenWidth > 800;
+    final bool isLargeScreen = screenWidth > 1100;
 
     const Color goldColor = Color(0xFFE4C381);
     const Color primaryTeal = Color(0xFF14532D);
@@ -159,35 +159,14 @@ class ChapterListScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionIcon(IconData icon, bool isDark, Color primaryColor) {
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? Colors.white.withOpacity(0.05) : Colors.white,
-        shape: BoxShape.circle,
-        boxShadow: isDark
-            ? []
-            : [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5)],
-      ),
-      child: IconButton(
-        icon: Icon(
-          icon,
-          color: isDark ? Colors.white70 : primaryColor,
-          size: 22,
-        ),
-        onPressed: () {},
-      ),
-    );
-  }
-
-  // chapter card
   Widget _buildChapterCard(
-    BuildContext context,
-    ChapterModel chapter,
-    bool isDark,
-    Color gold,
-    Color teal,
-    Color darkCard,
-  ) {
+      BuildContext context,
+      ChapterModel chapter,
+      bool isDark,
+      Color gold,
+      Color teal,
+      Color darkCard,
+      ) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -220,9 +199,9 @@ class ChapterListScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Row(
             mainAxisAlignment:
-                MainAxisAlignment.center, // পুরো রো মাঝখানে থাকবে
+            MainAxisAlignment.center, // পুরো রো মাঝখানে থাকবে
             crossAxisAlignment:
-                CrossAxisAlignment.center, // ভার্টিক্যালি সেন্টারে থাকবে
+            CrossAxisAlignment.center, // ভার্টিক্যালি সেন্টারে থাকবে
             children: [
               // অধ্যায় নম্বর
               Container(
@@ -272,6 +251,8 @@ class ChapterListScreen extends StatelessWidget {
     );
   }
 
+
+  // bottom navigation
   Widget _buildBottomNav(bool isDark, Color gold, Color darkBg) {
     return Container(
       // এই কালারটি পুরো স্ক্রিনের উইডথ জুড়ে থাকবে
