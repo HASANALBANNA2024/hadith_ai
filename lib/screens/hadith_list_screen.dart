@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hadith_ai/widgets/hadith_details_sheet.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:hadith_ai/model/hadith_model.dart';
 
 class HadithListScreen extends StatefulWidget {
   final String bookTitle;
@@ -134,7 +136,16 @@ class _HadithListScreenState extends State<HadithListScreen> {
       ),
       child: InkWell(
         onTap: () {
-          // বিস্তারিত প্যানেল
+          // final currentHadith = HadithModel.fromJson(item);
+          // showModalBottomSheet(
+          //   context: context,
+          //   isScrollControlled: true,
+          //   backgroundColor: Colors.transparent,
+          //   builder: (context) => HadithDetailsSheet(
+          //     hadith: currentHadith,
+          //     isDark: isDark,
+          //   ),
+          // );
         },
         borderRadius: BorderRadius.circular(15),
         child: Padding(
