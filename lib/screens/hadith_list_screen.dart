@@ -106,86 +106,244 @@ class _HadithListScreenState extends State<HadithListScreen> {
     );
   }
 
+  // Widget _buildCompactHadithCard(dynamic item, Color cardColor, Color textColor, Color goldColor, bool isDark) {
+  //   String status = (item['status'] ?? "Unknown").toString();
+  //   bool isSahih = status.toLowerCase().contains("sahih");
+  //   bool isHasan = status.toLowerCase().contains("hasan");
+  //
+  //   // কালার স্কিম
+  //   Color statusColor = isSahih ? const Color(0xFF4CAF50) : (isHasan ? Colors.orange : Colors.redAccent);
+  //
+  //   return Container(
+  //     margin: const EdgeInsets.only(bottom: 14),
+  //     decoration: BoxDecoration(
+  //       color: cardColor,
+  //       borderRadius: BorderRadius.circular(15),
+  //       border: Border.all(color: goldColor.withOpacity(0.15)),
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: Colors.black.withOpacity(isDark ? 0.35 : 0.05),
+  //           blurRadius: 12,
+  //           offset: const Offset(0, 4),
+  //         )
+  //       ],
+  //     ),
+  //     child: InkWell(
+  //       onTap: () {
+  //         // Overlay logic
+  //       },
+  //       borderRadius: BorderRadius.circular(15),
+  //       child: Padding(
+  //         padding: const EdgeInsets.all(18.0), // টেক্সট ক্লিয়ারেন্সের জন্য প্যাডিং সামান্য বাড়ানো
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             Row(
+  //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //               children: [
+  //                 // --- ওয়েবে বড় করা প্রিমিয়াম ব্যাজ (বামে) ---
+  //                 Container(
+  //                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // সাইজ বাড়ানো হয়েছে
+  //                   decoration: BoxDecoration(
+  //                     color: statusColor.withOpacity(0.15),
+  //                     borderRadius: BorderRadius.circular(10), // আধুনিক স্কয়ার-রাউন্ড শেপ
+  //                     border: Border.all(color: statusColor, width: 1.5),
+  //                   ),
+  //                   child: Row(
+  //                     mainAxisSize: MainAxisSize.min,
+  //                     children: [
+  //                       Icon(isSahih ? Icons.verified : Icons.info, size: 16, color: statusColor),
+  //                       const SizedBox(width: 8),
+  //                       Text(
+  //                         status.toUpperCase(),
+  //                         style: TextStyle(
+  //                           color: statusColor,
+  //                           fontSize: 12, // ফন্ট বড় করা হয়েছে
+  //                           fontWeight: FontWeight.bold, // এক্সট্রা বোল্ড
+  //                           letterSpacing: 0.8,
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ),
+  //
+  //                 // --- বড় হাদিস নাম্বার (ডানে) ---
+  //                 Container(
+  //                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+  //                   decoration: BoxDecoration(
+  //                     color: goldColor.withOpacity(0.1),
+  //                     borderRadius: BorderRadius.circular(8),
+  //                     border: Border.all(color: goldColor.withOpacity(0.3)),
+  //                   ),
+  //                   child: Text(
+  //                     "Hadith# ${item['hadithNumber']}",
+  //                     style: TextStyle(
+  //                       color: goldColor,
+  //                       fontWeight: FontWeight.bold,
+  //                       fontSize: 14, // নাম্বার বড় করা হয়েছে
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //
+  //             const SizedBox(height: 20),
+  //
+  //             // আরবি টেক্সট (Line Height বাড়িয়ে আরও ক্লিয়ার করা হয়েছে)
+  //             Align(
+  //               alignment: Alignment.centerRight,
+  //               child: Text(
+  //                 item['hadithArabic'] ?? "",
+  //                 textAlign: TextAlign.right,
+  //                 maxLines: 2,
+  //                 overflow: TextOverflow.ellipsis,
+  //                 style: TextStyle(
+  //                   color: isDark ? goldColor : const Color(0xFF1B5E20),
+  //                   fontSize: 21,
+  //                   fontWeight: FontWeight.bold,
+  //                   height: 1.5, // টেক্সট ক্লিয়ারেন্স
+  //                 ),
+  //               ),
+  //             ),
+  //
+  //             const SizedBox(height: 14),
+  //
+  //             // ইংরেজি টেক্সট (High Contrast)
+  //             Text(
+  //               item['hadithEnglish'] ?? "",
+  //               maxLines: 2,
+  //               overflow: TextOverflow.ellipsis,
+  //               style: TextStyle(
+  //                 color: isDark ? Colors.white.withOpacity(0.95) : Colors.black87,
+  //                 fontSize: 14.5,
+  //                 height: 1.6,
+  //                 fontWeight: FontWeight.w400,
+  //               ),
+  //             ),
+  //
+  //             const Divider(height: 30, thickness: 0.8),
+  //
+  //             Row(
+  //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //               children: [
+  //                 // বর্ণনাকারী সংক্ষেপে (UX এর জন্য)
+  //                 Expanded(
+  //                   child: Text(
+  //                     "Narrator: ${item['englishNarrator'] ?? ""}",
+  //                     maxLines: 1,
+  //                     overflow: TextOverflow.ellipsis,
+  //                     style: TextStyle(color: Colors.grey[500], fontSize: 11, fontStyle: FontStyle.italic),
+  //                   ),
+  //                 ),
+  //                 Row(
+  //                   children: [
+  //                     Text("বিস্তারিত", style: TextStyle(color: goldColor, fontSize: 13, fontWeight: FontWeight.bold)),
+  //                     Icon(Icons.keyboard_arrow_right, color: goldColor, size: 20),
+  //                   ],
+  //                 ),
+  //               ],
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+  //
+
   Widget _buildCompactHadithCard(dynamic item, Color cardColor, Color textColor, Color goldColor, bool isDark) {
-    // স্ট্যাটাস চেক করা (সহীহ নাকি অন্য কিছু)
     String status = (item['status'] ?? "Unknown").toString();
     bool isSahih = status.toLowerCase().contains("sahih");
     bool isHasan = status.toLowerCase().contains("hasan");
 
-    // স্ট্যাটাস অনুযায়ী কালার নির্ধারণ
-    Color statusColor = isSahih ? Colors.green : (isHasan ? Colors.orange : Colors.red);
+    // মোবাইলের জন্য সাইজ চেক (৭০০ পিক্সেলের কম হলে মোবাইল ধরা হবে)
+    double screenWidth = MediaQuery.of(context).size.width;
+    bool isMobile = screenWidth < 700;
+
+    Color statusColor = isSahih ? const Color(0xFF4CAF50) : (isHasan ? Colors.orange : Colors.redAccent);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: goldColor.withOpacity(0.1)),
+        border: Border.all(color: goldColor.withOpacity(0.15)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-            blurRadius: 10,
+            color: Colors.black.withOpacity(isDark ? 0.35 : 0.05),
+            blurRadius: 12,
             offset: const Offset(0, 4),
           )
         ],
       ),
       child: InkWell(
         onTap: () {
-          // Overlay sheet logic later
+          // বিস্তারিত প্যানেল
         },
         borderRadius: BorderRadius.circular(15),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(isMobile ? 14.0 : 20.0), // মোবাইলে প্যাডিং কম
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // --- প্রিমিয়াম বড় ব্যাজ ---
+                  // --- রেসপন্সিভ ব্যাজ ---
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6), // ব্যাজ বড় করা হয়েছে
+                    padding: EdgeInsets.symmetric(
+                        horizontal: isMobile ? 10 : 16,
+                        vertical: isMobile ? 4 : 8
+                    ),
                     decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(30), // মেডেল শেপ
-                      border: Border.all(color: statusColor.withOpacity(0.6), width: 1.2),
+                      color: statusColor.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(isMobile ? 6 : 10),
+                      border: Border.all(color: statusColor, width: isMobile ? 1 : 1.5),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(isSahih ? Icons.verified : Icons.info_outline, size: 14, color: statusColor),
-                        const SizedBox(width: 6),
+                        Icon(isSahih ? Icons.verified : Icons.info, size: isMobile ? 12 : 16, color: statusColor),
+                        SizedBox(width: isMobile ? 4 : 8),
                         Text(
-                          status.toUpperCase(), // বড় হাতের অক্ষরে স্ট্যাটাস
+                          status.toUpperCase(),
                           style: TextStyle(
                             color: statusColor,
-                            fontSize: 11, // ফন্ট সাইজ বাড়ানো হয়েছে
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 0.5,
+                            fontSize: isMobile ? 9 : 12, // মোবাইলে ছোট ফন্ট
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.8,
                           ),
                         ),
                       ],
                     ),
                   ),
 
-                  // হাদিস নাম্বার
+                  // --- রেসপন্সিভ হাদিস নাম্বার ---
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: isMobile ? 8 : 12,
+                        vertical: isMobile ? 3 : 6
+                    ),
                     decoration: BoxDecoration(
-                      color: goldColor.withOpacity(0.05),
+                      color: goldColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: goldColor.withOpacity(0.3)),
                     ),
                     child: Text(
                       "Hadith# ${item['hadithNumber']}",
-                      style: TextStyle(color: goldColor, fontWeight: FontWeight.bold, fontSize: 12),
+                      style: TextStyle(
+                        color: goldColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: isMobile ? 10 : 14, // মোবাইলে ছোট ফন্ট
+                      ),
                     ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 18),
+              const SizedBox(height: 16),
 
-              // আরবি টেক্সট (১-২ লাইনে সীমাবদ্ধ)
+              // আরবি টেক্সট
               Align(
                 alignment: Alignment.centerRight,
                 child: Text(
@@ -194,43 +352,45 @@ class _HadithListScreenState extends State<HadithListScreen> {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: isDark ? goldColor : const Color(0xFF004D40),
-                    fontSize: 20,
+                    color: isDark ? goldColor : const Color(0xFF1B5E20),
+                    fontSize: isMobile ? 18 : 22, // মোবাইলে ফন্ট ছোট
                     fontWeight: FontWeight.bold,
-                    height: 1.4,
+                    height: 1.5,
                   ),
                 ),
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
 
-              // ইংরেজি টেক্সট (২ লাইনে সীমাবদ্ধ)
+              // ইংরেজি টেক্সট
               Text(
                 item['hadithEnglish'] ?? "",
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: textColor.withOpacity(0.85),
-                  fontSize: 14,
+                  color: isDark ? Colors.white.withOpacity(0.9) : Colors.black87,
+                  fontSize: isMobile ? 13 : 15,
                   height: 1.5,
-                  fontWeight: FontWeight.w400,
                 ),
               ),
 
-              const Divider(height: 25, thickness: 0.5),
+              const Divider(height: 25, thickness: 0.6),
 
-              // বটম অ্যাকশন এরিয়া
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "Narrator: ${item['englishNarrator']?.split(' ').take(3).join(' ')}...",
-                    style: const TextStyle(color: Colors.grey, fontSize: 11, fontStyle: FontStyle.italic),
+                  Expanded(
+                    child: Text(
+                      "Narrator: ${item['englishNarrator'] ?? ""}",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: Colors.grey[500], fontSize: 10, fontStyle: FontStyle.italic),
+                    ),
                   ),
                   Row(
                     children: [
-                      Text("বিস্তারিত", style: TextStyle(color: goldColor, fontSize: 12, fontWeight: FontWeight.bold)),
-                      Icon(Icons.keyboard_arrow_right, color: goldColor, size: 18),
+                      Text("বিস্তারিত", style: TextStyle(color: goldColor, fontSize: isMobile ? 11 : 13, fontWeight: FontWeight.bold)),
+                      Icon(Icons.keyboard_arrow_right, color: goldColor, size: isMobile ? 16 : 20),
                     ],
                   ),
                 ],
