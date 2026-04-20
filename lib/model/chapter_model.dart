@@ -1,9 +1,9 @@
 class ChapterModel {
   final int chapterId;
   final String chapterNumber;
-  final String chapterTitle; // অধ্যায়ের নাম
-  final String bookSlug; // কোন কিতাবের অধ্যায় (যেমন: sahih-bukhari)
-  final String hadithCount; // এই অধ্যায়ে মোট কতটি হাদিস আছে
+  final String chapterTitle;
+  final String bookSlug;
+  final String hadithCount;
 
   ChapterModel({
     required this.chapterId,
@@ -15,14 +15,16 @@ class ChapterModel {
 
   factory ChapterModel.fromJson(Map<String, dynamic> json, String slug) {
     return ChapterModel(
-      chapterId: json['id'] ?? 0,
-      chapterNumber: json['chapterNumber'] ?? '0',
+      chapterId: json['id'] is int
+          ? json['id']
+          : int.tryParse(json['id'].toString()) ?? 0,
+      chapterNumber: json['chapterNumber']?.toString() ?? '0',
       chapterTitle:
-          json['chapterBengali'] ??
-          json['chapterEnglish'] ??
-          '', // বাংলা না থাকলে ইংরেজি
+          json['chapterBangla'] ?? json['chapterEnglish'] ?? 'শিরোনামহীন',
       bookSlug: slug,
-      hadithCount: json['hadiths_count']?.toString() ?? '0',
+      // এপিআই-এর hadiths_count কী (key) থেকে সরাসরি ডেটা নেওয়া হচ্ছে
+      hadithCount: (json['hadiths_count'] ?? json['hadith_count'] ?? '0')
+          .toString(),
     );
   }
 }

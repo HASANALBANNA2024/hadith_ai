@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hadith_ai/api_service/hadith_api_service.dart';
+import 'package:hadith_ai/model/hadith_book_model.dart';
 import 'package:hadith_ai/screens/chapter_list_screen.dart';
 import 'package:hadith_ai/widgets/app_theme.dart';
 
@@ -107,13 +109,59 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     const SizedBox(height: 20),
                     _buildHeader('হাদীস গ্রন্থসমূহ', textColor, isWeb),
-                    _buildBookGrid(
-                      screenWidth,
-                      cardBg,
-                      borderColor,
-                      textColor,
-                      isWeb,
+
+                    // --- API API Integration Started ---
+                    // --- হাদীস গ্রন্থসমূহ সেকশন ---
+                    FutureBuilder<List<HadithBookModel>>(
+                      // এখানে আপনার সার্ভিস মেথডটি কল হচ্ছে
+                      future: HadithApiService().fetchAllBooks(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(40),
+                              child: CircularProgressIndicator(
+                                color: Color(0xFFE4C381),
+                              ),
+                            ),
+                          );
+                        }
+
+                        if (snapshot.hasError) {
+                          return const Center(
+                            child: Text(
+                              "ডাটা লোড করতে সমস্যা হয়েছে!",
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          );
+                        }
+
+                        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                          return const Center(
+                            child: Text(
+                              "কোনো গ্রন্থ পাওয়া যায়নি।",
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          );
+                        }
+
+                        final allBooks = snapshot.data!;
+                        final displayedBooks = _showAllBooks
+                            ? allBooks
+                            : allBooks.take(6).toList();
+
+                        return _buildBookGrid(
+                          screenWidth,
+                          cardBg,
+                          borderColor,
+                          textColor,
+                          isWeb,
+                          displayedBooks,
+                        );
+                      },
                     ),
+
                     _buildSeeAllButton(
                       _showAllBooks,
                       () => setState(() => _showAllBooks = !_showAllBooks),
@@ -196,7 +244,91 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ---Helper Widgets ---
+  // --- Helper Widgets ---
+
+  Widget _buildBookGrid(
+    double width,
+    Color bg,
+    Color border,
+    Color textC,
+    bool isWeb,
+    List<HadithBookModel> books,
+  ) {
+    int columns = width > 1000 ? 6 : (width > 700 ? 4 : 3);
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: books.length,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: columns,
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+        childAspectRatio: isWeb ? 1.0 : 0.85,
+      ),
+      itemBuilder: (context, i) {
+        final book = books[i];
+
+        return Container(
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: border),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ChapterListScreen(
+                    bookTitle: book.bookName,
+                    bookSlug: book.bookSlug, // এখানে book.bookSlug ই থাকবে
+                    isDarkStatus: _isDark,
+                  ),
+                ),
+              );
+            },
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.menu_book_rounded,
+                  color: Color(0xFFE4C381),
+                  size: 30,
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Column(
+                    children: [
+                      Text(
+                        book.bookName,
+                        style: TextStyle(
+                          color: textC,
+                          fontWeight: FontWeight.bold,
+                          fontSize: isWeb ? 14 : 11,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        "${book.hadithCount} টি হাদীস",
+                        style: const TextStyle(color: Colors.grey, fontSize: 9),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // (বাকি সকল হেল্পার মেথড যেমন Header, SearchSection, HeroCard, BottomNav ইত্যাদি আপনার অরিজিনাল কোডের মতোই থাকবে)
 
   Widget _buildHeader(String title, Color color, bool isWeb) {
     return Padding(
@@ -274,93 +406,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildBookGrid(
-    double width,
-    Color bg,
-    Color border,
-    Color textC,
-    bool isWeb,
-  ) {
-    final allBooks = [
-      {'t': 'সহীহ বুখারী', 'c': '৭৫৬৩', 'color': Colors.teal},
-      {'t': 'সহীহ মুসলিম', 'c': '৭৫০০', 'color': Colors.green},
-      {'t': 'সুনান আবু দাউদ', 'c': '৫২৭৪', 'color': Colors.orange},
-      {'t': 'সুনান তিরমিযী', 'c': '৩৯৫৬', 'color': Colors.red},
-      {'t': 'সুনান নাসাঈ', 'c': '৫৭৫৮', 'color': Colors.blue},
-      {'t': 'ইবনে মাজাহ', 'c': '৪৩৪১', 'color': Colors.purple},
-      {'t': 'মুয়াত্তা মালিক', 'c': '১৭২০', 'color': Colors.brown},
-      {'t': 'রিয়াদুস সালেহীন', 'c': '১৯০৫', 'color': Colors.indigo},
-    ];
-
-    // _showAllBooks ভেরিয়েবলটি আপনার স্টেট অনুযায়ী কাজ করবে
-    final displayedBooks = _showAllBooks ? allBooks : allBooks.take(6).toList();
-    int columns = width > 1000 ? 6 : (width > 700 ? 4 : 3);
-
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: displayedBooks.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: columns,
-        mainAxisSpacing: 10,
-        crossAxisSpacing: 10,
-        childAspectRatio: isWeb ? 1.0 : 0.85,
-      ),
-      itemBuilder: (context, i) {
-        final book = displayedBooks[i];
-
-        return Container(
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: border),
-          ),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () {
-              // বইয়ের নাম নিয়ে ChapterListScreen-এ নেভিগেশন
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ChapterListScreen(
-                    bookTitle: book['t'] as String,
-                    isDarkStatus:
-                        _isDark, // আপনার ড্যাশবোর্ডের ডার্ক মোড ভেরিয়েবলটি এখানে দিন
-                  ),
-                ),
-              );
-            },
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.menu_book_rounded,
-                  color: book['color'] as Color,
-                  size: isWeb ? 35 : 24,
-                ),
-                const SizedBox(height: 8),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Text(
-                    book['t'] as String,
-                    style: TextStyle(
-                      color: textC,
-                      fontWeight: FontWeight.bold,
-                      fontSize: isWeb ? 14 : 11,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildQuickAccessRow(
     Color bg,
     Color gold,
@@ -375,8 +420,6 @@ class _HomeScreenState extends State<HomeScreen> {
       {'n': 'সেভ', 'i': Icons.bookmark_border},
       {'n': 'শেয়ার', 'i': Icons.share},
       {'n': 'ডাউনলোড', 'i': Icons.download},
-      {'n': 'তালিক', 'i': Icons.list_alt},
-      {'n': 'সেটিংস', 'i': Icons.settings_outlined},
     ];
     final displayedItems = _showAllQuickAccess
         ? allItems
@@ -415,8 +458,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       fontWeight: FontWeight.w500,
                     ),
                     textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -428,69 +469,32 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCategoryWrap(Color border, Color textC, Color bg, bool isWeb) {
-    final allTags = [
-      'ঈমান',
-      'নামায',
-      'রোযা',
-      'হজ্জ',
-      'আখলাক',
-      'দুয়া ও যিকির',
-      'জান্নাত',
-      'জাহান্নাম',
-      'লেনদেন',
-      'পরিবার',
-      'কুরআন',
-      'হাদীস',
-      'তওবা',
-      'সালাত',
-    ];
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // all show more
-        List<String> displayedTags;
-
-        if (_showAllCategories) {
-          displayedTags = allTags;
-        } else {
-          // mobile view and web view
-          double estimatedTagWidth = isWeb ? 120 : 90;
-          int tagsPerRow = (constraints.maxWidth / estimatedTagWidth).floor();
-          displayedTags = allTags.take(tagsPerRow).toList();
-        }
-
-        return SizedBox(
-          width: double.infinity,
-          child: Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            alignment: WrapAlignment.start,
-            children: displayedTags
-                .map(
-                  (t) => Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isWeb ? 25 : 16,
-                      vertical: isWeb ? 12 : 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: bg,
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(color: border),
-                    ),
-                    child: Text(
-                      t,
-                      style: TextStyle(
-                        color: textC,
-                        fontSize: isWeb ? 15 : 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                )
-                .toList(),
-          ),
-        );
-      },
+    final allTags = ['ঈমান', 'নামায', 'রোযা', 'হজ্জ', 'আখলাক', 'দুয়া ও যিকির'];
+    return SizedBox(
+      width: double.infinity,
+      child: Wrap(
+        spacing: 10,
+        runSpacing: 10,
+        children: allTags
+            .map(
+              (t) => Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isWeb ? 25 : 16,
+                  vertical: isWeb ? 12 : 8,
+                ),
+                decoration: BoxDecoration(
+                  color: bg,
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: border),
+                ),
+                child: Text(
+                  t,
+                  style: TextStyle(color: textC, fontSize: isWeb ? 15 : 13),
+                ),
+              ),
+            )
+            .toList(),
+      ),
     );
   }
 
@@ -505,16 +509,9 @@ class _HomeScreenState extends State<HomeScreen> {
       'সকালে ও সন্ধ্যায় পড়ার দোয়া',
       'খাওয়ার আদব ও সুন্নাত',
       'ঘুমের দোয়া ও আমল',
-      'মসজিদে প্রবেশের দুয়া',
-      'রাস্তার হক',
-      'পোশাক পরিধান',
     ];
-    final displayedItems = _showAllDailyLife
-        ? allItems
-        : allItems.take(3).toList();
-
     return Column(
-      children: displayedItems
+      children: allItems
           .map(
             (item) => Container(
               margin: const EdgeInsets.only(bottom: 12),
@@ -626,19 +623,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildBottomNav(bool isDark, Color bg, Color gold, bool isWeb) {
     return Container(
-      // gap of bottom
       padding: EdgeInsets.symmetric(horizontal: isWeb ? 0 : 10),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF0D1F1D) : Colors.white,
-        boxShadow: [
-          BoxShadow(
-            // light mode
-            color: Colors.black.withOpacity(isDark ? 0.4 : 0.06),
-            // blurRadius: 15,
-            // spreadRadius: 0,
-            offset: const Offset(0, -3),
-          ),
-        ],
+        border: Border(
+          top: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
+        ),
       ),
       child: BottomNavigationBar(
         backgroundColor: Colors.transparent,

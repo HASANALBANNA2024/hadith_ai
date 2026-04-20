@@ -1,56 +1,110 @@
 import 'dart:convert';
 
-import 'package:hadith_ai/model/hadith_model.dart';
 import 'package:http/http.dart' as http;
 
+import '../model/chapter_model.dart';
+import '../model/hadith_book_model.dart';
+import '../model/hadith_model.dart';
+
 class HadithApiService {
-  // আপনার API Key এবং URL এখানে বসবে
-  static const String apiKey = "\$2y\$10\$YOUR_API_KEY";
+  static const String apiKey =
+      "\$2y\$10\$K92YhAwUhG4o6upA4YPrGO4pfUM8DdBznR6Zueejhg9zPevBI6e";
   static const String baseUrl = "https://hadithapi.com/api";
 
-  Future<List<HadithModel>> fetchHadiths(String bookSlug, int chapterId) async {
-    final url = Uri.parse(
-      '$baseUrl/hadiths?apiKey=$apiKey&book=$bookSlug&chapter=$chapterId',
-    );
+  // --- ১. চ্যাপ্টার লোড করার মেথড ---
+  Future<List<ChapterModel>> fetchChapters(String bookSlug) async {
+    final String urlString = "$baseUrl/$bookSlug/chapters?apiKey=$apiKey";
+    final url = Uri.parse(urlString);
 
     try {
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
+        final Map<String, dynamic> data = json.decode(
+          utf8.decode(response.bodyBytes),
+        );
+        List dynamicList = data['chapters'] ?? [];
 
-        // হাদিস এপিআই এর রেসপন্স স্ট্রাকচার অনুযায়ী ডাটা ম্যাপ করা
-        List dynamicList = data['hadiths']['data'];
-
-        return dynamicList
-            .map(
-              (json) => HadithModel.fromJson({
-                'id': json['id'],
-                'hadith_number': json['hadithNumber'],
-                'narrator_name': json['englishNarrator'], // বা বাংলা থাকলে সেটি
-                'text_arabic': json['hadithArabic'],
-                'text_translation':
-                    json['hadithEnglish'], // পরে 'text_bangla' দিয়ে রিপ্লেস করা যাবে
-                'grade_status': json['status'],
-                'grade_color': json['status'] == 'Sahih'
-                    ? '0xFF2E7D32'
-                    : '0xFFC62828',
-                'book_name': json['book']['bookName'],
-                'chapter_name': json['chapter']['chapterName'],
-                'explanation_text':
-                    json['explanation'] ?? 'ব্যাখ্যা শীঘ্রই আসছে...',
-                'narrator_bio': 'বর্ণনাকারীর জীবনী ডাটাবেজে সংরক্ষিত হচ্ছে...',
-                'tags': (json['tags'] as String? ?? '').split(','),
-                'reference_no': json['hadithNumber'],
-              }),
-            )
-            .toList();
-      } else {
-        throw Exception('সার্ভার থেকে ডাটা পাওয়া যায়নি!');
+        return dynamicList.map<ChapterModel>((item) {
+          // সরাসরি আইটেমটি পাঠিয়ে দেওয়া হচ্ছে যাতে ম্যাপিং নির্ভুল হয়
+          return ChapterModel.fromJson(item, bookSlug);
+        }).toList();
       }
     } catch (e) {
-      print("API Error: $e");
-      return [];
+      print("Chapter Fetch Error: $e");
     }
+    return [];
+  }
+
+  // --- ২. হাদিস লিস্ট লোড করার মেথড ---
+  Future<List<HadithModel>> fetchHadiths(
+    String bookSlug,
+    String chapterId,
+  ) async {
+    final url = Uri.parse(
+      '$baseUrl/hadiths?apiKey=$apiKey&book=$bookSlug&chapter=$chapterId',
+    );
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(
+          utf8.decode(response.bodyBytes),
+        );
+        if (data['status'] == 200 && data['hadiths'] != null) {
+          List dynamicList = data['hadiths']['data'] ?? [];
+          return dynamicList.map((json) {
+            String status = json['status'] ?? 'Unknown';
+            String color = (status == 'Sahih' || status == 'Hasan')
+                ? '0xFF2E7D32'
+                : '0xFFC62828';
+            return HadithModel.fromJson({
+              'id': json['id'],
+              'hadith_number': json['hadithNumber'],
+              'narrator_name': json['englishNarrator'] ?? '',
+              'text_arabic': json['hadithArabic'] ?? '',
+              'text_translation':
+                  json['hadithUrdu'] ?? json['hadithEnglish'] ?? '',
+              'grade_status': status,
+              'grade_color': color,
+              'book_name': json['book']?['bookName'] ?? '',
+              'chapter_name': json['chapter']?['chapterName'] ?? '',
+              'explanation_text':
+                  json['explanation'] ?? 'ব্যাখ্যা শীঘ্রই আসছে...',
+              'tags': (json['tags'] is String)
+                  ? (json['tags'] as String).split(',')
+                  : [],
+              'reference_no': json['hadithNumber'] ?? '',
+            });
+          }).toList();
+        }
+      }
+    } catch (e) {
+      print("Hadith API Error: $e");
+    }
+    return [];
+  }
+
+  // --- ৩. সকল বইয়ের তালিকা লোড করার মেথড ---
+  Future<List<HadithBookModel>> fetchAllBooks() async {
+    final url = Uri.parse('$baseUrl/books?apiKey=$apiKey');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(
+          utf8.decode(response.bodyBytes),
+        );
+        List dynamicList = data['books'] ?? [];
+        return dynamicList.map((item) {
+          return HadithBookModel.fromJson({
+            'book_name': item['bookName'],
+            'book_slug': item['bookSlug'],
+            'hadith_count': (item['hadiths_count'] ?? '0').toString(),
+          });
+        }).toList();
+      }
+    } catch (e) {
+      print("Books API Error: $e");
+    }
+    return [];
   }
 }
