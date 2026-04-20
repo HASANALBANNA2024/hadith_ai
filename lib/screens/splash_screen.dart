@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:hadith_ai/screens/dashboard_screen.dart';
 
@@ -9,7 +10,8 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
@@ -22,19 +24,21 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       duration: const Duration(milliseconds: 1500),
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
 
-    _scaleAnimation = Tween<double>(begin: 0.9, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 0.9,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
     _controller.forward();
 
     Timer(const Duration(seconds: 3), () {
       // future navigation to dashboard screen
-      Navigator.push(context, MaterialPageRoute(builder: (_)=> DashboardScreen()));
+      Navigator.push(context, MaterialPageRoute(builder: (_) => HomeScreen()));
     });
   }
 
@@ -55,10 +59,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF0D1B1E),
-              Color(0xFF000000),
-            ],
+            colors: [Color(0xFF0D1B1E), Color(0xFF000000)],
           ),
         ),
         child: FadeTransition(
@@ -74,15 +75,15 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                        color: const Color(0xFFFFD700).withOpacity(0.5),
-                        width: 1.5
+                      color: const Color(0xFFFFD700).withOpacity(0.5),
+                      width: 1.5,
                     ),
                     boxShadow: [
                       BoxShadow(
                         color: const Color(0xFFFFD700).withOpacity(0.1),
                         blurRadius: 40,
                         spreadRadius: 10,
-                      )
+                      ),
                     ],
                   ),
                   child: const Icon(
@@ -106,7 +107,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 ),
 
                 const SizedBox(height: 8),
-
 
                 const Text(
                   "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ",
@@ -132,13 +132,14 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
                 const SizedBox(height: 80),
 
-
                 const SizedBox(
                   width: 45,
                   height: 2,
                   child: LinearProgressIndicator(
                     backgroundColor: Colors.white10,
-                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFFD700)),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Color(0xFFFFD700),
+                    ),
                   ),
                 ),
               ],

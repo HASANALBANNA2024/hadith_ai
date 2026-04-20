@@ -1,107 +1,1054 @@
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
+// import 'package:hadith_ai/widgets/app_theme.dart'; // পাথ সঠিক আছে কিনা নিশ্চিত করুন
+//
+// class HomeScreen extends StatefulWidget {
+//   const HomeScreen({super.key});
+//
+//   @override
+//   State<HomeScreen> createState() => _HomeScreenState();
+// }
+//
+// class _HomeScreenState extends State<HomeScreen> {
+//   bool _isDark = true;
+//   bool _showAllBooks = false;
+//   bool _showAllQuickAccess = false;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final double screenWidth = MediaQuery.of(context).size.width;
+//     final bool isWeb = screenWidth > 950;
+//
+//     // কালার ভেরিয়েবলসমূহ
+//     final Color gold = AppThemes.accentGold;
+//     final Color scaffoldBg = _isDark
+//         ? AppThemes.darkBackground
+//         : AppThemes.lightBackground;
+//     final Color appBarBg = _isDark
+//         ? const Color(0xFF0D1F1D)
+//         : AppThemes.primaryGreen;
+//     final Color cardBg = _isDark ? const Color(0xFF111817) : Colors.white;
+//     final Color textColor = _isDark ? Colors.white : Colors.black87;
+//     final Color borderColor = _isDark
+//         ? Colors.white10
+//         : const Color(0xFFE5E7EB);
+//
+//     return Scaffold(
+//       backgroundColor: scaffoldBg,
+//       // AppBar এবং Body একে অপরের ওপর ওভারল্যাপ করবে না
+//       extendBody: false,
+//       extendBodyBehindAppBar: false,
+//       appBar: AppBar(
+//         backgroundColor: appBarBg,
+//         elevation: 0,
+//         centerTitle: true,
+//         title: Center(
+//           child: Container(
+//             constraints: const BoxConstraints(maxWidth: 1100),
+//             child: Row(
+//               children: [
+//                 Text(
+//                   'আল-হাদীস',
+//                   style: TextStyle(
+//                     color: gold,
+//                     fontSize: isWeb ? 28 : 22,
+//                     fontWeight: FontWeight.bold,
+//                   ),
+//                 ),
+//                 const Spacer(),
+//                 Row(
+//                   children: [
+//                     Icon(
+//                       _isDark ? Icons.dark_mode : Icons.light_mode,
+//                       color: gold,
+//                       size: isWeb ? 24 : 18,
+//                     ),
+//                     Switch(
+//                       value: _isDark,
+//                       activeColor: gold,
+//                       onChanged: (value) => setState(() => _isDark = value),
+//                     ),
+//                   ],
+//                 ),
+//                 IconButton(
+//                   icon: Icon(Icons.search, color: gold, size: isWeb ? 30 : 24),
+//                   onPressed: () {},
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ),
+//       ),
+//       body: SizedBox(
+//         width: double.infinity,
+//         child: SingleChildScrollView(
+//           physics: const BouncingScrollPhysics(),
+//           child: Column(
+//             children: [
+//               // --- ১. সার্চ সেকশন ---
+//               Container(
+//                 color: appBarBg,
+//                 width: double.infinity,
+//                 padding: const EdgeInsets.only(bottom: 40, top: 10),
+//                 child: Center(
+//                   child: Container(
+//                     constraints: const BoxConstraints(maxWidth: 1100),
+//                     padding: const EdgeInsets.symmetric(horizontal: 20),
+//                     child: _buildSearchSection(isWeb, _isDark),
+//                   ),
+//                 ),
+//               ),
+//
+//               // --- ২. বডি কন্টেন্ট ---
+//               Center(
+//                 child: Container(
+//                   constraints: const BoxConstraints(maxWidth: 1100),
+//                   padding: const EdgeInsets.symmetric(horizontal: 20),
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       const SizedBox(height: 10),
+//                       _buildHeader('আজকের হাদিস', textColor, isWeb),
+//                       _buildHeroCard(
+//                         cardBg,
+//                         gold,
+//                         borderColor,
+//                         textColor,
+//                         isWeb,
+//                       ),
+//
+//                       const SizedBox(height: 20),
+//                       _buildHeader(
+//                         'হাদীস গ্রন্থসমূহ',
+//                         textColor,
+//                         isWeb,
+//                         showSeeAll: true,
+//                         gold: gold,
+//                         isExpanded: _showAllBooks,
+//                         onTapSeeAll: () =>
+//                             setState(() => _showAllBooks = !_showAllBooks),
+//                       ),
+//                       _buildBookGrid(
+//                         screenWidth,
+//                         cardBg,
+//                         borderColor,
+//                         textColor,
+//                         isWeb,
+//                       ),
+//
+//                       const SizedBox(height: 20),
+//                       // দ্রুত অ্যাক্সেস সেকশন
+//                       _buildHeader(
+//                         'দ্রুত অ্যাক্সেস',
+//                         textColor,
+//                         isWeb,
+//                         showSeeAll: true,
+//                         gold: gold,
+//                         isExpanded: _showAllQuickAccess,
+//                         onTapSeeAll: () => setState(
+//                           () => _showAllQuickAccess = !_showAllQuickAccess,
+//                         ),
+//                       ),
+//                       _buildQuickAccessRow(
+//                         cardBg,
+//                         gold,
+//                         borderColor,
+//                         textColor,
+//                         isWeb,
+//                       ),
+//
+//                       const SizedBox(height: 20),
+//                       _buildHeader(
+//                         'হাদীস বিষয়ভিত্তিক',
+//                         textColor,
+//                         isWeb,
+//                         showSeeAll: true,
+//                         gold: gold,
+//                       ),
+//                       _buildCategoryWrap(borderColor, textColor, cardBg, isWeb),
+//
+//                       const SizedBox(height: 20),
+//                       _buildHeader('দৈনন্দিন জীবনের হাদীস', textColor, isWeb),
+//                       _buildDailyLifeSection(
+//                         cardBg,
+//                         borderColor,
+//                         textColor,
+//                         AppThemes.primaryGreen,
+//                         isWeb,
+//                       ),
+//
+//                       const SizedBox(height: 20),
+//                       _buildHeader('সাম্প্রতিক পঠিত', textColor, isWeb),
+//                       _buildRecentReadCard(
+//                         cardBg,
+//                         borderColor,
+//                         textColor,
+//                         isWeb,
+//                       ),
+//
+//                       const SizedBox(height: 50), // BottomNav এর জন্য গ্যাপ
+//                     ],
+//                   ),
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//       // Bottom Navigation একদম স্বাভাবিক স্থানে থাকবে
+//       // bottomNavigationBar: _buildBottomNav(_isDark, appBarBg, gold, isWeb),
+//       bottomNavigationBar: Container(
+//         color: _isDark
+//             ? const Color(0xFF0D1F1D)
+//             : Colors.white, // পুরো লাইনের ব্যাকগ্রাউন্ড
+//         child: Row(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             SizedBox(
+//               width: isWeb
+//                   ? 1100
+//                   : screenWidth, // ওয়েবে ১১৫০px, মোবাইলে ফুল স্ক্রিন
+//               child: _buildBottomNav(_isDark, appBarBg, gold, isWeb),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+//
+//   // --- হেল্পার উইজেটস (অপরিবর্তিত কিন্তু ক্লিনড) ---
+//
+//   Widget _buildSearchSection(bool isWeb, bool isDark) {
+//     return Container(
+//       constraints: BoxConstraints(maxWidth: isWeb ? 650 : double.infinity),
+//       // হাইট কিছুটা কমিয়ে ওয়েব এর জন্য ৫০ এবং মোবাইলের জন্য ৪৫ করা হয়েছে
+//       height: isWeb ? 50 : 45,
+//       decoration: BoxDecoration(
+//         color: isDark ? Colors.white.withOpacity(0.1) : Colors.white,
+//         borderRadius: BorderRadius.circular(35),
+//         border: Border.all(
+//           color: isDark ? Colors.white10 : Colors.black.withOpacity(0.05),
+//         ),
+//       ),
+//       child: Center(
+//         // কন্টেন্টকে মাঝখানে রাখার জন্য
+//         child: TextField(
+//           textAlignVertical:
+//               TextAlignVertical.center, // টেক্সট ওপর-নিচে মাঝখানে রাখবে
+//           style: TextStyle(
+//             color: isDark ? Colors.white : Colors.black,
+//             fontSize: isWeb
+//                 ? 16
+//                 : 14, // ফন্ট সাইজ হাইট অনুযায়ী অ্যাডজাস্ট করা হয়েছে
+//           ),
+//           decoration: InputDecoration(
+//             hintText: 'হাদীস খুঁজুন...',
+//             hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+//             prefixIcon: Icon(
+//               Icons.search,
+//               color: Colors.grey,
+//               size: isWeb ? 22 : 20, // আইকন সাইজ কিছুটা কমানো হয়েছে
+//             ),
+//             border: InputBorder.none,
+//             // contentPadding জিরো করে দেওয়া হয়েছে যাতে TextAlignVertical ঠিকমতো কাজ করে
+//             contentPadding: EdgeInsets.zero,
+//             isDense: true, // অতিরিক্ত প্যাডিং রিমুভ করবে
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+//
+//   Widget _buildHeroCard(
+//     Color bg,
+//     Color gold,
+//     Color border,
+//     Color textC,
+//     bool isWeb,
+//   ) {
+//     return Container(
+//       width: double.infinity,
+//       padding: EdgeInsets.all(isWeb ? 45 : 24),
+//       decoration: BoxDecoration(
+//         color: bg,
+//         borderRadius: BorderRadius.circular(20),
+//         border: Border.all(color: border),
+//       ),
+//       child: Column(
+//         children: [
+//           Icon(Icons.auto_awesome, color: gold, size: isWeb ? 40 : 26),
+//           const SizedBox(height: 20),
+//           Text(
+//             "“প্রকৃত মুসলিম সেই ব্যক্তি, যার জিহ্বা ও হাত থেকে অন্য মুসলিম নিরাপদ থাকে।”",
+//             textAlign: TextAlign.center,
+//             style: TextStyle(
+//               color: textC,
+//               fontSize: isWeb ? 22 : 16,
+//               fontStyle: FontStyle.italic,
+//               height: 1.6,
+//             ),
+//           ),
+//           const SizedBox(height: 12),
+//           Text(
+//             "- সহীহ বুখারী",
+//             style: TextStyle(color: gold, fontWeight: FontWeight.bold),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+//
+//   // Widget _buildBookGrid(
+//   //   double width,
+//   //   Color bg,
+//   //   Color border,
+//   //   Color textC,
+//   //   bool isWeb,
+//   // ) {
+//   //   final books = [
+//   //     {'t': 'সহীহ বুখারী', 'c': '৭৫৬৩', 'color': Colors.teal},
+//   //     {'t': 'সহীহ মুসলিম', 'c': '৭৫০০', 'color': Colors.green},
+//   //     {'t': 'সুনান আবু দাউদ', 'c': '৫২৭৪', 'color': Colors.orange},
+//   //     {'t': 'সুনান তিরমিযী', 'c': '৩৯৫৬', 'color': Colors.red},
+//   //     {'t': 'সুনান নাসাঈ', 'c': '৫৭৫৮', 'color': Colors.blue},
+//   //     {'t': 'ইবনে মাজাহ', 'c': '৪৩৪১', 'color': Colors.purple},
+//   //   ];
+//   //   int columns = width > 1000 ? 6 : (width > 700 ? 4 : 3);
+//   //   return GridView.builder(
+//   //     shrinkWrap: true,
+//   //     physics: const NeverScrollableScrollPhysics(),
+//   //     itemCount: books.length,
+//   //     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+//   //       crossAxisCount: columns,
+//   //       mainAxisSpacing: 15,
+//   //       crossAxisSpacing: 15,
+//   //       childAspectRatio: isWeb ? 0.95 : 0.8,
+//   //     ),
+//   //     itemBuilder: (context, i) {
+//   //       return Container(
+//   //         decoration: BoxDecoration(
+//   //           color: bg,
+//   //           borderRadius: BorderRadius.circular(15),
+//   //           border: Border.all(color: border),
+//   //         ),
+//   //         child: Column(
+//   //           mainAxisAlignment: MainAxisAlignment.center,
+//   //           children: [
+//   //             Icon(
+//   //               Icons.menu_book_rounded,
+//   //               color: books[i]['color'] as Color,
+//   //               size: isWeb ? 45 : 30,
+//   //             ),
+//   //             const SizedBox(height: 10),
+//   //             Text(
+//   //               books[i]['t'] as String,
+//   //               style: TextStyle(
+//   //                 color: textC,
+//   //                 fontWeight: FontWeight.bold,
+//   //                 fontSize: isWeb ? 15 : 12,
+//   //               ),
+//   //               textAlign: TextAlign.center,
+//   //             ),
+//   //             Text(
+//   //               "${books[i]['c']} হাদীস",
+//   //               style: const TextStyle(color: Colors.grey, fontSize: 10),
+//   //             ),
+//   //           ],
+//   //         ),
+//   //       );
+//   //     },
+//   //   );
+//   // }
+//   //
+//   // Widget _buildQuickAccessRow(
+//   //   Color bg,
+//   //   Color gold,
+//   //   Color border,
+//   //   Color textC,
+//   //   bool isWeb,
+//   // ) {
+//   //   final items = [
+//   //     {'n': 'পছন্দ', 'i': Icons.favorite_border},
+//   //     {'n': 'ইতিহাস', 'i': Icons.history},
+//   //     {'n': 'নোটস', 'i': Icons.edit_note},
+//   //     {'n': 'সেভ', 'i': Icons.download_outlined},
+//   //   ];
+//   //   return Row(
+//   //     children: items
+//   //         .map(
+//   //           (e) => Expanded(
+//   //             child: Container(
+//   //               margin: const EdgeInsets.symmetric(horizontal: 4),
+//   //               padding: EdgeInsets.symmetric(vertical: isWeb ? 20 : 12),
+//   //               decoration: BoxDecoration(
+//   //                 color: bg,
+//   //                 borderRadius: BorderRadius.circular(12),
+//   //                 border: Border.all(color: border),
+//   //               ),
+//   //               child: Column(
+//   //                 children: [
+//   //                   Icon(
+//   //                     e['i'] as IconData,
+//   //                     color: gold,
+//   //                     size: isWeb ? 28 : 22,
+//   //                   ),
+//   //                   const SizedBox(height: 8),
+//   //                   Text(
+//   //                     e['n'] as String,
+//   //                     style: TextStyle(color: textC, fontSize: isWeb ? 14 : 10),
+//   //                   ),
+//   //                 ],
+//   //               ),
+//   //             ),
+//   //           ),
+//   //         )
+//   //         .toList(),
+//   //   );
+//   // }
+//
+//   Widget _buildBookGrid(
+//     double width,
+//     Color bg,
+//     Color border,
+//     Color textC,
+//     bool isWeb,
+//   ) {
+//     final allBooks = [
+//       {'t': 'সহীহ বুখারী', 'c': '৭৫৬৩', 'color': Colors.teal},
+//       {'t': 'সহীহ মুসলিম', 'c': '৭৫০০', 'color': Colors.green},
+//       {'t': 'সুনান আবু দাউদ', 'c': '৫২৭৪', 'color': Colors.orange},
+//       {'t': 'সুনান তিরমিযী', 'c': '৩৯৫৬', 'color': Colors.red},
+//       {'t': 'সুনান নাসাঈ', 'c': '৫৭৫৮', 'color': Colors.blue},
+//       {'t': 'ইবনে মাজাহ', 'c': '৪৩৪১', 'color': Colors.purple},
+//       {'t': 'মুয়াত্তা মালিক', 'c': '১৭২০', 'color': Colors.brown},
+//       {'t': 'রিয়াদুস সালেহীন', 'c': '১৯০৫', 'color': Colors.indigo},
+//     ];
+//     final displayedBooks = _showAllBooks ? allBooks : allBooks.take(6).toList();
+//     int columns = width > 1000 ? 6 : (width > 700 ? 4 : 3);
+//
+//     return GridView.builder(
+//       shrinkWrap: true,
+//       physics: const NeverScrollableScrollPhysics(),
+//       itemCount: displayedBooks.length,
+//       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+//         crossAxisCount: columns,
+//         mainAxisSpacing: 10,
+//         crossAxisSpacing: 10,
+//         childAspectRatio: isWeb ? 1.0 : 0.85,
+//       ),
+//       itemBuilder: (context, i) {
+//         return Container(
+//           decoration: BoxDecoration(
+//             color: bg,
+//             borderRadius: BorderRadius.circular(12),
+//             border: Border.all(color: border),
+//           ),
+//           child: Column(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: [
+//               Icon(
+//                 Icons.menu_book_rounded,
+//                 color: displayedBooks[i]['color'] as Color,
+//                 size: isWeb ? 35 : 24,
+//               ),
+//               const SizedBox(height: 8),
+//               Text(
+//                 displayedBooks[i]['t'] as String,
+//                 style: TextStyle(
+//                   color: textC,
+//                   fontWeight: FontWeight.bold,
+//                   fontSize: isWeb ? 14 : 11,
+//                 ),
+//                 textAlign: TextAlign.center,
+//               ),
+//             ],
+//           ),
+//         );
+//       },
+//     );
+//   }
+//
+//   Widget _buildQuickAccessRow(
+//     Color bg,
+//     Color gold,
+//     Color border,
+//     Color textC,
+//     bool isWeb,
+//   ) {
+//     final allItems = [
+//       {'n': 'পছন্দ', 'i': Icons.favorite_border},
+//       {'n': 'ইতিহাস', 'i': Icons.history},
+//       {'n': 'নোটস', 'i': Icons.edit_note},
+//       {'n': 'সেভ', 'i': Icons.bookmark_border},
+//       {'n': 'শেয়ার', 'i': Icons.share},
+//       {'n': 'ডাউনলোড', 'i': Icons.download},
+//       // সব দেখুন-এ ক্লিক করলে এগুলো আসবে
+//       {'n': 'তালিক', 'i': Icons.list_alt},
+//       {'n': 'সেটিংস', 'i': Icons.settings_outlined},
+//     ];
+//
+//     final displayedItems = _showAllQuickAccess
+//         ? allItems
+//         : allItems.take(6).toList();
+//
+//     return LayoutBuilder(
+//       builder: (context, constraints) {
+//         // মোট জায়গা থেকে স্পেসিং বাদ দিয়ে উইডথ বের করা
+//         // ওয়েবে ৬টি এবং মোবাইলে ৩টি আইটেম এক সারিতে থাকবে
+//         int crossAxisCount = isWeb ? 6 : 3;
+//         double spacing = 10.0;
+//         double totalSpacing = (crossAxisCount - 1) * spacing;
+//         double cardWidth =
+//             (constraints.maxWidth - totalSpacing) / crossAxisCount;
+//
+//         return Wrap(
+//           spacing: spacing,
+//           runSpacing: spacing,
+//           children: displayedItems.map((e) {
+//             return Container(
+//               width: cardWidth, // নির্দিষ্ট উইডথ নিশ্চিত করা হলো
+//               padding: const EdgeInsets.symmetric(vertical: 16),
+//               decoration: BoxDecoration(
+//                 color: bg,
+//                 borderRadius: BorderRadius.circular(12),
+//                 border: Border.all(color: border),
+//               ),
+//               child: Column(
+//                 mainAxisSize: MainAxisSize.min,
+//                 children: [
+//                   Icon(e['i'] as IconData, color: gold, size: isWeb ? 26 : 22),
+//                   const SizedBox(height: 8),
+//                   Text(
+//                     e['n'] as String,
+//                     style: TextStyle(
+//                       color: textC,
+//                       fontSize: isWeb ? 14 : 11,
+//                       fontWeight: FontWeight.w500,
+//                     ),
+//                     textAlign: TextAlign.center,
+//                     maxLines: 1,
+//                     overflow: TextOverflow.ellipsis,
+//                   ),
+//                 ],
+//               ),
+//             );
+//           }).toList(),
+//         );
+//       },
+//     );
+//   }
+//
+//   Widget _buildCategoryWrap(Color border, Color textC, Color bg, bool isWeb) {
+//     final tags = [
+//       'ঈমান',
+//       'নামায',
+//       'রোযা',
+//       'হজ্জ',
+//       'আখলাক',
+//       'দুয়া ও যিকির',
+//       'জান্নাত',
+//     ];
+//     return Wrap(
+//       spacing: 10,
+//       runSpacing: 10,
+//       children: tags
+//           .map(
+//             (t) => Container(
+//               padding: EdgeInsets.symmetric(
+//                 horizontal: isWeb ? 26 : 16,
+//                 vertical: isWeb ? 14 : 8,
+//               ),
+//               decoration: BoxDecoration(
+//                 color: bg,
+//                 borderRadius: BorderRadius.circular(30),
+//                 border: Border.all(color: border),
+//               ),
+//               child: Text(
+//                 t,
+//                 style: TextStyle(color: textC, fontSize: isWeb ? 16 : 13),
+//               ),
+//             ),
+//           )
+//           .toList(),
+//     );
+//   }
+//
+//   Widget _buildDailyLifeSection(
+//     Color bg,
+//     Color border,
+//     Color textC,
+//     Color iconC,
+//     bool isWeb,
+//   ) {
+//     final items = [
+//       'সকালে ও সন্ধ্যায় পড়ার দোয়া',
+//       'খাওয়ার আদব ও সুন্নাত',
+//       'ঘুমের দোয়া ও আমল',
+//       'মসজিদে প্রবেশের দুয়া',
+//     ];
+//     return Column(
+//       children: items
+//           .map(
+//             (item) => Container(
+//               margin: const EdgeInsets.only(bottom: 12),
+//               padding: EdgeInsets.all(isWeb ? 25 : 15),
+//               decoration: BoxDecoration(
+//                 color: bg,
+//                 borderRadius: BorderRadius.circular(15),
+//                 border: Border.all(color: border),
+//               ),
+//               child: Row(
+//                 children: [
+//                   Icon(
+//                     Icons.stars_rounded,
+//                     size: isWeb ? 28 : 22,
+//                     color: iconC,
+//                   ),
+//                   const SizedBox(width: 15),
+//                   Expanded(
+//                     child: Text(
+//                       item,
+//                       style: TextStyle(color: textC, fontSize: isWeb ? 18 : 14),
+//                     ),
+//                   ),
+//                   const Icon(
+//                     Icons.arrow_forward_ios,
+//                     size: 14,
+//                     color: Colors.grey,
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           )
+//           .toList(),
+//     );
+//   }
+//
+//   Widget _buildRecentReadCard(Color bg, Color border, Color textC, bool isWeb) {
+//     return Container(
+//       width: double.infinity,
+//       padding: const EdgeInsets.all(16),
+//       decoration: BoxDecoration(
+//         color: bg,
+//         borderRadius: BorderRadius.circular(15),
+//         border: Border.all(color: border),
+//       ),
+//       child: Row(
+//         children: [
+//           const Icon(Icons.menu_book, color: Colors.orange),
+//           const SizedBox(width: 15),
+//           Expanded(
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Text(
+//                   "সহীহ বুখারী - হাদিস নং ১",
+//                   style: TextStyle(color: textC, fontWeight: FontWeight.bold),
+//                 ),
+//                 const Text(
+//                   "নিশ্চয়ই নিয়তের ওপর আমল নির্ভরশীল...",
+//                   style: TextStyle(color: Colors.grey, fontSize: 12),
+//                   overflow: TextOverflow.ellipsis,
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+//
+//   Widget _buildHeader(
+//     String title,
+//     Color color,
+//     bool isWeb, {
+//     bool showSeeAll = false,
+//     Color? gold,
+//     VoidCallback? onTapSeeAll,
+//     bool isExpanded = false,
+//   }) {
+//     return Padding(
+//       padding: const EdgeInsets.symmetric(vertical: 10),
+//       child: Row(
+//         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//         children: [
+//           Text(
+//             title,
+//             style: TextStyle(
+//               fontSize: isWeb ? 22 : 18,
+//               fontWeight: FontWeight.bold,
+//               color: color,
+//             ),
+//           ),
+//           if (showSeeAll)
+//             InkWell(
+//               onTap: onTapSeeAll,
+//               child: Text(
+//                 isExpanded ? 'কম দেখুন' : 'সব দেখুন',
+//                 style: TextStyle(
+//                   color: gold,
+//                   fontWeight: FontWeight.bold,
+//                   fontSize: isWeb ? 15 : 13,
+//                 ),
+//               ),
+//             ),
+//         ],
+//       ),
+//     );
+//   }
+//
+//   Widget _buildBottomNav(bool isDark, Color bg, Color gold, bool isWeb) {
+//     return BottomNavigationBar(
+//       backgroundColor: isDark ? const Color(0xFF0D1F1D) : Colors.white,
+//       selectedItemColor: gold,
+//       unselectedItemColor: Colors.grey,
+//       type: BottomNavigationBarType.fixed,
+//       iconSize: isWeb ? 32 : 24,
+//       items: const [
+//         BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'হোম'),
+//         BottomNavigationBarItem(
+//           icon: Icon(Icons.menu_book),
+//           label: 'গ্রন্থসমূহ',
+//         ),
+//         BottomNavigationBarItem(
+//           icon: Icon(Icons.bookmark_outline),
+//           label: 'সংরক্ষিত',
+//         ),
+//         BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'সেটিংস'),
+//       ],
+//     );
+//   }
+// }
 
-class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key});
+import 'package:flutter/material.dart';
+import 'package:hadith_ai/widgets/app_theme.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _isDark = true;
+
+  // প্রতিটি সেকশনের জন্য আলাদা কন্ট্রোল ভেরিয়েবল
+  bool _showAllBooks = false;
+  bool _showAllQuickAccess = false;
+  bool _showAllCategories = false;
+  bool _showAllDailyLife = false;
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isWeb = screenWidth > 950;
+
+    final Color gold = AppThemes.accentGold;
+    final Color scaffoldBg = _isDark
+        ? AppThemes.darkBackground
+        : AppThemes.lightBackground;
+    final Color appBarBg = _isDark
+        ? const Color(0xFF0D1F1D)
+        : AppThemes.primaryGreen;
+    final Color cardBg = _isDark ? const Color(0xFF111817) : Colors.white;
+    final Color textColor = _isDark ? Colors.white : Colors.black87;
+    final Color borderColor = _isDark
+        ? Colors.white10
+        : const Color(0xFFE5E7EB);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF020404), // Midnight Black (সবচেয়ে ফ্রেশ ডার্ক)
-      floatingActionButton: _buildSoulfulBot(),
-      body: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 950), // Web View 950px
-          child: CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              _buildSimpleAppBar(),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 20),
-                      _buildMinimalGreeting(),
-                      const SizedBox(height: 50),
-
-                      // Siha Sitta - Pure Clean Cards
-                      _buildSectionLabel("THE SIHA SITTA"),
-                      const SizedBox(height: 25),
-                      _buildSihaSittaGrid(context),
-
-                      const SizedBox(height: 50),
-
-                      // Explore Section
-                      _buildSectionLabel("BEYOND SIX BOOKS"),
-                      const SizedBox(height: 20),
-                      _buildExploreHorizontal(),
-
-                      const SizedBox(height: 60),
-                      _buildAppTrustInfo(),
-                      const SizedBox(height: 120),
-                    ],
+      backgroundColor: scaffoldBg,
+      appBar: AppBar(
+        backgroundColor: appBarBg,
+        elevation: 0,
+        centerTitle: true,
+        title: Center(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 1100),
+            child: Row(
+              children: [
+                Text(
+                  'আল-হাদীস',
+                  style: TextStyle(
+                    color: gold,
+                    fontSize: isWeb ? 28 : 22,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
+                const Spacer(),
+                Icon(
+                  _isDark ? Icons.dark_mode : Icons.light_mode,
+                  color: gold,
+                  size: isWeb ? 24 : 18,
+                ),
+                Switch(
+                  value: _isDark,
+                  activeColor: gold,
+                  onChanged: (value) => setState(() => _isDark = value),
+                ),
+                IconButton(
+                  icon: Icon(Icons.search, color: gold, size: isWeb ? 30 : 24),
+                  onPressed: () {},
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            // ১. সার্চ সেকশন
+            Container(
+              color: appBarBg,
+              width: double.infinity,
+              padding: const EdgeInsets.only(bottom: 40, top: 10),
+              child: Center(
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 1100),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: _buildSearchSection(isWeb, _isDark),
+                ),
               ),
-            ],
+            ),
+
+            // ২. বডি কন্টেন্ট
+            Center(
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 1100),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10),
+                    _buildHeader('আজকের হাদিস', textColor, isWeb),
+                    _buildHeroCard(cardBg, gold, borderColor, textColor, isWeb),
+
+                    const SizedBox(height: 20),
+                    _buildHeader('হাদীস গ্রন্থসমূহ', textColor, isWeb),
+                    _buildBookGrid(
+                      screenWidth,
+                      cardBg,
+                      borderColor,
+                      textColor,
+                      isWeb,
+                    ),
+                    _buildSeeAllButton(
+                      _showAllBooks,
+                      () => setState(() => _showAllBooks = !_showAllBooks),
+                      gold,
+                      isWeb,
+                    ),
+
+                    const SizedBox(height: 20),
+                    _buildHeader('দ্রুত অ্যাক্সেস', textColor, isWeb),
+                    _buildQuickAccessRow(
+                      cardBg,
+                      gold,
+                      borderColor,
+                      textColor,
+                      isWeb,
+                    ),
+                    _buildSeeAllButton(
+                      _showAllQuickAccess,
+                      () => setState(
+                        () => _showAllQuickAccess = !_showAllQuickAccess,
+                      ),
+                      gold,
+                      isWeb,
+                    ),
+
+                    const SizedBox(height: 20),
+                    _buildHeader('হাদীস বিষয়ভিত্তিক', textColor, isWeb),
+                    _buildCategoryWrap(borderColor, textColor, cardBg, isWeb),
+                    _buildSeeAllButton(
+                      _showAllCategories,
+                      () => setState(
+                        () => _showAllCategories = !_showAllCategories,
+                      ),
+                      gold,
+                      isWeb,
+                    ),
+
+                    const SizedBox(height: 20),
+                    _buildHeader('দৈনন্দিন জীবনের হাদীস', textColor, isWeb),
+                    _buildDailyLifeSection(
+                      cardBg,
+                      borderColor,
+                      textColor,
+                      AppThemes.primaryGreen,
+                      isWeb,
+                    ),
+                    _buildSeeAllButton(
+                      _showAllDailyLife,
+                      () => setState(
+                        () => _showAllDailyLife = !_showAllDailyLife,
+                      ),
+                      gold,
+                      isWeb,
+                    ),
+
+                    const SizedBox(height: 20),
+                    _buildHeader('সাম্প্রতিক পঠিত', textColor, isWeb),
+                    _buildRecentReadCard(cardBg, borderColor, textColor, isWeb),
+
+                    const SizedBox(height: 50),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        color: _isDark ? const Color(0xFF0D1F1D) : Colors.white,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: isWeb ? 1100 : screenWidth,
+              child: _buildBottomNav(_isDark, appBarBg, gold, isWeb),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // --- হেল্পার উইজেটস ---
+
+  Widget _buildHeader(String title, Color color, bool isWeb) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: isWeb ? 22 : 18,
+          fontWeight: FontWeight.bold,
+          color: color,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSeeAllButton(
+    bool isExpanded,
+    VoidCallback onTap,
+    Color gold,
+    bool isWeb,
+  ) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: TextButton.icon(
+        onPressed: onTap,
+        icon: Icon(
+          isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+          color: gold,
+          size: 20,
+        ),
+        label: Text(
+          isExpanded ? 'কম দেখুন' : 'সব দেখুন',
+          style: TextStyle(
+            color: gold,
+            fontWeight: FontWeight.bold,
+            fontSize: isWeb ? 15 : 13,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildSimpleAppBar() {
-    return SliverAppBar(
-      backgroundColor: const Color(0xFF020404),
-      elevation: 0,
-      pinned: true,
-      centerTitle: false,
-      title: const Text("Hadith AI",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w300, fontSize: 24, letterSpacing: 1)),
-      actions: [
-        IconButton(icon: const Icon(Icons.blur_on, color: Color(0xFF00C853)), onPressed: () {}),
-      ],
+  Widget _buildSearchSection(bool isWeb, bool isDark) {
+    return Container(
+      constraints: BoxConstraints(maxWidth: isWeb ? 650 : double.infinity),
+      height: isWeb ? 50 : 45,
+      decoration: BoxDecoration(
+        color: isDark ? Colors.white.withOpacity(0.1) : Colors.white,
+        borderRadius: BorderRadius.circular(35),
+        border: Border.all(
+          color: isDark ? Colors.white10 : Colors.black.withOpacity(0.05),
+        ),
+      ),
+      child: Center(
+        child: TextField(
+          textAlignVertical: TextAlignVertical.center,
+          style: TextStyle(
+            color: isDark ? Colors.white : Colors.black,
+            fontSize: isWeb ? 16 : 14,
+          ),
+          decoration: InputDecoration(
+            hintText: 'হাদীস খুঁজুন...',
+            hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+            prefixIcon: Icon(
+              Icons.search,
+              color: Colors.grey,
+              size: isWeb ? 22 : 20,
+            ),
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.zero,
+            isDense: true,
+          ),
+        ),
+      ),
     );
   }
 
-  Widget _buildMinimalGreeting() {
-    return const Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("Peace be with you,", style: TextStyle(color: Colors.white38, fontSize: 18)),
-        SizedBox(height: 8),
-        Text("Find your guidance.", style: TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w200)),
-      ],
-    );
-  }
+  Widget _buildBookGrid(
+    double width,
+    Color bg,
+    Color border,
+    Color textC,
+    bool isWeb,
+  ) {
+    final allBooks = [
+      {'t': 'সহীহ বুখারী', 'c': '৭৫৬৩', 'color': Colors.teal},
+      {'t': 'সহীহ মুসলিম', 'c': '৭৫০০', 'color': Colors.green},
+      {'t': 'সুনান আবু দাউদ', 'c': '৫২৭৪', 'color': Colors.orange},
+      {'t': 'সুনান তিরমিযী', 'c': '৩৯৫৬', 'color': Colors.red},
+      {'t': 'সুনান নাসাঈ', 'c': '৫৭৫৮', 'color': Colors.blue},
+      {'t': 'ইবনে মাজাহ', 'c': '৪৩৪১', 'color': Colors.purple},
+      {'t': 'মুয়াত্তা মালিক', 'c': '১৭২০', 'color': Colors.brown},
+      {'t': 'রিয়াদুস সালেহীন', 'c': '১৯০৫', 'color': Colors.indigo},
+    ];
+    final displayedBooks = _showAllBooks ? allBooks : allBooks.take(6).toList();
+    int columns = width > 1000 ? 6 : (width > 700 ? 4 : 3);
 
-  Widget _buildSectionLabel(String title) {
-    return Text(title, style: const TextStyle(color: Color(0xFFFFD700), fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 3));
-  }
-
-  // Siha Sitta Grid - No Box, Pure Clean UI
-  Widget _buildSihaSittaGrid(BuildContext context) {
-    final List<String> books = ["Bukhari", "Muslim", "Nasa'i", "Abu Dawood", "Tirmidhi", "Ibn Majah"];
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: books.length,
+      itemCount: displayedBooks.length,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2,
-        mainAxisSpacing: 30, crossAxisSpacing: 30, childAspectRatio: 1,
+        crossAxisCount: columns,
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+        childAspectRatio: isWeb ? 1.0 : 0.85,
       ),
-      itemBuilder: (context, index) {
+      itemBuilder: (context, i) {
         return Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF0A0C0C),
-            borderRadius: BorderRadius.circular(40), // একদম গোলগাল ফ্রেশ লুক
+            color: bg,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: border),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("${index + 1}", style: TextStyle(color: Colors.white.withOpacity(0.05), fontSize: 40, fontWeight: FontWeight.w900)),
-              Text(books[index], style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w400)),
+              Icon(
+                Icons.menu_book_rounded,
+                color: displayedBooks[i]['color'] as Color,
+                size: isWeb ? 35 : 24,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                displayedBooks[i]['t'] as String,
+                style: TextStyle(
+                  color: textC,
+                  fontWeight: FontWeight.bold,
+                  fontSize: isWeb ? 14 : 11,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ],
           ),
         );
@@ -109,59 +1056,306 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildExploreHorizontal() {
-    final others = ["Muwatta Malik", "Riyadus Salihin", "40 Hadith", "Bulugh Al-Maram"];
-    return SizedBox(
-      height: 60,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: others.length,
-        itemBuilder: (context, index) {
-          return Container(
-            margin: const EdgeInsets.only(right: 15),
-            padding: const EdgeInsets.symmetric(horizontal: 25),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.white10),
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: Center(child: Text(others[index], style: const TextStyle(color: Colors.white70))),
-          );
-        },
-      ),
+  Widget _buildQuickAccessRow(
+    Color bg,
+    Color gold,
+    Color border,
+    Color textC,
+    bool isWeb,
+  ) {
+    final allItems = [
+      {'n': 'পছন্দ', 'i': Icons.favorite_border},
+      {'n': 'ইতিহাস', 'i': Icons.history},
+      {'n': 'নোটস', 'i': Icons.edit_note},
+      {'n': 'সেভ', 'i': Icons.bookmark_border},
+      {'n': 'শেয়ার', 'i': Icons.share},
+      {'n': 'ডাউনলোড', 'i': Icons.download},
+      {'n': 'তালিক', 'i': Icons.list_alt},
+      {'n': 'সেটিংস', 'i': Icons.settings_outlined},
+    ];
+    final displayedItems = _showAllQuickAccess
+        ? allItems
+        : allItems.take(6).toList();
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        int crossAxisCount = isWeb ? 6 : 3;
+        double spacing = 10.0;
+        double cardWidth =
+            (constraints.maxWidth - (crossAxisCount - 1) * spacing) /
+            crossAxisCount;
+
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: displayedItems.map((e) {
+            return Container(
+              width: cardWidth,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: border),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(e['i'] as IconData, color: gold, size: isWeb ? 26 : 22),
+                  const SizedBox(height: 8),
+                  Text(
+                    e['n'] as String,
+                    style: TextStyle(
+                      color: textC,
+                      fontSize: isWeb ? 14 : 11,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        );
+      },
     );
   }
 
-  Widget _buildAppTrustInfo() {
-    return Center(
+  Widget _buildCategoryWrap(Color border, Color textC, Color bg, bool isWeb) {
+    final allTags = [
+      'ঈমান',
+      'নামায',
+      'রোযা',
+      'হজ্জ',
+      'আখলাক',
+      'দুয়া ও যিকির',
+      'জান্নাত',
+      'জাহান্নাম',
+      'লেনদেন',
+      'পরিবার',
+      'কুরআন',
+      'হাদীস',
+      'তওবা',
+      'সালাত',
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // যদি 'সব দেখুন' ক্লিক না করা হয়, তবে শুধু প্রথম সারিতে জায়গা অনুযায়ী ট্যাগ দেখাবে
+        List<String> displayedTags;
+
+        if (_showAllCategories) {
+          displayedTags = allTags;
+        } else {
+          // এখানে একটি আনুমানিক হিসাব করা হয়েছে (ট্যাগের গড় উইডথ + স্পেসিং)
+          // মোবাইলে সাধারণত ৩-৪টি এবং ওয়েবে ৮-১০টি ট্যাগ এক লাইনে ধরে
+          double estimatedTagWidth = isWeb ? 120 : 90;
+          int tagsPerRow = (constraints.maxWidth / estimatedTagWidth).floor();
+          displayedTags = allTags.take(tagsPerRow).toList();
+        }
+
+        return SizedBox(
+          width: double.infinity,
+          child: Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            alignment: WrapAlignment.start,
+            children: displayedTags
+                .map(
+                  (t) => Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isWeb ? 25 : 16,
+                      vertical: isWeb ? 12 : 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: bg,
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(color: border),
+                    ),
+                    child: Text(
+                      t,
+                      style: TextStyle(
+                        color: textC,
+                        fontSize: isWeb ? 15 : 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDailyLifeSection(
+    Color bg,
+    Color border,
+    Color textC,
+    Color iconC,
+    bool isWeb,
+  ) {
+    final allItems = [
+      'সকালে ও সন্ধ্যায় পড়ার দোয়া',
+      'খাওয়ার আদব ও সুন্নাত',
+      'ঘুমের দোয়া ও আমল',
+      'মসজিদে প্রবেশের দুয়া',
+      'রাস্তার হক',
+      'পোশাক পরিধান',
+    ];
+    final displayedItems = _showAllDailyLife
+        ? allItems
+        : allItems.take(3).toList();
+
+    return Column(
+      children: displayedItems
+          .map(
+            (item) => Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: EdgeInsets.all(isWeb ? 25 : 15),
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: border),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.stars_rounded,
+                    size: isWeb ? 28 : 22,
+                    color: iconC,
+                  ),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: Text(
+                      item,
+                      style: TextStyle(color: textC, fontSize: isWeb ? 18 : 14),
+                    ),
+                  ),
+                  const Icon(
+                    Icons.arrow_forward_ios,
+                    size: 14,
+                    color: Colors.grey,
+                  ),
+                ],
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  Widget _buildHeroCard(
+    Color bg,
+    Color gold,
+    Color border,
+    Color textC,
+    bool isWeb,
+  ) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(isWeb ? 45 : 24),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: border),
+      ),
       child: Column(
         children: [
-          const Icon(Icons.verified_user_outlined, color: Color(0xFF00C853), size: 30),
-          const SizedBox(height: 15),
-          Text("Authenticated Sources Only", style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 13)),
+          Icon(Icons.auto_awesome, color: gold, size: isWeb ? 40 : 26),
+          const SizedBox(height: 20),
+          Text(
+            "“প্রকৃত মুসলিম সেই ব্যক্তি, যার জিহ্বা ও হাত থেকে অন্য মুসলিম নিরাপদ থাকে।”",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: textC,
+              fontSize: isWeb ? 22 : 16,
+              fontStyle: FontStyle.italic,
+              height: 1.6,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            "- সহীহ বুখারী",
+            style: TextStyle(color: gold, fontWeight: FontWeight.bold),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildSoulfulBot() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        const Text("HADITH AI", style: TextStyle(color: Color(0xFFFFD700), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 2)),
-        const SizedBox(height: 10),
-        GestureDetector(
-          onTap: () {},
-          child: Container(
-            width: 70, height: 70,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: const LinearGradient(colors: [Color(0xFF00C853), Color(0xFF004D40)]),
-              boxShadow: [BoxShadow(color: const Color(0xFF00C853).withOpacity(0.3), blurRadius: 20, spreadRadius: 2)],
+  Widget _buildRecentReadCard(Color bg, Color border, Color textC, bool isWeb) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: border),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.menu_book, color: Colors.orange),
+          const SizedBox(width: 15),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "সহীহ বুখারী - হাদিস নং ১",
+                  style: TextStyle(color: textC, fontWeight: FontWeight.bold),
+                ),
+                const Text(
+                  "নিশ্চয়ই নিয়তের ওপর আমল নির্ভরশীল...",
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-            child: const Icon(Icons.bubble_chart_outlined, color: Colors.white, size: 35),
           ),
-        ),
-      ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomNav(bool isDark, Color bg, Color gold, bool isWeb) {
+    return Container(
+      // গ্যাপ আরও বাড়ানোর জন্য এখানে ১৭০ পিক্সেল প্যাডিং দেওয়া হয়েছে
+      padding: EdgeInsets.symmetric(horizontal: isWeb ? 0 : 10),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0D1F1D) : Colors.white,
+        boxShadow: [
+          BoxShadow(
+            // লাইট মোডে খুব হালকা শ্যাডো যা বডি থেকে বারকে আলাদা করবে
+            color: Colors.black.withOpacity(isDark ? 0.4 : 0.06),
+            // blurRadius: 15,
+            // spreadRadius: 0,
+            offset: const Offset(0, -3), // শুধুমাত্র উপরের দিকে শ্যাডো
+          ),
+        ],
+      ),
+      child: BottomNavigationBar(
+        backgroundColor: Colors.transparent, // কন্টেইনারের কালার ব্যবহার করবে
+        elevation: 0,
+        selectedItemColor: gold,
+        unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed,
+        iconSize: isWeb ? 32 : 24,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'হোম'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.menu_book),
+            label: 'গ্রন্থসমূহ',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bookmark_outline),
+            label: 'সংরক্ষিত',
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'সেটিংস'),
+        ],
+      ),
     );
   }
 }
