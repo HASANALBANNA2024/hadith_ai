@@ -217,7 +217,7 @@ class ChapterListScreen extends StatelessWidget {
           );
         },
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Row(
             mainAxisAlignment:
                 MainAxisAlignment.center, // পুরো রো মাঝখানে থাকবে
