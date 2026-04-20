@@ -247,87 +247,144 @@ class _HomeScreenState extends State<HomeScreen> {
   // --- Helper Widgets ---
 
   Widget _buildBookGrid(
-    double width,
-    Color bg,
-    Color border,
-    Color textC,
-    bool isWeb,
-    List<HadithBookModel> books,
-  ) {
+      double width,
+      Color bg,
+      Color border,
+      Color textC,
+      bool isWeb,
+      List<HadithBookModel> books,
+      ) {
+    final filteredBooks = books.where((book) {
+      return book.hadithCount != null && book.hadithCount != '0' && book.hadithCount != '';
+    }).toList();
+
     int columns = width > 1000 ? 6 : (width > 700 ? 4 : 3);
+
+    // ১. ভিন্ন ভিন্ন আইকনের লিস্ট
+    final List<IconData> islamicIcons = [
+      Icons.menu_book_rounded,
+      Icons.auto_stories,
+      Icons.book_rounded,
+      Icons.import_contacts,
+      Icons.library_books,
+      Icons.collections_bookmark_rounded,
+    ];
+
+    // ২. ভিন্ন ভিন্ন আইকন কালারের লিস্ট
+    final List<Color> iconColors = [
+      const Color(0xFFE4C381), // Gold
+      const Color(0xFF4CAF50), // Green
+      const Color(0xFF2196F3), // Blue
+      const Color(0xFFF44336), // Red
+      const Color(0xFFFF9800), // Orange
+      const Color(0xFF9C27B0), // Purple
+    ];
 
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: books.length,
+      itemCount: filteredBooks.length,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: columns,
         mainAxisSpacing: 10,
         crossAxisSpacing: 10,
-        childAspectRatio: isWeb ? 1.0 : 0.85,
+        childAspectRatio: isWeb ? 1.0 : 0.82,
       ),
       itemBuilder: (context, i) {
-        final book = books[i];
+        final book = filteredBooks[i];
+
+        // ইনডেক্স অনুযায়ী আইকন ও কালার সিলেক্ট করা
+        final dynamicIcon = islamicIcons[i % islamicIcons.length];
+        final dynamicColor = iconColors[i % iconColors.length];
 
         return Container(
           decoration: BoxDecoration(
             color: bg,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: border),
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(color: border.withOpacity(0.5), width: 1),
           ),
           child: InkWell(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(15),
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => ChapterListScreen(
                     bookTitle: book.bookName,
-                    bookSlug: book.bookSlug, // এখানে book.bookSlug ই থাকবে
+                    bookSlug: book.bookSlug,
                     isDarkStatus: _isDark,
                   ),
                 ),
               );
             },
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.menu_book_rounded,
-                  color: Color(0xFFE4C381),
-                  size: 30,
-                ),
-                const SizedBox(height: 8),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Column(
-                    children: [
-                      Text(
-                        book.bookName,
-                        style: TextStyle(
-                          color: textC,
-                          fontWeight: FontWeight.bold,
-                          fontSize: isWeb ? 14 : 11,
-                        ),
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Text(
-                        "${book.hadithCount} টি হাদীস",
-                        style: const TextStyle(color: Colors.grey, fontSize: 9),
-                      ),
-                    ],
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // ৩. আইকন (প্রতিটি বইয়ের জন্য আলাদা আইকন ও কালার)
+                  Icon(
+                    dynamicIcon,
+                    color: dynamicColor,
+                    size: isWeb ? 30 : 25,
                   ),
-                ),
-              ],
+
+                  const SizedBox(height: 6),
+
+                  // ৪. আরবি নাম (আগের মতোই)
+                  Text(
+                    book.bookNameArabic ?? "",
+                    style: const TextStyle(
+                      color: Color(0xFFB8860B),
+                      fontSize: 16,
+                      fontFamily: 'Amiri',
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  // ৫. ইংরেজি নাম (আগের মতোই)
+                  Text(
+                    book.bookName,
+                    style: TextStyle(
+                      color: textC,
+                      fontWeight: FontWeight.w900,
+                      fontSize: isWeb ? 13 : 10.5,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // ৬. হাদিস সংখ্যা (আগের মতোই)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: textC.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      "${book.hadithCount} HADITHS",
+                      style: TextStyle(
+                        color: textC.withOpacity(0.6),
+                        fontSize: 8.5,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
       },
     );
   }
-
   // (বাকি সকল হেল্পার মেথড যেমন Header, SearchSection, HeroCard, BottomNav ইত্যাদি আপনার অরিজিনাল কোডের মতোই থাকবে)
 
   Widget _buildHeader(String title, Color color, bool isWeb) {

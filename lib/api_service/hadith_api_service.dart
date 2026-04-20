@@ -85,6 +85,7 @@ class HadithApiService {
   }
 
   // --- ৩. সকল বইয়ের তালিকা লোড করার মেথড ---
+// --- সকল বইয়ের তালিকা লোড করার মেথড ---
   Future<List<HadithBookModel>> fetchAllBooks() async {
     final url = Uri.parse('$baseUrl/books?apiKey=$apiKey');
     try {
@@ -94,12 +95,33 @@ class HadithApiService {
           utf8.decode(response.bodyBytes),
         );
         List dynamicList = data['books'] ?? [];
+
+        // কনসোলে চেক করার জন্য প্রিন্ট (ঐচ্ছিক)
+        print("DEBUG: API Data for UI -> ${json.encode(dynamicList)}");
+
         return dynamicList.map((item) {
-          return HadithBookModel.fromJson({
-            'book_name': item['bookName'],
-            'book_slug': item['bookSlug'],
-            'hadith_count': (item['hadiths_count'] ?? '0').toString(),
-          });
+          String slug = item['bookSlug'] ?? '';
+
+          // আরবি নামের ম্যাপ - যা এপিআই-তে নেই কিন্তু আমরা যোগ করছি
+          Map<String, String> arabicNames = {
+            'sahih-bukhari': 'صحيح البخاري',
+            'sahih-muslim': 'صحيح مسلم',
+            'al-tirmidhi': 'جامع الترمذي',
+            'abu-dawood': 'سن أبي داود',
+            'ibn-e-majah': 'سن ابن ماجه',
+            'sunan-nasai': 'سن النسائي',
+            'mishkat': 'مشكاة المصابيح',
+            'musnad-ahmad': 'مسند أحمد',
+            'al-silsila-sahiha': 'السلسلة الصحيحة',
+          };
+
+          return HadithBookModel(
+            bookName: item['bookName'] ?? 'Unknown Book',
+            bookSlug: slug,
+            hadithCount: (item['hadiths_count'] ?? '0').toString(),
+            // আরবি নাম থাকলে দিবে, না থাকলে ইংরেজি নামটাই ব্যাকআপ হিসেবে নিবে
+            bookNameArabic: arabicNames[slug] ?? item['bookName'],
+          );
         }).toList();
       }
     } catch (e) {
