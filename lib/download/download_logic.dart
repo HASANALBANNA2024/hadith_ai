@@ -1,86 +1,77 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import '../api_service/hadith_api_service.dart';
-import '../model/hadith_book_model.dart';
+import '../model/hadith_model.dart';
 import '../model/chapter_model.dart';
+import '../model/hadith_book_model.dart';
 
 class DownloadLogic {
-  static const String metaBoxName = 'download_metadata'; // ডাউনলোড স্ট্যাটাস সেভ করার জন্য
-  static const String cacheBoxName = 'app_cache';       // কিতাব ও চ্যাপ্টার লিস্ট ক্যাশ করার জন্য
-  static final HadithApiService _apiService = HadithApiService();
+  static const String cacheBoxName = 'app_cache';
+  static const String metaBoxName = 'download_metadata';
 
-  // ১. অ্যাপ ওপেন হওয়ার সময় বক্স চেক এবং ওপেন করার মেথড
-  static Future<void> checkAndOpenBox() async {
-    if (!Hive.isBoxOpen(cacheBoxName)) {
-      await Hive.openBox(cacheBoxName);
-    }
-    if (!Hive.isBoxOpen(metaBoxName)) {
-      await Hive.openBox(metaBoxName);
-    }
+  // এপিআই থেকে সব বই আনা
+  static Future<List<HadithBookModel>> getAllBooks() async {
+    return await HadithApiService().fetchAllBooks();
   }
 
-  // ২. অ্যাপ ওপেন হওয়ার সময় ডাটা ক্যাশ করা
-  static Future<void> cacheAllDataOnStart() async {
-    await checkAndOpenBox(); // বক্স ওপেন নিশ্চিত করা
-    var cBox = Hive.box(cacheBoxName);
-
-    try {
-      if (cBox.get('all_books') == null) {
-        final List<HadithBookModel> books = await _apiService.fetchAllBooks();
-        await cBox.put('all_books', books.map((e) => e.toJson()).toList());
-      }
-
-      List cachedBooksRaw = cBox.get('all_books', defaultValue: []);
-      for (var bookMap in cachedBooksRaw.take(6)) {
-        String slug = bookMap['bookSlug'];
-        if (cBox.get('chapters_$slug') == null) {
-          final List<ChapterModel> chapters = await _apiService.fetchChapters(slug);
-          await cBox.put('chapters_$slug', chapters.map((e) => e.toJson()).toList());
-        }
-      }
-    } catch (e) {
-      print("Pre-caching Error: $e");
-    }
+  // ক্যাশ থেকে বইয়ের তালিকা আনা
+  static List<HadithBookModel> getCachedBooks() {
+    var box = Hive.box(cacheBoxName);
+    List? data = box.get("all_books");
+    if (data == null) return [];
+    return data.map((e) => HadithBookModel.fromJson(Map<String, dynamic>.from(e))).toList();
   }
 
-  // ৩. ক্যাশ থেকে কিতাব লিস্ট নেওয়া (Async ফিক্স করা হয়েছে)
-  static Future<List<HadithBookModel>> getCachedBooks() async {
-    await checkAndOpenBox(); // বক্স ওপেন নিশ্চিত করা
-    var cBox = Hive.box(cacheBoxName);
-    List rawData = cBox.get('all_books', defaultValue: []);
-    return rawData.map((e) => HadithBookModel.fromJson(Map<String, dynamic>.from(e))).toList();
+  // এপিআই থেকে চ্যাপ্টার আনা
+  static Future<List<ChapterModel>> getChapters(String slug) async {
+    return await HadithApiService().fetchChapters(slug);
   }
 
-  // ৪. ক্যাশ থেকে চ্যাপ্টার লিস্ট নেওয়া
+  // ক্যাশ থেকে চ্যাপ্টার আনা
   static List<ChapterModel> getCachedChapters(String slug) {
-    // এটি synchronous কারণ সচরাচর বক্স ওপেন থাকেই, তাও সেফটি চেক
-    if (!Hive.isBoxOpen(cacheBoxName)) return [];
-    var cBox = Hive.box(cacheBoxName);
-    List rawData = cBox.get('chapters_$slug', defaultValue: []);
-    return rawData.map((e) => ChapterModel.fromJson(Map<String, dynamic>.from(e), slug)).toList();
+    var box = Hive.box(cacheBoxName);
+    List? data = box.get("chapters_$slug");
+    if (data == null) return [];
+    return data.map((e) => ChapterModel.fromJson(Map<String, dynamic>.from(e), slug)).toList();
   }
 
-  // ৫. ডাউনলোড চেক করা
-  static bool isDownloaded(String id) {
-    if (!Hive.isBoxOpen(metaBoxName)) return false;
-    return Hive.box(metaBoxName).containsKey(id);
+  static Future<void> downloadFullChapter(String bookSlug, String chapterId) async {
+    final String cacheKey = "hadiths_${bookSlug}_$chapterId";
+    final api = HadithApiService();
+    try {
+      List<HadithModel> hadiths = await api.fetchHadiths(bookSlug, chapterId);
+      if (hadiths.isNotEmpty) {
+        await Hive.box(cacheBoxName).put(cacheKey, hadiths.map((e) => e.toJson()).toList());
+        await Hive.box(metaBoxName).put("${bookSlug}_$chapterId", true);
+      }
+    } catch (e) { print("Error: $e"); }
   }
 
-  // ৬. ডাউনলোড টগল
-  static Future<void> toggleDownload(String id, String name) async {
-    await checkAndOpenBox(); // ডাউনলোড করার আগে বক্স চেক
-    final box = Hive.box(metaBoxName);
-    if (box.containsKey(id)) {
-      await box.delete(id);
+  static Future<void> downloadFullBook(String bookSlug) async {
+    final api = HadithApiService();
+    try {
+      List<ChapterModel> chapters = await api.fetchChapters(bookSlug);
+      for (var ch in chapters) {
+        await downloadFullChapter(bookSlug, ch.id.toString());
+      }
+      await Hive.box(metaBoxName).put("full_book_$bookSlug", true);
+    } catch (e) { print("Full Book Error: $e"); }
+  }
+
+  static Future<void> toggleDownload(String bookSlug, String chapterId, String name) async {
+    final String metaKey = "${bookSlug}_$chapterId";
+    if (isDownloaded(bookSlug, chapterId)) {
+      await Hive.box(cacheBoxName).delete("hadiths_$metaKey");
+      await Hive.box(metaBoxName).delete(metaKey);
     } else {
-      await box.put(id, {
-        'id': id,
-        'name': name,
-        'timestamp': DateTime.now().millisecondsSinceEpoch,
-      });
+      await downloadFullChapter(bookSlug, chapterId);
     }
   }
 
-  // সরাসরি এপিআই কল
-  static Future<List<HadithBookModel>> getAllBooks() async => await _apiService.fetchAllBooks();
-  static Future<List<ChapterModel>> getChapters(String bookSlug) async => await _apiService.fetchChapters(bookSlug);
+  static bool isDownloaded(String bookSlug, String chapterId) {
+    return Hive.box(metaBoxName).containsKey("${bookSlug}_$chapterId");
+  }
+
+  static Future<void> cacheAllDataOnStart() async {
+    print("Startup background tasks completed.");
+  }
 }

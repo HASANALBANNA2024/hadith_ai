@@ -22,16 +22,13 @@ class ChapterModel {
   };
 
   factory ChapterModel.fromJson(Map<String, dynamic> json, String slug) {
-    // কনসোলে আমরা দেখেছি কী-র নাম 'chapterTitle'
     return ChapterModel(
       id: json['id'] is int ? json['id'] : int.tryParse(json['id'].toString()) ?? 0,
       chapterNumber: json['chapterNumber']?.toString() ?? '0',
-
-      // এপিআই থেকে সরাসরি 'chapterTitle' রিড করুন
-      chapterTitle: json['chapterTitle'] ??
-          json['chapterEnglish'] ??
+      // আপনার প্রিন্ট অনুযায়ী সঠিক কী: chapterEnglish
+      chapterTitle: json['chapterEnglish'] ??
+          json['chapterTitle'] ??
           json['chapter_english'] ?? 'No Title Found',
-
       bookSlug: json['bookSlug'] ?? slug,
       hadithCount: (json['hadithCount'] ?? json['hadiths_count'] ?? '0').toString(),
     );

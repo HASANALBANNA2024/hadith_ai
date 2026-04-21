@@ -4,6 +4,7 @@ import '../model/hadith_book_model.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../model/chapter_model.dart';
 
+
 class DownloadScreen extends StatefulWidget {
   final bool isDark;
   const DownloadScreen({super.key, required this.isDark});
@@ -116,6 +117,8 @@ class _DownloadScreenState extends State<DownloadScreen> {
       ),
     );
   }
+  // ডাউনলোড টগল লজিক
+
 
   @override
   Widget build(BuildContext context) {
@@ -281,7 +284,15 @@ class _DownloadScreenState extends State<DownloadScreen> {
   }
 
   Widget _buildDownloadTile(String name, String id, String hadithCount, Color bg, Color txt, {bool isBook = false}) {
-    bool isDown = DownloadLogic.isDownloaded(id);
+    // ১. বই বা চ্যাপ্টারের জন্য সঠিক স্লাগ এবং আইডি নির্ধারণ
+    String bSlug = isBook ? id : (selectedBookSlug ?? "");
+
+    // চ্যাপ্টার হলে আইডি থেকে শেষ অংশ (নাম্বার) নেওয়া, বই হলে "full" ফ্ল্যাগ ব্যবহার
+    String cId = isBook ? "full" : id.split('_').last;
+
+    // ২. হাইভ থেকে চেক করা (এটি অ্যাপ রিস্টার্ট দিলেও ডাটা রিড করবে)
+    bool isDown = DownloadLogic.isDownloaded(bSlug, cId);
+
     String dynamicSize = _calculateSize(hadithCount);
 
     return Card(
@@ -290,25 +301,56 @@ class _DownloadScreenState extends State<DownloadScreen> {
       margin: const EdgeInsets.only(bottom: 10),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey.withOpacity(0.2), width: 1),
+        side: BorderSide(color: Colors.grey.withOpacity(0.1), width: 1),
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-        title: Text(name, style: TextStyle(color: txt, fontWeight: FontWeight.w600, fontSize: 15)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        title: Text(
+            name,
+            style: TextStyle(color: txt, fontWeight: FontWeight.w600, fontSize: 15)
+        ),
         subtitle: Text(
-          isBook ? "$hadithCount Hadiths • $dynamicSize" : "Size: $dynamicSize",
+          isBook ? "$hadithCount হাদিস • $dynamicSize" : "সাইজ: $dynamicSize",
           style: TextStyle(color: txt.withOpacity(0.5), fontSize: 12),
         ),
         trailing: IconButton(
-          icon: Icon(
-            isDown ? Icons.check_circle_rounded : Icons.cloud_download_outlined,
-            color: isDown ? Colors.green : Colors.blueAccent,
-            size: 28,
+          // আইকন সরাসরি হাইভের ডাটার ওপর নির্ভর করবে
+          icon: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: Icon(
+              isDown ? Icons.check_circle_rounded : Icons.cloud_download_outlined,
+              key: ValueKey<bool>(isDown),
+              color: isDown ? Colors.green : Colors.blueAccent,
+              size: 28,
+            ),
           ),
           onPressed: () async {
-            await DownloadLogic.toggleDownload(id, name);
-            if (mounted) setState(() {});
-            if (!isDown) _showSuccessDialog(name);
+            // ডাউনলোড শুরু করার আগে ইউজারকে ছোট একটি ফিডব্যাক দেওয়া (অপশনাল)
+            if (!isDown) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("$name ডাউনলোড শুরু হচ্ছে..."), duration: const Duration(seconds: 1)),
+              );
+            }
+
+            if (isBook) {
+              // পুরো কিতাব ডাউনলোড লজিক
+              await DownloadLogic.downloadFullBook(bSlug);
+            } else {
+              // চ্যাপ্টার টগল (ডাউনলোড/ডিলিট) লজিক
+              await DownloadLogic.toggleDownload(bSlug, cId, name);
+            }
+
+            // ৩. কাজ শেষ হওয়ার পর UI রিফ্রেশ
+            if (mounted) {
+              setState(() {
+                // স্টেট আপডেট হওয়ার ফলে isDown আবার হাইভ থেকে নতুন ভ্যালু চেক করবে
+              });
+            }
+
+            // সাকসেস মেসেজ দেখানো (যদি নতুন ডাউনলোড হয়)
+            if (!isDown && DownloadLogic.isDownloaded(bSlug, cId)) {
+              _showSuccessDialog(name);
+            }
           },
         ),
       ),

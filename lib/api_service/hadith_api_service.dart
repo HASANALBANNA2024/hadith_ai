@@ -41,27 +41,38 @@ class HadithApiService {
   // --- ২. হাদিস লিস্ট লোড (Offline-First) ---
   Future<List<HadithModel>> fetchHadiths(String bookSlug, String chapterId) async {
     final String cacheKey = "hadiths_${bookSlug}_$chapterId";
+
+    // ১. বক্স ওপেন আছে কি না নিশ্চিত হোন
+    if (!Hive.isBoxOpen(cacheBoxName)) {
+      await Hive.openBox(cacheBoxName);
+    }
     var box = Hive.box(cacheBoxName);
 
+    // ২. প্রথমে ক্যাশ চেক করুন (অফলাইন মোড)
     if (box.containsKey(cacheKey)) {
-      print("✅ Loading hadiths from Cache: $cacheKey");
+      print("✅ Loading from Cache: $cacheKey");
       List cachedData = box.get(cacheKey);
       return cachedData.map((item) => HadithModel.fromJson(Map<String, dynamic>.from(item))).toList();
     }
 
+    // ৩. ক্যাশ না থাকলে এপিআই কল করুন
     final String urlString = '$baseUrl/hadiths?apiKey=$apiKey&book=$bookSlug&chapter=$chapterId';
     try {
+      // Uri.parse ব্যবহার করুন যেন স্পেশাল ক্যারেক্টার হ্যান্ডেল করা যায়
       final response = await http.get(Uri.parse(urlString));
+
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(utf8.decode(response.bodyBytes));
         List dynamicList = data['hadiths']['data'] ?? [];
 
         final hadiths = dynamicList.map((item) => HadithModel.fromJson(item)).toList();
+
+        // ডাটা আসার পর সাথে সাথে সেভ করুন
         await box.put(cacheKey, hadiths.map((e) => e.toJson()).toList());
         return hadiths;
       }
     } catch (e) {
-      print("Hadith API Error: $e");
+      print("❌ API Error: $e");
     }
     return [];
   }
@@ -114,4 +125,6 @@ class HadithApiService {
     }
     return [];
   }
+
+
 }
