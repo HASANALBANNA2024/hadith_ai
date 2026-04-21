@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hadith_ai/model/hadith_model.dart';
+import 'package:hadith_ai/widgets/share_hadith.dart';
 
 class HadithDetailSheet extends StatelessWidget {
   final HadithModel hadith;
@@ -181,7 +182,12 @@ class HadithDetailSheet extends StatelessWidget {
               children: [
                 Icon(Icons.bookmark_border_rounded, size: 20, color: secTxt),
                 const SizedBox(width: 15),
-                Icon(Icons.share_outlined, size: 20, color: secTxt),
+                IconButton(
+                  onPressed: () => shareHadith(hadith),
+                  icon: const Icon(Icons.share_outlined, size: 22),
+                  color: goldColor.withOpacity(0.8),
+                  visualDensity: VisualDensity.compact,
+                ),
               ],
             ),
           ],
