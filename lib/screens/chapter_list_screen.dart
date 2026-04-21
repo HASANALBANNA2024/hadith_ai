@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hadith_ai/api_service/hadith_api_service.dart';
 import 'package:hadith_ai/model/chapter_model.dart';
+import 'package:hadith_ai/widgets/custom_bottom_Nav.dart';
 
 import 'hadith_list_screen.dart';
 
@@ -21,6 +22,7 @@ class ChapterListScreen extends StatefulWidget {
 }
 
 class _ChapterListScreenState extends State<ChapterListScreen> {
+  int _currentIndex = 0;
   // কালার ভেরিয়েবলগুলো এখানে ডিফাইন করা হয়েছে যাতে পুরো ক্লাসে ব্যবহার করা যায়
   final Color goldColor = const Color(0xFFE4C381);
   final Color primaryTeal = const Color(0xFF14532D);
@@ -38,25 +40,36 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: Container(
+          // পুরো স্ক্রিন জুড়ে ব্যাকগ্রাউন্ড কালার থাকবে
           color: widget.isDarkStatus ? const Color(0xFF112A27) : primaryTeal,
-          child: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            centerTitle: true,
-            leading: IconButton(
-              icon: const Icon(
-                Icons.arrow_back_ios,
-                color: Colors.white,
-                size: 20,
-              ),
-              onPressed: () => Navigator.pop(context),
-            ),
-            title: Text(
-              widget.bookTitle,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                color: Colors.white,
+          child: Center(
+            child: Container(
+              // কন্টেন্টগুলো (Back Button, Title) ১১০০ পিক্সেলের মধ্যে থাকবে
+              constraints: const BoxConstraints(maxWidth: 1100),
+              child: AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                centerTitle: true,
+                leading: IconButton(
+                  icon: const Icon(
+                    Icons.arrow_back_ios,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                title: Text(
+                  widget.bookTitle,
+                  // টাইটেল ওয়েব এবং মোবাইলে স্পষ্ট দেখানোর জন্য স্টাইল আপডেট
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: MediaQuery.of(context).size.width > 1100
+                        ? 22
+                        : 18,
+                    color: Colors.white,
+                    letterSpacing: 0.5,
+                  ),
+                ),
               ),
             ),
           ),
@@ -141,10 +154,33 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(
-        widget.isDarkStatus,
-        goldColor,
-        darkBg,
+      bottomNavigationBar: Container(
+        // এটি পুরো স্ক্রিন জুড়ে ব্যাকগ্রাউন্ড কালার সেট করবে
+        color: widget.isDarkStatus ? const Color(0xFF0D1F1D) : Colors.white,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              // কন্টেন্ট এরিয়া ১১০০ পিক্সেলের মধ্যে সীমাবদ্ধ থাকবে
+              constraints: const BoxConstraints(maxWidth: 1100),
+              // নিচের উইডথটি নিশ্চিত করে যে কন্টেইনারটি যতটুকু সম্ভব জায়গা নেবে (১১০০ পর্যন্ত)
+              width: MediaQuery.of(context).size.width,
+              child: CustomBottomNav(
+                isDark: widget.isDarkStatus,
+                gold: goldColor,
+                isWeb: isLargeScreen,
+                currentIndex: _currentIndex,
+                onTap: (index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                  // বুকমার্ক স্ক্রিন থেকে অন্য স্ক্রিনে যাওয়ার জন্য পপ লজিক (যদি প্রয়োজন হয়)
+                  if (index != 2) Navigator.pop(context);
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -250,58 +286,6 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomNav(bool isDark, Color gold, Color darkBg) {
-    return Container(
-      color: isDark ? darkBg : Colors.white,
-      child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Center(
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 1100),
-                decoration: BoxDecoration(
-                  border: Border(
-                    top: BorderSide(
-                      color: isDark ? Colors.white10 : Colors.black12,
-                      width: 0.5,
-                    ),
-                  ),
-                ),
-                child: BottomNavigationBar(
-                  currentIndex: 1,
-                  type: BottomNavigationBarType.fixed,
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                  selectedItemColor: gold,
-                  unselectedItemColor: Colors.grey,
-                  items: const [
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.home_filled),
-                      label: 'Home',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.menu_book),
-                      label: 'Books',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.bookmark_outline),
-                      label: 'Save',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.settings),
-                      label: 'Settings',
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );

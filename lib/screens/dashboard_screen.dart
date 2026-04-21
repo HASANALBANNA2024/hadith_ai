@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hadith_ai/api_service/hadith_api_service.dart';
-import 'package:hadith_ai/model/bookmark_screen.dart';
 import 'package:hadith_ai/model/hadith_book_model.dart';
 import 'package:hadith_ai/screens/chapter_list_screen.dart';
 import 'package:hadith_ai/widgets/app_theme.dart';
+import 'package:hadith_ai/widgets/custom_bottom_Nav.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -120,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.only(left: 12, right: 12),
+        padding: EdgeInsets.only(left: 16, right: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -228,25 +228,22 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       bottomNavigationBar: Container(
+        // পুরো বারের ব্যাকগ্রাউন্ড কালার সেট করা
         color: _isDark ? const Color(0xFF0D1F1D) : Colors.white,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(
-              width: isWeb ? 1100 : screenWidth,
-              child: _buildBottomNav(
-                _isDark,
-                appBarBg,
-                gold,
-                isWeb,
-                _currentIndex, //
-                (index) {
-                  //
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                },
-              ),
+            // আপনার তৈরি করা আলাদা উইজেটটি এখানে কল করুন
+            CustomBottomNav(
+              isDark: _isDark,
+              gold: gold,
+              isWeb: isWeb,
+              currentIndex: _currentIndex,
+              onTap: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
             ),
           ],
         ),
@@ -668,59 +665,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomNav(
-    bool isDark,
-    Color bg,
-    Color gold,
-    bool isWeb,
-    int currentIndex,
-    Function(int) onTap,
-  ) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: isWeb ? 0 : 10),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0D1F1D) : Colors.white,
-        border: Border(
-          top: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
-        ),
-      ),
-      child: BottomNavigationBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        currentIndex: currentIndex, // বর্তমান কোন পেজে আছেন তা বোঝাতে
-        onTap: (index) {
-          if (index == 2) {
-            // ২ নম্বর ইনডেক্স মানে 'Save' বাটন
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => BookmarkScreen(isDark: isDark),
-              ),
-            );
-          } else {
-            onTap(index); // অন্য বাটনগুলোর জন্য নরমাল ফাংশন কল হবে
-          }
-        },
-        selectedItemColor: gold,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        iconSize: isWeb ? 32 : 24,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: 'Books'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bookmark_outline),
-            label: 'Save',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
           ),
         ],
       ),

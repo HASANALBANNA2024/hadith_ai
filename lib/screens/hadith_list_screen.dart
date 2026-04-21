@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:hadith_ai/model/hadith_model.dart';
+import 'package:hadith_ai/widgets/custom_bottom_Nav.dart';
 import 'package:hadith_ai/widgets/hadith_details_sheet.dart';
 import 'package:http/http.dart' as http;
 
@@ -94,23 +95,61 @@ class _HadithListScreenState extends State<HadithListScreen> {
 
     return Scaffold(
       backgroundColor: bgColor,
-      appBar: AppBar(
-        title: Column(
-          children: [
-            Text(
-              widget.chapterTitle,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(
+          kToolbarHeight + 10,
+        ), // দুই লাইনের টাইটেলের জন্য উচ্চতা সামান্য বাড়ানো হয়েছে
+        child: Container(
+          color: darkGreen, // পুরো স্ক্রিন জুড়ে AppBar-এর ব্যাকগ্রাউন্ড কালার
+          child: Center(
+            child: Container(
+              constraints: const BoxConstraints(
+                maxWidth: 1100,
+              ), // কন্টেন্ট ১১০০ পিক্সেলের মধ্যে থাকবে
+              child: AppBar(
+                backgroundColor: Colors
+                    .transparent, // বাইরের কন্টেইনারের রঙ দেখানোর জন্য স্বচ্ছ করা হয়েছে
+                elevation: 0,
+                centerTitle: true,
+                iconTheme: const IconThemeData(color: goldColor),
+                title: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      widget.chapterTitle,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        // ওয়েব ভিউতে ফন্ট ১৬ আর মোবাইলে ১৪
+                        fontSize: MediaQuery.of(context).size.width > 1100
+                            ? 16
+                            : 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      widget.bookTitle,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        // ওয়েব ভিউতে ফন্ট ১২ আর মোবাইলে ১০
+                        fontSize: MediaQuery.of(context).size.width > 1100
+                            ? 12
+                            : 10,
+                        color: goldColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            Text(
-              widget.bookTitle,
-              style: const TextStyle(fontSize: 10, color: goldColor),
-            ),
-          ],
+          ),
         ),
-        backgroundColor: darkGreen,
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: goldColor),
-        elevation: 0,
       ),
       body: Center(
         child: Container(
@@ -137,11 +176,27 @@ class _HadithListScreenState extends State<HadithListScreen> {
                 ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(
-        isDarkMode,
-        bgColor,
-        goldColor,
-        isWeb,
+      bottomNavigationBar: Container(
+        // পুরো বারের ব্যাকগ্রাউন্ড কালার সেট করা
+        color: widget.isDarkStatus ? const Color(0xFF0D1F1D) : Colors.white,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // আমাদের নতুন কাস্টম নেভিগেশন বার
+            CustomBottomNav(
+              isDark: widget.isDarkStatus,
+              gold: goldColor,
+              isWeb: isWeb,
+              currentIndex:
+                  _selectedIndex, // আপনার স্ক্রিনে ভেরিয়েবল নাম '_selectedIndex'
+              onTap: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -343,46 +398,6 @@ class _HadithListScreenState extends State<HadithListScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildBottomNav(bool isDark, Color bg, Color gold, bool isWeb) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: isWeb ? (MediaQuery.of(context).size.width - 1100) / 2 : 10,
-      ),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0D1F1D) : Colors.white,
-        border: Border(
-          top: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
-        ),
-      ),
-      child: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        selectedItemColor: gold,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        iconSize: isWeb ? 30 : 24,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: 'Books'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bookmark_outline),
-            label: 'Save',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
       ),
     );
   }
