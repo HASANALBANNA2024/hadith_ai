@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:hadith_ai/screens/splash_screen.dart';
-import 'package:hadith_ai/screens/dashboard_screen.dart';
 import 'package:hadith_ai/screens/chapter_list_screen.dart';
+import 'package:hadith_ai/screens/dashboard_screen.dart';
+import 'package:hadith_ai/screens/splash_screen.dart';
 import 'package:hadith_ai/widgets/app_theme.dart';
 
 void main() {
+  // final apiService = HadithApiService();
+  // WidgetsFlutterBinding.ensureInitialized();
+  // // চেক করার জন্য কল করুন
+  // print("--- API Debugging Start ---");
+  // await apiService.checkBookData("musnad-ahmad");
+  // await apiService.checkBookData("silsila-sahiha");
+  // print("--- API Debugging End ---");
+
   runApp(const MyApp());
 }
 
@@ -29,7 +37,6 @@ class MyApp extends StatelessWidget {
       onGenerateRoute: (settings) {
         // যদি রুট '/chapters/' দিয়ে শুরু হয়
         if (settings.name != null && settings.name!.startsWith('/chapters/')) {
-
           // ইউআরএল বা রুট থেকে বুক স্লাগ বের করা (যেমন: sahih-bukhari)
           final String bookSlug = settings.name!.replaceFirst('/chapters/', '');
 
@@ -39,14 +46,16 @@ class MyApp extends StatelessWidget {
           return MaterialPageRoute(
             builder: (context) => ChapterListScreen(
               bookSlug: bookSlug,
-              bookTitle: _getFormattedTitle(bookSlug), // স্লাগ থেকে টাইটেল বানানোর ফাংশন
+              bookTitle: _getFormattedTitle(
+                bookSlug,
+              ), // স্লাগ থেকে টাইটেল বানানোর ফাংশন
               isDarkStatus: isDark,
             ),
           );
         }
 
         // ডিফল্টভাবে হোম স্ক্রিনে পাঠাবে যদি রুট খুঁজে না পায়
-        return MaterialPageRoute(builder: (context) =>  HomeScreen());
+        return MaterialPageRoute(builder: (context) => HomeScreen());
       },
     );
   }

@@ -30,39 +30,40 @@ class HadithModel {
   });
 
   factory HadithModel.fromJson(Map<String, dynamic> json) {
-    // বুক এবং চ্যাপ্টার অবজেক্ট আলাদা করে নেওয়া (যদি নাল থাকে তবে সেভ থাকবে)
     final bookData = json['book'] ?? {};
     final chapterData = json['chapter'] ?? {};
 
+    // ১. চেক করা হচ্ছে ইংরেজি ডাটা আছে কি না (খালি স্ট্রিং বা নাল কি না)
+    String rawEnglish = (json['hadithEnglish'] ?? "").toString().trim();
+    String rawUrdu = (json['hadithUrdu'] ?? "").toString().trim();
+
+    // ২. যদি ইংরেজি থাকে তবে ইংরেজি দেখাবে, নাহলে উর্দু দেখাবে
+    String finalTranslation = rawEnglish.isNotEmpty
+        ? rawEnglish
+        : (rawUrdu.isNotEmpty ? rawUrdu : "No translation available");
+
+    // ৩. বর্ণনাকারীর (Narrator) ক্ষেত্রেও একই লজিক
+    String rawNarratorEn = (json['englishNarrator'] ?? "").toString().trim();
+    String rawNarratorUr = (json['urduNarrator'] ?? "").toString().trim();
+    String finalNarrator = rawNarratorEn.isNotEmpty
+        ? rawNarratorEn
+        : (rawNarratorUr.isNotEmpty ? rawNarratorUr : "Narrator info missing");
+
     return HadithModel(
-      hadithId:
-          json['id'] ?? 0, // ক্লাসের ভেরিয়েবল hadithId এর সাথে মিল রাখা হয়েছে
+      hadithId: json['id'] ?? 0,
       hadithNumber: (json['hadithNumber'] ?? "").toString(),
-      narrator: json['englishNarrator'] ?? "Narrator not found",
+      narrator: finalNarrator,
       arabicText: json['hadithArabic'] ?? "",
-
-      // আপনার ডাটা অনুযায়ী বাংলা অনুবাদ এপিআইতে না থাকলে ইংরেজি দেখাবে
-      translation:
-          json['hadithEnglish'] ??
-          json['hadithUrdu'] ??
-          "Translation not available",
-
-      grade:
-          json['status'] ?? "Unknown", // ক্লাসের grade এ এপিআই এর status বসবে
+      translation: finalTranslation, // এখানে আমাদের সেই ডায়নামিক অনুবাদ
+      grade: json['status'] ?? "Unknown",
       gradeColor: json['grade_color'] ?? "#E4C381",
-
       bookName: bookData['bookName'] ?? "Unknown Book",
       chapterName: chapterData['chapterEnglish'] ?? "Unknown Chapter",
-
-      // 'headingEnglish' কেই আমরা ব্যাখ্যা (explanation) হিসেবে ব্যবহার করছি
-      explanation: json['headingEnglish'] ?? "ব্যাখ্যা পাওয়া যায়নি।",
-
-      // এপিআই-তে সরাসরি বায়ো না থাকলে রাইটারের নাম ব্যবহার করা যেতে পারে
+      explanation: (json['headingEnglish'] ?? "").toString().isNotEmpty
+          ? json['headingEnglish']
+          : (json['headingUrdu'] ?? "ব্যাখ্যা নেই"),
       narratorBio: bookData['aboutWriter'] ?? "তথ্য নেই।",
-
       tags: json['tags'] is List ? List<String>.from(json['tags']) : [],
-
-      // রেফারেন্স হিসেবে ভলিউম এবং হাদিস নম্বর সেট করা হয়েছে
       reference:
           "Book: ${bookData['bookName']}, Hadith: ${json['hadithNumber']}",
     );

@@ -289,10 +289,19 @@ class _HomeScreenState extends State<HomeScreen> {
     bool isWeb,
     List<HadithBookModel> books,
   ) {
-    // final filteredBooks = books.where((book) {
-    //   return book.hadithCount != null && book.hadithCount != '0' && book.hadithCount != '';
-    // }).toList();
-    final filteredBooks = books;
+    final List<String> sahihSittahSlugs = [
+      'sahih-bukhari',
+      'sahih-muslim',
+      'al-tirmidhi',
+      'abu-dawood',
+      'ibn-e-majah', // আপনার কনসোলে এটি 'ibn-e-majah' এসেছে
+      'sunan-nasai',
+    ];
+
+    // আপনার লিস্ট ফিল্টার করুন এভাবে:
+    final filteredBooks = books
+        .where((b) => sahihSittahSlugs.contains(b.bookSlug))
+        .toList();
 
     int columns = width > 1100 ? 6 : (width > 800 ? 4 : (width > 500 ? 3 : 2));
 
@@ -386,24 +395,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
-                  // Container(
-                  //   padding: const EdgeInsets.symmetric(
-                  //     horizontal: 6,
-                  //     vertical: 2,
-                  //   ),
-                  //   decoration: BoxDecoration(
-                  //     color: textC.withOpacity(0.05),
-                  //     borderRadius: BorderRadius.circular(4),
-                  //   ),
-                  //   // child: Text(
-                  //   //   "${book.hadithCount} HADITHS",
-                  //   //   style: TextStyle(
-                  //   //     color: textC.withOpacity(0.6),
-                  //   //     fontSize: 8,
-                  //   //     fontWeight: FontWeight.bold,
-                  //   //   ),
-                  //   // ),
-                  // ),
                 ],
               ),
             ),

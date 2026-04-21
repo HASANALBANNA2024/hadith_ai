@@ -108,4 +108,35 @@ class HadithApiService {
     }
     return [];
   }
+
+  // check
+  Future<void> checkBookData(String bookSlug) async {
+    // মুসনাদ বা সিলসিলার যেকোনো একটি চ্যাপ্টার আইডি (যেমন ১ বা ৫০০০)
+    // মুসনাদ আহমাদের জন্য সাধারণত বড় আইডি লাগে, তাই আমরা কয়েকভাবে চেষ্টা করব
+    List<String> trialIds = ["1", "4520", "5000"];
+
+    for (String id in trialIds) {
+      final url = '$baseUrl/hadiths?apiKey=$apiKey&book=$bookSlug&chapter=$id';
+
+      try {
+        final response = await http.get(Uri.parse(url));
+        if (response.statusCode == 200) {
+          final data = json.decode(utf8.decode(response.bodyBytes));
+          if (data['hadiths'] != null && data['hadiths']['data'].isNotEmpty) {
+            print("✅ SUCCESS for $bookSlug with Chapter ID: $id");
+            print(
+              "English Data Status: ${data['hadiths']['data'][0]['hadithEnglish'] != null ? "AVAILABLE" : "EMPTY"}",
+            );
+            return; // ডাটা পেয়ে গেলে লুপ বন্ধ
+          }
+        } else {
+          print(
+            "❌ FAILED for $bookSlug with ID: $id (Status: ${response.statusCode})",
+          );
+        }
+      } catch (e) {
+        print("Error: $e");
+      }
+    }
+  }
 }
