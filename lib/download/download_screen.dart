@@ -37,6 +37,13 @@ class _DownloadScreenState extends State<DownloadScreen> {
       isLoadingBooks = false;
     });
   }
+  String _calculateSize(String hadithCountStr) {
+    int count = int.tryParse(hadithCountStr) ?? 0;
+    if (count == 0) return "0.1 MB";
+    // একটি আনুমানিক সাইজ ক্যালকুলেশন
+    double sizeInMb = (count * 2.8) / 1024;
+    return "${sizeInMb.toStringAsFixed(1)} MB";
+  }
 
   Future<void> _loadChapters(String slug) async {
     setState(() {
@@ -125,14 +132,16 @@ class _DownloadScreenState extends State<DownloadScreen> {
                   child: Column(
                     children: [
                       // ফুল কিতাব লিস্ট (যদি ক্লিক করা হয়)
+                      // ফুল কিতাব লিস্টের জন্য সঠিক কোড
                       if (showFullKitabList) ...[
                         _sectionTitle("Available Full Books"),
                         ...allBooks.take(6).map((book) => _buildDownloadTile(
                           book.bookName,
                           book.bookSlug,
-                          "${book.hadithCount} Hadiths",
-                          "5.2 MB", // ডামি সাইজ
-                          cardBg, txtC,
+                          book.hadithCount,
+                          cardBg,
+                          txtC,
+                          isBook: true,
                         )),
                       ],
 
@@ -143,12 +152,14 @@ class _DownloadScreenState extends State<DownloadScreen> {
                         if (isLoadingChapters)
                           const Center(child: CircularProgressIndicator())
                         else
+                        // চ্যাপ্টার ম্যাপ করার সময় ডাইনামিক সাইজ লজিক অনুযায়ী কল করুন
                           ...currentChapters.map((ch) => _buildDownloadTile(
-                            ch.chapterTitle,
-                            "${ch.bookSlug}_${ch.id}",
-                            "Hadith: ${ch.hadithCount}",
-                            "0.8 MB",
-                            cardBg, txtC,
+                            ch.chapterTitle,       // name
+                            "${ch.bookSlug}_${ch.id}", // id (ইউনিক আইডি)
+                            ch.hadithCount,        // hadithCount (সাইজ বের করার জন্য)
+                            cardBg,                // bg
+                            txtC,                  // txt
+                            isBook: false,         // চ্যাপ্টার তাই false (হাদিস সংখ্যা হাইড থাকবে)
                           )),
                       ],
                     ],
@@ -250,8 +261,9 @@ class _DownloadScreenState extends State<DownloadScreen> {
   }
 
   // ইনফরমেটিভ ডাউনলোড টাইল
-  Widget _buildDownloadTile(String name, String id, String info, String size, Color bg, Color txt) {
+  Widget _buildDownloadTile(String name, String id, String hadithCount, Color bg, Color txt, {bool isBook = false}) {
     bool isDown = DownloadLogic.isDownloaded(id);
+    String dynamicSize = _calculateSize(hadithCount);
 
     return Card(
       color: bg,
@@ -259,16 +271,16 @@ class _DownloadScreenState extends State<DownloadScreen> {
       margin: const EdgeInsets.only(bottom: 10),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        // বর্ডার দেওয়ার জন্য side ব্যবহার করুন
-        side: BorderSide(
-          color: Colors.grey.withOpacity(0.2),
-          width: 1, // বর্ডারের পুরুত্ব (ঐচ্ছিক)
-        ),
+        side: BorderSide(color: Colors.grey.withOpacity(0.2), width: 1),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
         title: Text(name, style: TextStyle(color: txt, fontWeight: FontWeight.w600, fontSize: 15)),
-        subtitle: Text("$info • $size", style: TextStyle(color: txt.withOpacity(0.5), fontSize: 12)),
+        // যদি বই হয় তবে হাদিস সংখ্যা দেখাবে, চ্যাপ্টার হলে শুধু সাইজ দেখাবে
+        subtitle: Text(isBook
+            ? "$hadithCount Hadiths • $dynamicSize"
+            : "Size: $dynamicSize",
+            style: TextStyle(color: txt.withOpacity(0.5), fontSize: 12)),
         trailing: IconButton(
           icon: Icon(
             isDown ? Icons.check_circle_rounded : Icons.cloud_download_outlined,
@@ -276,11 +288,9 @@ class _DownloadScreenState extends State<DownloadScreen> {
             size: 28,
           ),
           onPressed: () async {
-            if (!isDown) {
-              await DownloadLogic.toggleDownload(id, name);
-              setState(() {});
-              _showSuccessDialog(name); // পপ-আপ মেসেজ
-            }
+            await DownloadLogic.toggleDownload(id, name);
+            setState(() {});
+            if (!isDown) _showSuccessDialog(name);
           },
         ),
       ),
