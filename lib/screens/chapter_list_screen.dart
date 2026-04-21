@@ -82,14 +82,14 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
                     } else if (snapshot.hasError) {
                       return const Center(
                         child: Text(
-                          "তথ্য লোড করতে সমস্যা হয়েছে!",
+                          "Hadith Data is loaded!",
                           style: TextStyle(color: Colors.grey),
                         ),
                       );
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                       return const Center(
                         child: Text(
-                          "কোনো অধ্যায় পাওয়া যায়নি।",
+                          "Data isn't loaded please try again..",
                           style: TextStyle(color: Colors.grey),
                         ),
                       );
@@ -124,7 +124,7 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
                             ),
                             itemCount: chapters.length,
                             separatorBuilder: (context, index) =>
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 2),
                             itemBuilder: (context, index) => _buildChapterCard(
                               context,
                               chapters[index],
@@ -156,7 +156,7 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            "অধ্যায়সমূহ",
+            "Chapters",
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,

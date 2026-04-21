@@ -113,18 +113,24 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
+
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
+        padding: EdgeInsets.only(left: 12, right: 12),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Center(
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 1100),
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: EdgeInsets.zero,
+                // padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // const SizedBox(height: 10),
+                    const SizedBox(height: 5),
                     _buildHeader('আজকের হাদিস', textColor, isWeb),
                     _buildHeroCard(cardBg, gold, borderColor, textColor, isWeb),
 
@@ -209,7 +215,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     _buildHeader('সাম্প্রতিক পঠিত', textColor, isWeb),
                     _buildRecentReadCard(cardBg, borderColor, textColor, isWeb),
 
-                    // const SizedBox(height: 50),
+                    const SizedBox(height: 12),
                   ],
                 ),
               ),
@@ -398,15 +404,20 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
-  // (বাকি সকল হেল্পার মেথড যেমন Header, SearchSection, HeroCard, BottomNav ইত্যাদি আপনার অরিজিনাল কোডের মতোই থাকবে)
 
   Widget _buildHeader(String title, Color color, bool isWeb) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.only(
+        // ওয়েবে ২০ গ্যাপ থাকবে, কিন্তু মোবাইলে ২ বা ০ করে দিলাম
+        top: isWeb ? 20 : 2,
+        bottom: isWeb ? 10 : 4, // নিচের গ্যাপটাও একইভাবে কন্ট্রোল করা হয়েছে
+        left: isWeb ? 0 : 4,
+      ),
       child: Text(
         title,
         style: TextStyle(
-          fontSize: isWeb ? 22 : 18,
+          fontSize: isWeb ? 22 : 17, // মোবাইলে সামান্য ছোট যাতে স্লিম লাগে
           fontWeight: FontWeight.bold,
           color: color,
         ),
@@ -430,21 +441,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.only(top: 2, bottom: 2),
+      // মোবাইলে top প্যাডিং ০, ওয়েবে ১০ রাখা হয়েছে
+      padding: EdgeInsets.only(top: isWeb ? 10 : 0, bottom: isWeb ? 20 : 2),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: allItems.map((e) {
           return Expanded(
             child: Container(
-              margin: const EdgeInsets.symmetric(
-                horizontal: 4,
-              ), // কার্ডগুলোর মাঝে গ্যাপ
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              // মোবাইলে ভার্টিকাল প্যাডিং ১২ (স্লিম), ওয়েবে ১৬ (প্রিমিয়াম)
+              padding: EdgeInsets.symmetric(vertical: isWeb ? 16 : 12),
               decoration: BoxDecoration(
                 color: bg,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: border.withOpacity(0.5)),
-                // হালকা শ্যাডো দিতে পারেন প্রিমিয়াম লুকের জন্য
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.02),
@@ -455,20 +465,16 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(e['i'] as IconData, color: gold, size: isWeb ? 28 : 22),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Text(
                     e['n'] as String,
-                    maxLines: 1, // এক লাইনে রাখার জন্য
-                    overflow: TextOverflow.ellipsis, // নাম বড় হলে ডট ডট দেখাবে
                     style: TextStyle(
                       color: textC,
                       fontSize: isWeb ? 13 : 10,
                       fontWeight: FontWeight.w600,
                     ),
-                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
