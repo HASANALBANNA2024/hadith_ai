@@ -531,10 +531,8 @@ class _HomeScreenState extends State<HomeScreen> {
   ) {
     return Container(
       width: double.infinity,
-      // constraints যোগ করা হয়েছে যাতে খুব বেশি লম্বা না হয় আবার ওভারফ্লোও না করে
-      constraints: BoxConstraints(
-        minHeight: isWeb ? 120 : 100, // একটি মিনিমাম স্লিম হাইট
-      ),
+      // constraints
+      constraints: BoxConstraints(minHeight: isWeb ? 120 : 100),
       padding: EdgeInsets.symmetric(
         horizontal: isWeb ? 30 : 16,
         vertical: isWeb ? 20 : 14,
