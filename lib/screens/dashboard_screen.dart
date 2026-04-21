@@ -132,7 +132,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     _buildHeader('হাদীস গ্রন্থসমূহ', textColor, isWeb),
 
                     // --- API API Integration Started ---
-                    // --- হাদীস গ্রন্থসমূহ সেকশন ---
                     FutureBuilder<List<HadithBookModel>>(
                       // এখানে আপনার সার্ভিস মেথডটি কল হচ্ছে
                       future: HadithApiService().fetchAllBooks(),
@@ -423,57 +422,60 @@ class _HomeScreenState extends State<HomeScreen> {
     bool isWeb,
   ) {
     final allItems = [
-      {'n': 'পছন্দ', 'i': Icons.favorite_border},
-      {'n': 'ইতিহাস', 'i': Icons.history},
-      {'n': 'নোটস', 'i': Icons.edit_note},
-      {'n': 'সেভ', 'i': Icons.bookmark_border},
-      {'n': 'শেয়ার', 'i': Icons.share},
-      {'n': 'ডাউনলোড', 'i': Icons.download},
+      {'n': 'History', 'i': Icons.history_rounded},
+      {'n': 'Notes', 'i': Icons.sticky_note_2_outlined},
+      {'n': 'Bookmark', 'i': Icons.bookmark_border_rounded},
+      {'n': 'Download', 'i': Icons.download_outlined},
     ];
-    final displayedItems = _showAllQuickAccess
-        ? allItems
-        : allItems.take(6).toList();
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        int crossAxisCount = isWeb ? 6 : 3;
-        double spacing = 10.0;
-        double cardWidth =
-            (constraints.maxWidth - (crossAxisCount - 1) * spacing) /
-            crossAxisCount;
-
-        return Wrap(
-          spacing: spacing,
-          runSpacing: spacing,
-          children: displayedItems.map((e) {
-            return Container(
-              width: cardWidth,
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.only(top: 2, bottom: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: allItems.map((e) {
+          return Expanded(
+            child: Container(
+              margin: const EdgeInsets.symmetric(
+                horizontal: 4,
+              ), // কার্ডগুলোর মাঝে গ্যাপ
               padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
                 color: bg,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: border),
+                border: Border.all(color: border.withOpacity(0.5)),
+                // হালকা শ্যাডো দিতে পারেন প্রিমিয়াম লুকের জন্য
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.02),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(e['i'] as IconData, color: gold, size: isWeb ? 26 : 22),
+                  Icon(e['i'] as IconData, color: gold, size: isWeb ? 28 : 22),
                   const SizedBox(height: 8),
                   Text(
                     e['n'] as String,
+                    maxLines: 1, // এক লাইনে রাখার জন্য
+                    overflow: TextOverflow.ellipsis, // নাম বড় হলে ডট ডট দেখাবে
                     style: TextStyle(
                       color: textC,
-                      fontSize: isWeb ? 14 : 11,
-                      fontWeight: FontWeight.w500,
+                      fontSize: isWeb ? 13 : 10,
+                      fontWeight: FontWeight.w600,
                     ),
                     textAlign: TextAlign.center,
                   ),
                 ],
               ),
-            );
-          }).toList(),
-        );
-      },
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -667,16 +669,16 @@ class _HomeScreenState extends State<HomeScreen> {
         type: BottomNavigationBarType.fixed,
         iconSize: isWeb ? 32 : 24,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'হোম'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.menu_book),
-            label: 'গ্রন্থসমূহ',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: 'Books'),
           BottomNavigationBarItem(
             icon: Icon(Icons.bookmark_outline),
-            label: 'সংরক্ষিত',
+            label: 'Save',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'সেটিংস'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
         ],
       ),
     );

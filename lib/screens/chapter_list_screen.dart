@@ -283,19 +283,19 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
                   items: const [
                     BottomNavigationBarItem(
                       icon: Icon(Icons.home_filled),
-                      label: 'হোম',
+                      label: 'Home',
                     ),
                     BottomNavigationBarItem(
                       icon: Icon(Icons.menu_book),
-                      label: 'গ্রন্থসমূহ',
+                      label: 'Books',
                     ),
                     BottomNavigationBarItem(
                       icon: Icon(Icons.bookmark_outline),
-                      label: 'সংরক্ষিত',
+                      label: 'Save',
                     ),
                     BottomNavigationBarItem(
                       icon: Icon(Icons.settings),
-                      label: 'সেটিংস',
+                      label: 'Settings',
                     ),
                   ],
                 ),

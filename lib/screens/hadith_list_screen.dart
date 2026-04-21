@@ -372,16 +372,16 @@ class _HadithListScreenState extends State<HadithListScreen> {
         type: BottomNavigationBarType.fixed,
         iconSize: isWeb ? 30 : 24,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'হোম'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.menu_book),
-            label: 'গ্রন্থসমূহ',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: 'Books'),
           BottomNavigationBarItem(
             icon: Icon(Icons.bookmark_outline),
-            label: 'সংরক্ষিত',
+            label: 'Save',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'সেটিংস'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
         ],
       ),
     );
