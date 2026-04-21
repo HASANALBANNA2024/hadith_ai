@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../download/download_logic.dart';
 import '../model/hadith_book_model.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../model/chapter_model.dart';
 
 class DownloadScreen extends StatefulWidget {
@@ -20,53 +21,95 @@ class _DownloadScreenState extends State<DownloadScreen> {
   bool isLoadingBooks = true;
   bool isLoadingChapters = false;
 
-  // কন্ট্রোল ভ্যারিয়েবল (শো/হাইড করার জন্য)
   bool showFullKitabList = false;
   bool showChapterSelection = false;
 
   @override
   void initState() {
     super.initState();
+    // স্ক্রিন লোড হওয়ার সাথে সাথে ডাটা ফেচ করা
     _loadInitialData();
   }
 
   Future<void> _loadInitialData() async {
-    final books = await DownloadLogic.getAllBooks();
-    setState(() {
-      allBooks = books.cast<HadithBookModel>();
-      isLoadingBooks = false;
-    });
+    if (!mounted) return;
+    setState(() => isLoadingBooks = true);
+
+    try {
+      // ১. বক্স ওপেন করা (যদি না থাকে)
+      if (!Hive.isBoxOpen('app_cache')) {
+        await Hive.openBox('app_cache');
+      }
+
+      // ২. ডাটা আনা (অবশ্যই await দিন)
+      final List<HadithBookModel> books = await DownloadLogic.getCachedBooks();
+
+      if (mounted) {
+        if (books.isEmpty) {
+          // ৩. ক্যাশ খালি থাকলে এপিআই কল
+          final apiBooks = await DownloadLogic.getAllBooks();
+          setState(() {
+            allBooks = apiBooks;
+            isLoadingBooks = false;
+          });
+        } else {
+          setState(() {
+            allBooks = books;
+            isLoadingBooks = false;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint("Error in Screen: $e");
+      if (mounted) setState(() => isLoadingBooks = false);
+    }
   }
   String _calculateSize(String hadithCountStr) {
     int count = int.tryParse(hadithCountStr) ?? 0;
     if (count == 0) return "0.1 MB";
-    // একটি আনুমানিক সাইজ ক্যালকুলেশন
     double sizeInMb = (count * 2.8) / 1024;
     return "${sizeInMb.toStringAsFixed(1)} MB";
   }
 
   Future<void> _loadChapters(String slug) async {
+    if (!mounted) return;
     setState(() {
       selectedBookSlug = slug;
       isLoadingChapters = true;
       currentChapters = [];
     });
-    final chapters = await DownloadLogic.getChapters(slug);
-    setState(() {
-      currentChapters = chapters.cast<ChapterModel>();
-      isLoadingChapters = false;
-    });
+
+    try {
+      // ১. প্রথমে ক্যাশ থেকে ডাটা ট্রাই করুন
+      List<ChapterModel> chapters = DownloadLogic.getCachedChapters(slug);
+
+      // ২. যদি ক্যাশ খালি থাকে তবে এপিআই থেকে আনুন
+      if (chapters.isEmpty) {
+        chapters = await DownloadLogic.getChapters(slug);
+      }
+
+      if (mounted) {
+        setState(() {
+          currentChapters = chapters;
+          isLoadingChapters = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => isLoadingChapters = false);
+      debugPrint("Error loading chapters: $e");
+    }
   }
 
-  // ডাউনলোড সাকসেস মেসেজ
   void _showSuccessDialog(String name) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: widget.isDark ? const Color(0xFF1E1E1E) : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        title: Icon(Icons.check_circle, color: Colors.green, size: 50),
-        content: Text("$name ডাউনলোড সম্পন্ন হয়েছে!", textAlign: TextAlign.center, style: TextStyle(color: widget.isDark ? Colors.white : Colors.black)),
+        title: const Icon(Icons.check_circle, color: Colors.green, size: 50),
+        content: Text("$name ডাউনলোড সম্পন্ন হয়েছে!",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: widget.isDark ? Colors.white : Colors.black)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: Text("ঠিক আছে", style: TextStyle(color: gold)))
         ],
@@ -83,6 +126,7 @@ class _DownloadScreenState extends State<DownloadScreen> {
       backgroundColor: widget.isDark ? const Color(0xFF121212) : const Color(0xFFF8F9FA),
       appBar: AppBar(
         backgroundColor: widget.isDark ? const Color(0xFF0D1F1D) : const Color(0xFF008080),
+        elevation: 0,
         title: Text("Download Center", style: TextStyle(color: gold, fontWeight: FontWeight.bold, fontSize: 20)),
         centerTitle: true,
       ),
@@ -92,7 +136,6 @@ class _DownloadScreenState extends State<DownloadScreen> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              // ১. মেইন কার্ড: Full Kitab
               _buildMainOptionCard(
                 "Full Kitab Download",
                 "একসাথে সম্পূর্ণ কিতাব অফলাইন সেভ করুন",
@@ -100,66 +143,61 @@ class _DownloadScreenState extends State<DownloadScreen> {
                 cardBg, txtC,
                     () => setState(() {
                   showFullKitabList = !showFullKitabList;
-                  showChapterSelection = false; // চ্যাপ্টার হাইড হবে
+                  showChapterSelection = false;
                 }),
               ),
-
               const SizedBox(height: 15),
-
-              // ২. মেইন কার্ড: Chapter Wise
               _buildMainOptionCard(
                 "Chapter Wise Download",
-                "পছন্দমতো আলাদা আলাদা অধ্যায় ডাউনলোড করুন",
+                "পছন্দমতো আলাদা আলাদা অধ্যায় ডাউনলোড করুন",
                 Icons.menu_book,
                 cardBg, txtC,
                     () {
                   setState(() {
                     showChapterSelection = !showChapterSelection;
-                    showFullKitabList = false; // কিতাব লিস্ট হাইড হবে
+                    showFullKitabList = false;
                   });
-                  // ডিফল্টভাবে প্রথম বই (বুখারী) লোড করা
-                  if (allBooks.isNotEmpty && selectedBookSlug == null) {
+                  if (showChapterSelection && allBooks.isNotEmpty && selectedBookSlug == null) {
                     _loadChapters(allBooks[0].bookSlug);
                   }
                 },
               ),
-
               const Divider(height: 40, color: Colors.grey),
 
-              // --- ডাইনামিক কন্টেন্ট এরিয়া ---
               Expanded(
-                child: SingleChildScrollView(
+                child: isLoadingBooks
+                    ? const Center(child: CircularProgressIndicator())
+                    : (allBooks.isEmpty && (showFullKitabList || showChapterSelection))
+                    ? const Center(child: Text("কোন ডাটা পাওয়া যায়নি। ইন্টারনেট কানেকশন চেক করুন।"))
+                    : SingleChildScrollView(
                   child: Column(
                     children: [
-                      // ফুল কিতাব লিস্ট (যদি ক্লিক করা হয়)
-                      // ফুল কিতাব লিস্টের জন্য সঠিক কোড
                       if (showFullKitabList) ...[
                         _sectionTitle("Available Full Books"),
-                        ...allBooks.take(6).map((book) => _buildDownloadTile(
+                        ...allBooks.map((book) => _buildDownloadTile(
                           book.bookName,
                           book.bookSlug,
                           book.hadithCount,
-                          cardBg,
-                          txtC,
+                          cardBg, txtC,
                           isBook: true,
                         )),
                       ],
 
-                      // চ্যাপ্টার সেকশন (যদি ক্লিক করা হয়)
                       if (showChapterSelection) ...[
-                        _buildBookSelector(txtC),
+                        _buildBookSelector(txtC), // ওপরের বই সিলেক্ট করার চিপস
                         const SizedBox(height: 15),
                         if (isLoadingChapters)
                           const Center(child: CircularProgressIndicator())
+                        else if (currentChapters.isEmpty)
+                          const Center(child: Text("কোন চ্যাপ্টার পাওয়া যায়নি"))
                         else
-                        // চ্যাপ্টার ম্যাপ করার সময় ডাইনামিক সাইজ লজিক অনুযায়ী কল করুন
+                        // এখানে ম্যাপ করার সময় চ্যাপ্টার টাইল তৈরি হচ্ছে
                           ...currentChapters.map((ch) => _buildDownloadTile(
-                            ch.chapterTitle,       // name
-                            "${ch.bookSlug}_${ch.id}", // id (ইউনিক আইডি)
-                            ch.hadithCount,        // hadithCount (সাইজ বের করার জন্য)
-                            cardBg,                // bg
-                            txtC,                  // txt
-                            isBook: false,         // চ্যাপ্টার তাই false (হাদিস সংখ্যা হাইড থাকবে)
+                            ch.chapterTitle,
+                            "${ch.bookSlug}_${ch.id}", // ইউনিক আইডি
+                            ch.hadithCount,
+                            cardBg, txtC,
+                            isBook: false, // চ্যাপ্টারের ক্ষেত্রে হাদিস সংখ্যা হাইড থাকবে
                           )),
                       ],
                     ],
@@ -173,7 +211,8 @@ class _DownloadScreenState extends State<DownloadScreen> {
     );
   }
 
-  // মেইন অপশন কার্ড ডিজাইন
+  // --- UI Helpers (Widgets) ---
+
   Widget _buildMainOptionCard(String title, String sub, IconData icon, Color bg, Color txt, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
@@ -184,7 +223,6 @@ class _DownloadScreenState extends State<DownloadScreen> {
           color: bg,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(color: gold.withOpacity(0.3), width: 1.5),
-          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
         ),
         child: Row(
           children: [
@@ -207,45 +245,27 @@ class _DownloadScreenState extends State<DownloadScreen> {
     );
   }
 
-  // কিতাব সিলেক্টর চিপস
   Widget _buildBookSelector(Color txtC) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: allBooks.take(6).map((book) {
+        children: allBooks.map((book) {
           bool isSel = selectedBookSlug == book.bookSlug;
           return Padding(
             padding: const EdgeInsets.only(right: 10),
             child: ChoiceChip(
               label: Text(book.bookName),
               selected: isSel,
-              onSelected: (v) => _loadChapters(book.bookSlug),
-
-              // সিলেক্ট থাকা অবস্থায় কালার
+              onSelected: (v) { if (v) _loadChapters(book.bookSlug); },
               selectedColor: gold,
-
-              // সিলেক্ট না থাকা অবস্থায় ব্যাকগ্রাউন্ড কালার
               backgroundColor: widget.isDark ? Colors.grey[900] : Colors.grey[200],
-
-              // বর্ডারের কালার
-              side: BorderSide(
-                color: isSel ? gold : (widget.isDark ? Colors.white10 : Colors.grey[300]!),
-                width: 1,
-              ),
-
-              // টেক্সট স্টাইল ডাইনামিক করা
               labelStyle: TextStyle(
-                color: isSel ? Colors.black : txtC,
-                fontWeight: isSel ? FontWeight.bold : FontWeight.normal,
-                fontSize: 13,
+                  color: isSel ? Colors.black : txtC,
+                  fontSize: 13,
+                  fontWeight: isSel ? FontWeight.bold : FontWeight.normal
               ),
-
-              // চিপসের শেপ গোল করা
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-
-              // ডিফল্ট নীল রং বা ছায়া সরাতে
               showCheckmark: false,
-              elevation: 2,
             ),
           );
         }).toList(),
@@ -260,7 +280,6 @@ class _DownloadScreenState extends State<DownloadScreen> {
     );
   }
 
-  // ইনফরমেটিভ ডাউনলোড টাইল
   Widget _buildDownloadTile(String name, String id, String hadithCount, Color bg, Color txt, {bool isBook = false}) {
     bool isDown = DownloadLogic.isDownloaded(id);
     String dynamicSize = _calculateSize(hadithCount);
@@ -276,11 +295,10 @@ class _DownloadScreenState extends State<DownloadScreen> {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
         title: Text(name, style: TextStyle(color: txt, fontWeight: FontWeight.w600, fontSize: 15)),
-        // যদি বই হয় তবে হাদিস সংখ্যা দেখাবে, চ্যাপ্টার হলে শুধু সাইজ দেখাবে
-        subtitle: Text(isBook
-            ? "$hadithCount Hadiths • $dynamicSize"
-            : "Size: $dynamicSize",
-            style: TextStyle(color: txt.withOpacity(0.5), fontSize: 12)),
+        subtitle: Text(
+          isBook ? "$hadithCount Hadiths • $dynamicSize" : "Size: $dynamicSize",
+          style: TextStyle(color: txt.withOpacity(0.5), fontSize: 12),
+        ),
         trailing: IconButton(
           icon: Icon(
             isDown ? Icons.check_circle_rounded : Icons.cloud_download_outlined,
@@ -289,7 +307,7 @@ class _DownloadScreenState extends State<DownloadScreen> {
           ),
           onPressed: () async {
             await DownloadLogic.toggleDownload(id, name);
-            setState(() {});
+            if (mounted) setState(() {});
             if (!isDown) _showSuccessDialog(name);
           },
         ),

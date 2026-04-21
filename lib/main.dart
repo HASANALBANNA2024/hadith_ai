@@ -1,28 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:hadith_ai/logic/bookmark_service.dart';
-import 'package:hadith_ai/model/hadith_model.dart';
 import 'package:hadith_ai/screens/chapter_list_screen.dart';
 import 'package:hadith_ai/screens/dashboard_screen.dart';
 import 'package:hadith_ai/screens/splash_screen.dart';
 import 'package:hadith_ai/widgets/app_theme.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hadith_ai/download/download_logic.dart';
 
 void main() async {
-  // final apiService = HadithApiService();
-  // WidgetsFlutterBinding.ensureInitialized();
-  // print("--- API Debugging Start ---");
-  // await apiService.checkBookData("musnad-ahmad");
-  // await apiService.checkBookData("silsila-sahiha");
-  // print("--- API Debugging End ---");
   WidgetsFlutterBinding.ensureInitialized();
-  // ১. হাইভ ইনিশিয়ালাইজ করুন
+
+  // ১. হাইভ ইনিশিয়ালাইজ করুন
   await Hive.initFlutter();
 
-  // ২. আপনার ডাউনলোড মেটাডাটা বক্সটি ওপেন করুন (এটি না করলে এরর যাবে না)
+  // ২. প্রয়োজনীয় সব বক্স ওপেন করুন (app_cache সহ)
   await Hive.openBox('download_metadata');
+  await Hive.openBox('app_cache'); // এই লাইনটি না থাকলে "Box not found" এরর আসবে
 
-  // Hive
+  // ৩. অন্যান্য সার্ভিস ইনিশিয়ালাইজ
   await BookmarkService.init();
+
+  // ৪. অ্যাপ শুরুর সময় ডাটা ক্যাশ করা (অপশনাল কিন্তু ভালো প্র্যাকটিস)
+  // এটি ব্যাকগ্রাউন্ডে কিতাব এবং চ্যাপ্টার লিস্ট রেডি রাখবে
+  await DownloadLogic.cacheAllDataOnStart();
 
   runApp(const MyApp());
 }
@@ -41,41 +41,41 @@ class MyApp extends StatelessWidget {
       theme: AppThemes.lightTheme,
       darkTheme: AppThemes.darkTheme,
 
-      // অ্যাপের শুরু হবে স্প্ল্যাশ স্ক্রিন দিয়ে
+      // অ্যাপের শুরু হবে স্প্ল্যাশ স্ক্রিন দিয়ে
       home: const SplashScreen(),
 
       // ডাইনামিক রাউটিং হ্যান্ডেলার
       onGenerateRoute: (settings) {
-        // যদি রুট '/chapters/' দিয়ে শুরু হয়
         if (settings.name != null && settings.name!.startsWith('/chapters/')) {
-          // ইউআরএল বা রুট থেকে বুক স্লাগ বের করা (যেমন: sahih-bukhari)
           final String bookSlug = settings.name!.replaceFirst('/chapters/', '');
 
-          // বর্তমান থিম অনুযায়ী ডার্ক মোড চেক করা
-          final isDark = Theme.of(context).brightness == Brightness.dark;
+          // রাউটের ভেতর ডার্ক মোড চেক করার সঠিক উপায়
+          final isDark = WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark;
 
           return MaterialPageRoute(
             builder: (context) => ChapterListScreen(
               bookSlug: bookSlug,
-              bookTitle: _getFormattedTitle(
-                bookSlug,
-              ),
+              bookTitle: _getFormattedTitle(bookSlug),
               isDarkStatus: isDark,
             ),
           );
         }
 
-     return MaterialPageRoute(builder: (context) => HomeScreen());
+        // ডিফল্ট রাুট (যদি কোনো রাুট ম্যাচ না করে)
+        return MaterialPageRoute(builder: (context) => const HomeScreen());
       },
     );
   }
 
-
+  // স্লাগ থেকে সুন্দর টাইটেল তৈরি করা (sahih-bukhari -> Sahih Bukhari)
   String _getFormattedTitle(String slug) {
     try {
+      if (slug.isEmpty) return "Hadith Book";
       return slug
           .split('-')
-          .map((word) => word[0].toUpperCase() + word.substring(1))
+          .map((word) => word.isNotEmpty
+          ? word[0].toUpperCase() + word.substring(1)
+          : "")
           .join(' ');
     } catch (e) {
       return "Hadith Book";

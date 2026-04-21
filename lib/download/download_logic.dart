@@ -8,19 +8,27 @@ class DownloadLogic {
   static const String cacheBoxName = 'app_cache';       // কিতাব ও চ্যাপ্টার লিস্ট ক্যাশ করার জন্য
   static final HadithApiService _apiService = HadithApiService();
 
-  // ১. অ্যাপ ওপেন হওয়ার সময় ডাটা ক্যাশ করা (Main বা Splash-এ কল করবেন)
+  // ১. অ্যাপ ওপেন হওয়ার সময় বক্স চেক এবং ওপেন করার মেথড
+  static Future<void> checkAndOpenBox() async {
+    if (!Hive.isBoxOpen(cacheBoxName)) {
+      await Hive.openBox(cacheBoxName);
+    }
+    if (!Hive.isBoxOpen(metaBoxName)) {
+      await Hive.openBox(metaBoxName);
+    }
+  }
+
+  // ২. অ্যাপ ওপেন হওয়ার সময় ডাটা ক্যাশ করা
   static Future<void> cacheAllDataOnStart() async {
-    if (!Hive.isBoxOpen(cacheBoxName)) await Hive.openBox(cacheBoxName);
+    await checkAndOpenBox(); // বক্স ওপেন নিশ্চিত করা
     var cBox = Hive.box(cacheBoxName);
 
     try {
-      // যদি অলরেডি কিতাব ক্যাশ থাকে তবে নতুন করে এপিআই কল করবে না
       if (cBox.get('all_books') == null) {
         final List<HadithBookModel> books = await _apiService.fetchAllBooks();
         await cBox.put('all_books', books.map((e) => e.toJson()).toList());
       }
 
-      // কিতাবগুলো থেকে প্রথম ৬টি কিতাবের চ্যাপ্টার ব্যাকগ্রাউন্ডে ক্যাশ করা
       List cachedBooksRaw = cBox.get('all_books', defaultValue: []);
       for (var bookMap in cachedBooksRaw.take(6)) {
         String slug = bookMap['bookSlug'];
@@ -34,30 +42,32 @@ class DownloadLogic {
     }
   }
 
-  // ২. ক্যাশ থেকে কিতাব লিস্ট নেওয়া
-  static List<HadithBookModel> getCachedBooks() {
-    if (!Hive.isBoxOpen(cacheBoxName)) return [];
+  // ৩. ক্যাশ থেকে কিতাব লিস্ট নেওয়া (Async ফিক্স করা হয়েছে)
+  static Future<List<HadithBookModel>> getCachedBooks() async {
+    await checkAndOpenBox(); // বক্স ওপেন নিশ্চিত করা
     var cBox = Hive.box(cacheBoxName);
     List rawData = cBox.get('all_books', defaultValue: []);
     return rawData.map((e) => HadithBookModel.fromJson(Map<String, dynamic>.from(e))).toList();
   }
 
-  // ৩. ক্যাশ থেকে চ্যাপ্টার লিস্ট নেওয়া
+  // ৪. ক্যাশ থেকে চ্যাপ্টার লিস্ট নেওয়া
   static List<ChapterModel> getCachedChapters(String slug) {
+    // এটি synchronous কারণ সচরাচর বক্স ওপেন থাকেই, তাও সেফটি চেক
     if (!Hive.isBoxOpen(cacheBoxName)) return [];
     var cBox = Hive.box(cacheBoxName);
     List rawData = cBox.get('chapters_$slug', defaultValue: []);
     return rawData.map((e) => ChapterModel.fromJson(Map<String, dynamic>.from(e), slug)).toList();
   }
 
-  // ৪. ডাউনলোড চেক করা (UI আইকন পরিবর্তনের জন্য)
+  // ৫. ডাউনলোড চেক করা
   static bool isDownloaded(String id) {
     if (!Hive.isBoxOpen(metaBoxName)) return false;
     return Hive.box(metaBoxName).containsKey(id);
   }
 
-  // ৫. ডাউনলোড টগল
+  // ৬. ডাউনলোড টগল
   static Future<void> toggleDownload(String id, String name) async {
+    await checkAndOpenBox(); // ডাউনলোড করার আগে বক্স চেক
     final box = Hive.box(metaBoxName);
     if (box.containsKey(id)) {
       await box.delete(id);
@@ -70,7 +80,7 @@ class DownloadLogic {
     }
   }
 
-  // এপিআই থেকে সরাসরি ডাটা পাওয়ার ব্যাকআপ মেথড (যদি ক্যাশ না থাকে)
+  // সরাসরি এপিআই কল
   static Future<List<HadithBookModel>> getAllBooks() async => await _apiService.fetchAllBooks();
   static Future<List<ChapterModel>> getChapters(String bookSlug) async => await _apiService.fetchChapters(bookSlug);
 }
