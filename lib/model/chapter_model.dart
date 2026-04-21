@@ -7,29 +7,36 @@ class ChapterModel {
   final String hadithCount;
 
   ChapterModel({
+    required this.id,
     required this.chapterId,
     required this.chapterNumber,
     required this.chapterTitle,
     required this.bookSlug,
     required this.hadithCount,
-    required this.id, // এটি রিকোয়ার্ড কিন্তু নিচে দেওয়া ছিল না
   });
 
+  // Hive এ ডাটা সেভ করার জন্য toJson মেথড
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'chapterId': chapterId,
+    'chapterNumber': chapterNumber,
+    'chapterTitle': chapterTitle,
+    'bookSlug': bookSlug,
+    'hadithCount': hadithCount,
+  };
+
   factory ChapterModel.fromJson(Map<String, dynamic> json, String slug) {
-    // এপিআই থেকে আসা আইডিটি আগে বের করে নেই
     int apiId = json['id'] is int
         ? json['id']
         : int.tryParse(json['id'].toString()) ?? 0;
 
     return ChapterModel(
-      id: apiId, // এটি যোগ করা হলো, এখন আর লাল দাগ থাকবে না
+      id: apiId,
       chapterId: apiId,
       chapterNumber: json['chapterNumber']?.toString() ?? '0',
-      chapterTitle:
-          json['chapterBangla'] ?? json['chapterEnglish'] ?? 'শিরোনামহীন',
-      bookSlug: slug,
-      hadithCount: (json['hadiths_count'] ?? json['hadith_count'] ?? '0')
-          .toString(),
+      chapterTitle: json['chapterBangla'] ?? json['chapterEnglish'] ?? 'শিরোনামহীন',
+      bookSlug: json['bookSlug'] ?? slug, // ক্যাশ থেকে নিলে json এই থাকে
+      hadithCount: (json['hadiths_count'] ?? json['hadith_count'] ?? '0').toString(),
     );
   }
 }

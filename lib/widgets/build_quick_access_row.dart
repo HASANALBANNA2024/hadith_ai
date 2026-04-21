@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hadith_ai/download/download_screen.dart';
 import 'package:hadith_ai/screens/bookmark_screen.dart';
 
 Widget buildQuickAccessRow(
@@ -34,6 +35,10 @@ Widget buildQuickAccessRow(
                   ),
                 );
               }
+              if(e['n'] == 'Download')
+                {
+                  Navigator.push(context, MaterialPageRoute(builder: (_)=> DownloadScreen(isDark: isDark) ));
+                }
               // অন্যান্য লজিক এখানে...
             },
             child: Container(

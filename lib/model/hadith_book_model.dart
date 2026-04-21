@@ -2,25 +2,29 @@ class HadithBookModel {
   final String bookName;
   final String bookSlug;
   final String hadithCount;
-  final String? bookNameArabic; // এই নতুন লাইনটি যোগ করা হয়েছে
+  final String? bookNameArabic;
 
   HadithBookModel({
     required this.bookName,
     required this.bookSlug,
     required this.hadithCount,
-    this.bookNameArabic, // কনস্ট্রাক্টরে যুক্ত করা হলো
+    this.bookNameArabic,
   });
+
+  // Hive এ ডাটা সেভ করার জন্য toJson মেথড
+  Map<String, dynamic> toJson() => {
+    'bookName': bookName,
+    'bookSlug': bookSlug,
+    'hadithCount': hadithCount,
+    'bookNameArabic': bookNameArabic,
+  };
 
   factory HadithBookModel.fromJson(Map<String, dynamic> json) {
     return HadithBookModel(
-      bookName: json['book_name'] ?? json['bookName'] ?? 'অজানা গ্রন্থ',
-      bookSlug: json['book_slug'] ?? json['bookSlug'] ?? '',
-      hadithCount:
-      json['hadith_count']?.toString() ??
-          json['hadiths_count']?.toString() ??
-          '0',
-      // এপিআই বা সার্ভিস থেকে পাঠানো আরবি নাম রিসিভ করা
-      bookNameArabic: json['book_name_arabic'] ?? json['bookNameArabic'],
+      bookName: json['bookName'] ?? json['book_name'] ?? 'অজানা গ্রন্থ',
+      bookSlug: json['bookSlug'] ?? json['book_slug'] ?? '',
+      hadithCount: (json['hadithCount'] ?? json['hadith_count'] ?? json['hadiths_count'] ?? '0').toString(),
+      bookNameArabic: json['bookNameArabic'] ?? json['book_name_arabic'],
     );
   }
 }

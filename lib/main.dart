@@ -5,18 +5,23 @@ import 'package:hadith_ai/screens/chapter_list_screen.dart';
 import 'package:hadith_ai/screens/dashboard_screen.dart';
 import 'package:hadith_ai/screens/splash_screen.dart';
 import 'package:hadith_ai/widgets/app_theme.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {
   // final apiService = HadithApiService();
   // WidgetsFlutterBinding.ensureInitialized();
-  // // চেক করার জন্য কল করুন
   // print("--- API Debugging Start ---");
   // await apiService.checkBookData("musnad-ahmad");
   // await apiService.checkBookData("silsila-sahiha");
   // print("--- API Debugging End ---");
   WidgetsFlutterBinding.ensureInitialized();
+  // ১. হাইভ ইনিশিয়ালাইজ করুন
+  await Hive.initFlutter();
 
-  // Hive ইনিশিয়ালাইজ এবং বক্স ওপেন করা
+  // ২. আপনার ডাউনলোড মেটাডাটা বক্সটি ওপেন করুন (এটি না করলে এরর যাবে না)
+  await Hive.openBox('download_metadata');
+
+  // Hive
   await BookmarkService.init();
 
   runApp(const MyApp());
@@ -54,20 +59,18 @@ class MyApp extends StatelessWidget {
               bookSlug: bookSlug,
               bookTitle: _getFormattedTitle(
                 bookSlug,
-              ), // স্লাগ থেকে টাইটেল বানানোর ফাংশন
+              ),
               isDarkStatus: isDark,
             ),
           );
         }
 
-        // ডিফল্টভাবে হোম স্ক্রিনে পাঠাবে যদি রুট খুঁজে না পায়
-        return MaterialPageRoute(builder: (context) => HomeScreen());
+     return MaterialPageRoute(builder: (context) => HomeScreen());
       },
     );
   }
 
-  // স্লাগ থেকে সুন্দর একটি টাইটেল তৈরি করার ছোট একটি লজিক
-  // উদাহরণ: 'sahih-bukhari' -> 'Sahih Bukhari'
+
   String _getFormattedTitle(String slug) {
     try {
       return slug
