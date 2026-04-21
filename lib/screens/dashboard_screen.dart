@@ -117,21 +117,6 @@ class _HomeScreenState extends State<HomeScreen> {
         physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
-            // search section
-            Container(
-              color: appBarBg,
-              width: double.infinity,
-              padding: const EdgeInsets.only(bottom: 40, top: 10),
-              child: Center(
-                child: Container(
-                  constraints: const BoxConstraints(maxWidth: 1100),
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: _buildSearchSection(isWeb, _isDark),
-                ),
-              ),
-            ),
-
-            // body content
             Center(
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 1100),
@@ -300,6 +285,7 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.end, // বাটনকে ডানপাশে রাখবে
       children: [
         GridView.builder(
+          padding: EdgeInsets.zero,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: displayCount,
@@ -307,7 +293,7 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisCount: columns,
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
-            childAspectRatio: isWeb ? 1.0 : 0.92,
+            childAspectRatio: isWeb ? 1.0 : (width <= 500 ? 1.15 : 0.92),
           ),
           itemBuilder: (context, i) {
             final book = filteredBooks[i];
@@ -386,7 +372,7 @@ class _HomeScreenState extends State<HomeScreen> {
         // বাটন শুধুমাত্র মোবাইল ভিউতে এবং কিতাব বেশি থাকলে ডানপাশে দেখাবে
         if (width <= 500 && filteredBooks.length > 2)
           Padding(
-            padding: const EdgeInsets.only(top: 8, right: 4),
+            padding: EdgeInsets.zero,
             child: TextButton.icon(
               onPressed: () {
                 setState(() {
@@ -424,71 +410,6 @@ class _HomeScreenState extends State<HomeScreen> {
           fontSize: isWeb ? 22 : 18,
           fontWeight: FontWeight.bold,
           color: color,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSeeAllButton(
-    bool isExpanded,
-    VoidCallback onTap,
-    Color gold,
-    bool isWeb,
-  ) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: TextButton.icon(
-        onPressed: onTap,
-        icon: Icon(
-          isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-          color: gold,
-          size: 20,
-        ),
-        label: Text(
-          isExpanded ? 'কম দেখুন' : 'সব দেখুন',
-          style: TextStyle(
-            color: gold,
-            fontWeight: FontWeight.bold,
-            fontSize: isWeb ? 15 : 13,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSearchSection(bool isWeb, bool isDark) {
-    return Center(
-      child: Container(
-        // ম্যাক্স উইডথ ওয়েব এর জন্য আরও একটু কমিয়ে স্লিম করা হয়েছে
-        constraints: BoxConstraints(maxWidth: isWeb ? 500 : double.infinity),
-        height: isWeb ? 42 : 38, // হাইট আরও কমানো হয়েছে
-        decoration: BoxDecoration(
-          color: isDark ? Colors.white.withOpacity(0.08) : Colors.grey[100],
-          borderRadius: BorderRadius.circular(25),
-          border: Border.all(
-            color: isDark ? Colors.white10 : Colors.black.withOpacity(0.03),
-          ),
-        ),
-        child: TextField(
-          textAlignVertical: TextAlignVertical.center,
-          style: TextStyle(
-            color: isDark ? Colors.white : Colors.black,
-            fontSize: isWeb ? 15 : 13, // ফন্ট সাইজ কমানো হয়েছে
-          ),
-          decoration: InputDecoration(
-            hintText: 'হাদীস বা দোয়া খুঁজুন...',
-            hintStyle: TextStyle(color: Colors.grey[500], fontSize: 13),
-            prefixIcon: Icon(
-              Icons.search_rounded,
-              color: Colors.grey[500],
-              size: isWeb ? 20 : 18,
-            ),
-            border: InputBorder.none,
-            contentPadding: const EdgeInsets.only(
-              bottom: 2,
-            ), // টেক্সট ভার্টিক্যাল এলাইনমেন্ট
-            isDense: true,
-          ),
         ),
       ),
     );
@@ -751,7 +672,6 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.menu_book),
             label: 'গ্রন্থসমূহ',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'অনুসন্ধান'),
           BottomNavigationBarItem(
             icon: Icon(Icons.bookmark_outline),
             label: 'সংরক্ষিত',

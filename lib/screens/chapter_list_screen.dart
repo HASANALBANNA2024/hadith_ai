@@ -294,10 +294,6 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
                       label: 'গ্রন্থসমূহ',
                     ),
                     BottomNavigationBarItem(
-                      icon: Icon(Icons.search),
-                      label: 'অনুসন্ধান',
-                    ),
-                    BottomNavigationBarItem(
                       icon: Icon(Icons.bookmark_outline),
                       label: 'সংরক্ষিত',
                     ),
