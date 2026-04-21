@@ -3,6 +3,7 @@ import 'package:hadith_ai/api_service/hadith_api_service.dart';
 import 'package:hadith_ai/model/hadith_book_model.dart';
 import 'package:hadith_ai/screens/chapter_list_screen.dart';
 import 'package:hadith_ai/widgets/app_theme.dart';
+import 'package:hadith_ai/widgets/build_quick_access_row.dart';
 import 'package:hadith_ai/widgets/custom_bottom_Nav.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -193,12 +194,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     // const SizedBox(height: 20),
                     _buildHeader('দ্রুত অ্যাক্সেস', textColor, isWeb),
-                    _buildQuickAccessRow(
-                      cardBg,
-                      gold,
-                      borderColor,
-                      textColor,
-                      isWeb,
+                    buildQuickAccessRow(
+                      context,
+                      _isDark,
+                      cardBg, // আপনার ডিফাইন করা ব্যাকগ্রাউন্ড কালার
+                      gold, // গোল্ড কালার
+                      borderColor, // বর্ডার কালার
+                      textColor, // টেক্সট কালার
+                      isWeb, // আপনার ইজওয়েব বুলিয়ান ভেরিয়েবল
                     ),
 
                     // const SizedBox(height: 20),
@@ -434,66 +437,6 @@ class _HomeScreenState extends State<HomeScreen> {
           fontWeight: FontWeight.bold,
           color: color,
         ),
-      ),
-    );
-  }
-
-  Widget _buildQuickAccessRow(
-    Color bg,
-    Color gold,
-    Color border,
-    Color textC,
-    bool isWeb,
-  ) {
-    final allItems = [
-      {'n': 'History', 'i': Icons.history_rounded},
-      {'n': 'Notes', 'i': Icons.sticky_note_2_outlined},
-      {'n': 'Bookmark', 'i': Icons.bookmark_border_rounded},
-      {'n': 'Download', 'i': Icons.download_outlined},
-    ];
-
-    return Container(
-      width: double.infinity,
-      // মোবাইলে top প্যাডিং ০, ওয়েবে ১০ রাখা হয়েছে
-      padding: EdgeInsets.only(top: isWeb ? 10 : 0, bottom: isWeb ? 20 : 2),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: allItems.map((e) {
-          return Expanded(
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              // মোবাইলে ভার্টিকাল প্যাডিং ১২ (স্লিম), ওয়েবে ১৬ (প্রিমিয়াম)
-              padding: EdgeInsets.symmetric(vertical: isWeb ? 16 : 12),
-              decoration: BoxDecoration(
-                color: bg,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: border.withOpacity(0.5)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(e['i'] as IconData, color: gold, size: isWeb ? 28 : 22),
-                  const SizedBox(height: 6),
-                  Text(
-                    e['n'] as String,
-                    style: TextStyle(
-                      color: textC,
-                      fontSize: isWeb ? 13 : 10,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }).toList(),
       ),
     );
   }
