@@ -41,51 +41,34 @@ class HadithApiService {
     String bookSlug,
     String chapterId,
   ) async {
-    final url = Uri.parse(
-      '$baseUrl/hadiths?apiKey=$apiKey&book=$bookSlug&chapter=$chapterId',
-    );
+    // এই প্রিন্টটি যোগ করুন
+    final String urlString =
+        '$baseUrl/hadiths?apiKey=$apiKey&book=$bookSlug&chapter=$chapterId';
+    print("--- CHECK THIS URL ---");
+    print(urlString);
+    print("----------------------");
+
+    final url = Uri.parse(urlString);
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
+        // আপনার আগের কোড...
         final Map<String, dynamic> data = json.decode(
           utf8.decode(response.bodyBytes),
         );
-        if (data['status'] == 200 && data['hadiths'] != null) {
-          List dynamicList = data['hadiths']['data'] ?? [];
-          return dynamicList.map((json) {
-            String status = json['status'] ?? 'Unknown';
-            String color = (status == 'Sahih' || status == 'Hasan')
-                ? '0xFF2E7D32'
-                : '0xFFC62828';
-            return HadithModel.fromJson({
-              'id': json['id'],
-              'hadith_number': json['hadithNumber'],
-              'narrator_name': json['englishNarrator'] ?? '',
-              'text_arabic': json['hadithArabic'] ?? '',
-              'text_translation':
-                  json['hadithUrdu'] ?? json['hadithEnglish'] ?? '',
-              'grade_status': status,
-              'grade_color': color,
-              'book_name': json['book']?['bookName'] ?? '',
-              'chapter_name': json['chapter']?['chapterName'] ?? '',
-              'explanation_text':
-                  json['explanation'] ?? 'ব্যাখ্যা শীঘ্রই আসছে...',
-              'tags': (json['tags'] is String)
-                  ? (json['tags'] as String).split(',')
-                  : [],
-              'reference_no': json['hadithNumber'] ?? '',
-            });
-          }).toList();
-        }
+        List dynamicList = data['hadiths']['data'] ?? [];
+        return dynamicList.map((item) => HadithModel.fromJson(item)).toList();
+      } else {
+        print("Error: ${response.statusCode}");
       }
     } catch (e) {
-      print("Hadith API Error: $e");
+      print("Exception: $e");
     }
     return [];
   }
 
   // --- ৩. সকল বইয়ের তালিকা লোড করার মেথড ---
-// --- সকল বইয়ের তালিকা লোড করার মেথড ---
+  // --- সকল বইয়ের তালিকা লোড করার মেথড ---
   Future<List<HadithBookModel>> fetchAllBooks() async {
     final url = Uri.parse('$baseUrl/books?apiKey=$apiKey');
     try {
@@ -96,13 +79,10 @@ class HadithApiService {
         );
         List dynamicList = data['books'] ?? [];
 
-        // কনসোলে চেক করার জন্য প্রিন্ট (ঐচ্ছিক)
-        // print("DEBUG: API Data for UI -> ${json.encode(dynamicList)}");
-
         return dynamicList.map((item) {
           String slug = item['bookSlug'] ?? '';
 
-          // আরবি নামের ম্যাপ - যা এপিআই-তে নেই কিন্তু আমরা যোগ করছি
+          // এপিআই স্লাগের সাথে মিলিয়ে আরবি নাম
           Map<String, String> arabicNames = {
             'sahih-bukhari': 'صحيح البخاري',
             'sahih-muslim': 'صحيح مسلم',
@@ -119,7 +99,6 @@ class HadithApiService {
             bookName: item['bookName'] ?? 'Unknown Book',
             bookSlug: slug,
             hadithCount: (item['hadiths_count'] ?? '0').toString(),
-            // আরবি নাম থাকলে দিবে, না থাকলে ইংরেজি নামটাই ব্যাকআপ হিসেবে নিবে
             bookNameArabic: arabicNames[slug] ?? item['bookName'],
           );
         }).toList();

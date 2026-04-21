@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hadith_ai/api_service/hadith_api_service.dart';
 import 'package:hadith_ai/model/chapter_model.dart';
+
 import 'hadith_list_screen.dart';
 
 class ChapterListScreen extends StatefulWidget {
@@ -97,41 +98,42 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
                     final chapters = snapshot.data!;
                     return isLargeScreen
                         ? GridView.builder(
-                      padding: const EdgeInsets.all(16),
-                      gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2, // ওয়েবে পাশাপাশি ২টা কার্ড
-                        childAspectRatio: 5.0,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                      ),
-                      itemCount: chapters.length,
-                      itemBuilder: (context, index) => _buildChapterCard(
-                        context,
-                        chapters[index],
-                        widget.isDarkStatus,
-                        goldColor,
-                        primaryTeal,
-                        darkCardBg,
-                      ),
-                    )
+                            padding: const EdgeInsets.all(16),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount:
+                                      2, // ওয়েবে পাশাপাশি ২টা কার্ড
+                                  childAspectRatio: 5.0,
+                                  crossAxisSpacing: 16,
+                                  mainAxisSpacing: 16,
+                                ),
+                            itemCount: chapters.length,
+                            itemBuilder: (context, index) => _buildChapterCard(
+                              context,
+                              chapters[index],
+                              widget.isDarkStatus,
+                              goldColor,
+                              primaryTeal,
+                              darkCardBg,
+                            ),
+                          )
                         : ListView.separated(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      itemCount: chapters.length,
-                      separatorBuilder: (context, index) =>
-                      const SizedBox(height: 12),
-                      itemBuilder: (context, index) => _buildChapterCard(
-                        context,
-                        chapters[index],
-                        widget.isDarkStatus,
-                        goldColor,
-                        primaryTeal,
-                        darkCardBg,
-                      ),
-                    );
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            itemCount: chapters.length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 12),
+                            itemBuilder: (context, index) => _buildChapterCard(
+                              context,
+                              chapters[index],
+                              widget.isDarkStatus,
+                              goldColor,
+                              primaryTeal,
+                              darkCardBg,
+                            ),
+                          );
                   },
                 ),
               ),
@@ -139,7 +141,11 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(widget.isDarkStatus, goldColor, darkBg),
+      bottomNavigationBar: _buildBottomNav(
+        widget.isDarkStatus,
+        goldColor,
+        darkBg,
+      ),
     );
   }
 
@@ -163,13 +169,13 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
   }
 
   Widget _buildChapterCard(
-      BuildContext context,
-      ChapterModel chapter,
-      bool isDark,
-      Color gold,
-      Color teal,
-      Color darkCard,
-      ) {
+    BuildContext context,
+    ChapterModel chapter,
+    bool isDark,
+    Color gold,
+    Color teal,
+    Color darkCard,
+  ) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -188,9 +194,14 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
             context,
             MaterialPageRoute(
               builder: (context) => HadithListScreen(
-                bookTitle: widget.bookTitle, // StatefulWidget হওয়ার কারণে widget. ব্যবহার করা হয়েছে
+                bookTitle: widget.bookTitle,
                 bookSlug: widget.bookSlug,
-                chapterId: chapter.chapterId.toString(),
+
+                // এখানে chapter.chapterId এর বদলে chapter.id ব্যবহার করে দেখুন
+                // কারণ এপিআই সাধারণত ইউনিক 'id' দিয়ে হাদিস খুঁজে পায়
+                // chapterId: chapter.id.toString(),
+                chapterId: chapter.chapterNumber,
+
                 chapterTitle: chapter.chapterTitle,
                 isDarkStatus: isDark,
               ),
@@ -274,11 +285,26 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
                   selectedItemColor: gold,
                   unselectedItemColor: Colors.grey,
                   items: const [
-                    BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'হোম'),
-                    BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: 'গ্রন্থসমূহ'),
-                    BottomNavigationBarItem(icon: Icon(Icons.search), label: 'অনুসন্ধান'),
-                    BottomNavigationBarItem(icon: Icon(Icons.bookmark_outline), label: 'সংরক্ষিত'),
-                    BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'সেটিংস'),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.home_filled),
+                      label: 'হোম',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.menu_book),
+                      label: 'গ্রন্থসমূহ',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.search),
+                      label: 'অনুসন্ধান',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.bookmark_outline),
+                      label: 'সংরক্ষিত',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.settings),
+                      label: 'সেটিংস',
+                    ),
                   ],
                 ),
               ),

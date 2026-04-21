@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hadith_ai/api_service/hadith_api_service.dart';
 import 'package:hadith_ai/model/hadith_book_model.dart';
 import 'package:hadith_ai/screens/chapter_list_screen.dart';
-import 'package:hadith_ai/screens/hadith_list_screen.dart';
 import 'package:hadith_ai/widgets/app_theme.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -62,7 +61,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     'আল-হাদীস',
                     style: TextStyle(
                       color: gold,
-                      fontSize: isWeb ? 24 : 20, // সামান্য কমানো হয়েছে ক্লিনিংয়ের জন্য
+                      fontSize: isWeb
+                          ? 24
+                          : 20, // সামান্য কমানো হয়েছে ক্লিনিংয়ের জন্য
                       fontWeight: FontWeight.bold,
                       letterSpacing: 0.5,
                     ),
@@ -74,7 +75,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        _isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                        _isDark
+                            ? Icons.dark_mode_rounded
+                            : Icons.light_mode_rounded,
                         color: gold.withOpacity(0.8),
                         size: isWeb ? 22 : 18,
                       ),
@@ -94,7 +97,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   IconButton(
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
-                    icon: Icon(Icons.search_rounded, color: gold, size: isWeb ? 26 : 22),
+                    icon: Icon(
+                      Icons.search_rounded,
+                      color: gold,
+                      size: isWeb ? 26 : 22,
+                    ),
                     onPressed: () {
                       // সার্চ লজিক
                     },
@@ -275,16 +282,17 @@ class _HomeScreenState extends State<HomeScreen> {
   // --- Helper Widgets ---
 
   Widget _buildBookGrid(
-      double width,
-      Color bg,
-      Color border,
-      Color textC,
-      bool isWeb,
-      List<HadithBookModel> books,
-      ) {
-    final filteredBooks = books.where((book) {
-      return book.hadithCount != null && book.hadithCount != '0' && book.hadithCount != '';
-    }).toList();
+    double width,
+    Color bg,
+    Color border,
+    Color textC,
+    bool isWeb,
+    List<HadithBookModel> books,
+  ) {
+    // final filteredBooks = books.where((book) {
+    //   return book.hadithCount != null && book.hadithCount != '0' && book.hadithCount != '';
+    // }).toList();
+    final filteredBooks = books;
 
     int columns = width > 1100 ? 6 : (width > 800 ? 4 : (width > 500 ? 3 : 2));
 
@@ -334,9 +342,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => ChapterListScreen(
-                    bookTitle: book.bookName, // 'book' অবজেক্ট থেকে নাম নেওয়া হয়েছে
-                    bookSlug: book.bookSlug, // 'book' অবজেক্ট থেকে স্ল্যাগ নেওয়া হয়েছে
-                    isDarkStatus: _isDark,   // আপনার বর্তমান থিম স্ট্যাটাস
+                    bookTitle:
+                        book.bookName, // 'book' অবজেক্ট থেকে নাম নেওয়া হয়েছে
+                    bookSlug: book
+                        .bookSlug, // 'book' অবজেক্ট থেকে স্ল্যাগ নেওয়া হয়েছে
+                    isDarkStatus: _isDark, // আপনার বর্তমান থিম স্ট্যাটাস
                   ),
                   // ওয়েব ইউজারদের জন্য রাউট সেটিংস
                   settings: RouteSettings(name: '/chapters/${book.bookSlug}'),
@@ -349,11 +359,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    dynamicIcon,
-                    color: dynamicColor,
-                    size: isWeb ? 28 : 24,
-                  ),
+                  Icon(dynamicIcon, color: dynamicColor, size: isWeb ? 28 : 24),
                   const SizedBox(height: 6),
                   Text(
                     book.bookNameArabic ?? "",
@@ -380,21 +386,24 @@ class _HomeScreenState extends State<HomeScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: textC.withOpacity(0.05),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      "${book.hadithCount} HADITHS",
-                      style: TextStyle(
-                        color: textC.withOpacity(0.6),
-                        fontSize: 8,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                  // Container(
+                  //   padding: const EdgeInsets.symmetric(
+                  //     horizontal: 6,
+                  //     vertical: 2,
+                  //   ),
+                  //   decoration: BoxDecoration(
+                  //     color: textC.withOpacity(0.05),
+                  //     borderRadius: BorderRadius.circular(4),
+                  //   ),
+                  //   // child: Text(
+                  //   //   "${book.hadithCount} HADITHS",
+                  //   //   style: TextStyle(
+                  //   //     color: textC.withOpacity(0.6),
+                  //   //     fontSize: 8,
+                  //   //     fontWeight: FontWeight.bold,
+                  //   //   ),
+                  //   // ),
+                  // ),
                 ],
               ),
             ),
@@ -474,7 +483,9 @@ class _HomeScreenState extends State<HomeScreen> {
               size: isWeb ? 20 : 18,
             ),
             border: InputBorder.none,
-            contentPadding: const EdgeInsets.only(bottom: 2), // টেক্সট ভার্টিক্যাল এলাইনমেন্ট
+            contentPadding: const EdgeInsets.only(
+              bottom: 2,
+            ), // টেক্সট ভার্টিক্যাল এলাইনমেন্ট
             isDense: true,
           ),
         ),
@@ -623,14 +634,15 @@ class _HomeScreenState extends State<HomeScreen> {
           .toList(),
     );
   }
+
   // daily hadith section
   Widget _buildHeroCard(
-      Color bg,
-      Color gold,
-      Color border,
-      Color textC,
-      bool isWeb,
-      ) {
+    Color bg,
+    Color gold,
+    Color border,
+    Color textC,
+    bool isWeb,
+  ) {
     return Container(
       width: double.infinity,
       // constraints যোগ করা হয়েছে যাতে খুব বেশি লম্বা না হয় আবার ওভারফ্লোও না করে
@@ -638,8 +650,8 @@ class _HomeScreenState extends State<HomeScreen> {
         minHeight: isWeb ? 120 : 100, // একটি মিনিমাম স্লিম হাইট
       ),
       padding: EdgeInsets.symmetric(
-          horizontal: isWeb ? 30 : 16,
-          vertical: isWeb ? 20 : 14
+        horizontal: isWeb ? 30 : 16,
+        vertical: isWeb ? 20 : 14,
       ),
       decoration: BoxDecoration(
         color: bg,
@@ -671,9 +683,9 @@ class _HomeScreenState extends State<HomeScreen> {
           Text(
             "- সহীহ বুখারী",
             style: TextStyle(
-                color: gold,
-                fontWeight: FontWeight.bold,
-                fontSize: isWeb ? 13 : 11
+              color: gold,
+              fontWeight: FontWeight.bold,
+              fontSize: isWeb ? 13 : 11,
             ),
           ),
         ],

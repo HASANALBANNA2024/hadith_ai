@@ -1,4 +1,5 @@
 class ChapterModel {
+  final int id;
   final int chapterId;
   final String chapterNumber;
   final String chapterTitle;
@@ -11,22 +12,24 @@ class ChapterModel {
     required this.chapterTitle,
     required this.bookSlug,
     required this.hadithCount,
+    required this.id, // এটি রিকোয়ার্ড কিন্তু নিচে দেওয়া ছিল না
   });
 
   factory ChapterModel.fromJson(Map<String, dynamic> json, String slug) {
-    // print("JSON Data: $json");
+    // এপিআই থেকে আসা আইডিটি আগে বের করে নেই
+    int apiId = json['id'] is int
+        ? json['id']
+        : int.tryParse(json['id'].toString()) ?? 0;
+
     return ChapterModel(
-      chapterId: json['id'] is int
-          ? json['id']
-          : int.tryParse(json['id'].toString()) ?? 0,
+      id: apiId, // এটি যোগ করা হলো, এখন আর লাল দাগ থাকবে না
+      chapterId: apiId,
       chapterNumber: json['chapterNumber']?.toString() ?? '0',
       chapterTitle:
           json['chapterBangla'] ?? json['chapterEnglish'] ?? 'শিরোনামহীন',
       bookSlug: slug,
-      // এপিআই-এর hadiths_count কী (key) থেকে সরাসরি ডেটা নেওয়া হচ্ছে
-      hadithCount: int.tryParse(
-        json['hadiths_count'] ?? json['hadith_count'] ?? '0',
-      ).toString(),
+      hadithCount: (json['hadiths_count'] ?? json['hadith_count'] ?? '0')
+          .toString(),
     );
   }
 }
