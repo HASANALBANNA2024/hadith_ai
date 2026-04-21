@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hadith_ai/api_service/hadith_api_service.dart';
+import 'package:hadith_ai/model/bookmark_screen.dart';
 import 'package:hadith_ai/model/hadith_book_model.dart';
 import 'package:hadith_ai/screens/chapter_list_screen.dart';
 import 'package:hadith_ai/widgets/app_theme.dart';
@@ -13,6 +14,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _isDark = true;
+
+  // index
+  int _currentIndex = 0;
 
   // all section control variable
   bool _showAllBooks = false;
@@ -230,7 +234,19 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             SizedBox(
               width: isWeb ? 1100 : screenWidth,
-              child: _buildBottomNav(_isDark, appBarBg, gold, isWeb),
+              child: _buildBottomNav(
+                _isDark,
+                appBarBg,
+                gold,
+                isWeb,
+                _currentIndex, //
+                (index) {
+                  //
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                },
+              ),
             ),
           ],
         ),
@@ -658,7 +674,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildBottomNav(bool isDark, Color bg, Color gold, bool isWeb) {
+  Widget _buildBottomNav(
+    bool isDark,
+    Color bg,
+    Color gold,
+    bool isWeb,
+    int currentIndex,
+    Function(int) onTap,
+  ) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: isWeb ? 0 : 10),
       decoration: BoxDecoration(
@@ -670,6 +693,20 @@ class _HomeScreenState extends State<HomeScreen> {
       child: BottomNavigationBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        currentIndex: currentIndex, // বর্তমান কোন পেজে আছেন তা বোঝাতে
+        onTap: (index) {
+          if (index == 2) {
+            // ২ নম্বর ইনডেক্স মানে 'Save' বাটন
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BookmarkScreen(isDark: isDark),
+              ),
+            );
+          } else {
+            onTap(index); // অন্য বাটনগুলোর জন্য নরমাল ফাংশন কল হবে
+          }
+        },
         selectedItemColor: gold,
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,

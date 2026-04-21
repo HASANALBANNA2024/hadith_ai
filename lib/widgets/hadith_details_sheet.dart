@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:hadith_ai/logic/bookmark_service.dart';
 import 'package:hadith_ai/model/hadith_model.dart';
 import 'package:hadith_ai/widgets/share_hadith.dart';
 
-class HadithDetailSheet extends StatelessWidget {
+class HadithDetailSheet extends StatefulWidget {
   final HadithModel hadith;
   final bool isDarkMode;
 
@@ -13,24 +14,32 @@ class HadithDetailSheet extends StatelessWidget {
   });
 
   @override
+  State<HadithDetailSheet> createState() => _HadithDetailSheetState();
+}
+
+class _HadithDetailSheetState extends State<HadithDetailSheet> {
+  @override
   Widget build(BuildContext context) {
+    // কালার কনফিগারেশন
     const Color goldColor = Color(0xFFE4C381);
     const Color darkGreen = Color(0xFF004D40);
 
-    final Color bgColor = isDarkMode ? const Color(0xFF121212) : Colors.white;
-    final Color cardColor = isDarkMode
+    final Color bgColor = widget.isDarkMode
+        ? const Color(0xFF121212)
+        : Colors.white;
+    final Color cardColor = widget.isDarkMode
         ? const Color(0xFF1E1E1E)
         : const Color(0xFFF8F9FA);
-    final Color textColor = isDarkMode ? Colors.white : Colors.black87;
-    final Color secTxt = isDarkMode ? Colors.white70 : Colors.black54;
+    final Color textColor = widget.isDarkMode ? Colors.white : Colors.black87;
+    final Color secTxt = widget.isDarkMode ? Colors.white70 : Colors.black54;
 
     double screenWidth = MediaQuery.of(context).size.width;
     bool isWeb = screenWidth > 800;
 
     return DraggableScrollableSheet(
-      initialChildSize: 0.7, // ৭০% স্ক্রিন দখল করবে
+      initialChildSize: 0.7,
       minChildSize: 0.4,
-      maxChildSize: 0.7,
+      maxChildSize: 0.9,
       expand: false,
       builder: (context, scrollController) {
         return Container(
@@ -61,25 +70,21 @@ class HadithDetailSheet extends StatelessWidget {
                         ),
 
                         // আরবী টেক্সট
-                        if (hadith.arabicText.isNotEmpty)
-                          _buildArabicTextBlock(
-                            darkGreen,
-                            textColor,
-                            cardColor,
-                          ),
+                        if (widget.hadith.arabicText.isNotEmpty)
+                          _buildArabicTextBlock(darkGreen, textColor),
 
                         const SizedBox(height: 25),
 
                         // অনুবাদ
-                        _buildTranslationBlock(goldColor, textColor, secTxt),
+                        _buildTranslationBlock(goldColor, textColor),
 
-                        // ডাইনামিক সেকশন: ব্যাখ্যা (যদি থাকে)
-                        if (hadith.explanation.isNotEmpty) ...[
+                        // ব্যাখ্যা (যদি থাকে)
+                        if (widget.hadith.explanation.isNotEmpty) ...[
                           const SizedBox(height: 25),
                           _buildSection(
                             Icons.lightbulb_outline_rounded,
                             'হাদিসের ব্যাখ্যা',
-                            hadith.explanation,
+                            widget.hadith.explanation,
                             goldColor,
                             textColor,
                             secTxt,
@@ -87,14 +92,14 @@ class HadithDetailSheet extends StatelessWidget {
                           ),
                         ],
 
-                        // ডাইনামিক সেকশন: ইমাম পরিচিতি (যদি থাকে)
-                        if (hadith.narratorBio.isNotEmpty &&
-                            hadith.narratorBio != "তথ্য নেই।") ...[
+                        // ইমাম পরিচিতি (যদি থাকে)
+                        if (widget.hadith.narratorBio.isNotEmpty &&
+                            widget.hadith.narratorBio != "তথ্য নেই।") ...[
                           const SizedBox(height: 20),
                           _buildSection(
                             Icons.history_edu_rounded,
                             'ইমাম পরিচিতি',
-                            hadith.narratorBio,
+                            widget.hadith.narratorBio,
                             goldColor,
                             textColor,
                             secTxt,
@@ -102,10 +107,10 @@ class HadithDetailSheet extends StatelessWidget {
                           ),
                         ],
 
-                        // ডাইনামিক সেকশন: ট্যাগস (যদি থাকে)
-                        if (hadith.tags.isNotEmpty) ...[
+                        // ট্যাগস (যদি থাকে)
+                        if (widget.hadith.tags.isNotEmpty) ...[
                           const SizedBox(height: 25),
-                          _buildTags(hadith.tags, goldColor, textColor),
+                          _buildTags(widget.hadith.tags, goldColor),
                         ],
 
                         const SizedBox(height: 20),
@@ -114,7 +119,7 @@ class HadithDetailSheet extends StatelessWidget {
                         _buildSection(
                           Icons.menu_book_rounded,
                           'রেফারেন্স',
-                          hadith.reference,
+                          widget.hadith.reference,
                           goldColor,
                           textColor,
                           secTxt,
@@ -133,6 +138,7 @@ class HadithDetailSheet extends StatelessWidget {
     );
   }
 
+  // ড্র্যাগ হ্যান্ডেল
   Widget _buildDragHandle(Color goldColor) {
     return Container(
       margin: const EdgeInsets.only(top: 12, bottom: 8),
@@ -145,6 +151,7 @@ class HadithDetailSheet extends StatelessWidget {
     );
   }
 
+  // টপ হেডার (বুকমার্ক ও শেয়ার বাটন সহ)
   Widget _buildNewTopHeader(Color goldColor, Color txt, Color secTxt) {
     return Column(
       children: [
@@ -159,7 +166,7 @@ class HadithDetailSheet extends StatelessWidget {
                 border: Border.all(color: goldColor.withOpacity(0.4)),
               ),
               child: Text(
-                hadith.grade,
+                widget.hadith.grade,
                 style: TextStyle(
                   color: goldColor,
                   fontWeight: FontWeight.bold,
@@ -169,7 +176,7 @@ class HadithDetailSheet extends StatelessWidget {
             ),
             Expanded(
               child: Text(
-                hadith.bookName,
+                widget.hadith.bookName,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: goldColor,
@@ -180,10 +187,44 @@ class HadithDetailSheet extends StatelessWidget {
             ),
             Row(
               children: [
-                Icon(Icons.bookmark_border_rounded, size: 20, color: secTxt),
+                IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  icon: Icon(
+                    BookmarkService.isBookmarked(widget.hadith.hadithId)
+                        ? Icons.bookmark_rounded
+                        : Icons.bookmark_border_rounded,
+                    size: 22,
+                    color: goldColor,
+                  ),
+                  onPressed: () async {
+                    if (BookmarkService.isBookmarked(widget.hadith.hadithId)) {
+                      await BookmarkService.removeBookmark(
+                        widget.hadith.hadithId,
+                      );
+                    } else {
+                      await BookmarkService.addBookmark(widget.hadith);
+                    }
+                    if (mounted) {
+                      setState(() {});
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            BookmarkService.isBookmarked(widget.hadith.hadithId)
+                                ? "বুকমার্ক করা হয়েছে"
+                                : "বুকমার্ক থেকে সরানো হয়েছে",
+                          ),
+                          duration: const Duration(milliseconds: 800),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  },
+                ),
                 const SizedBox(width: 15),
                 IconButton(
-                  onPressed: () => shareHadith(hadith),
+                  onPressed: () => shareHadith(widget.hadith),
                   icon: const Icon(Icons.share_outlined, size: 22),
                   color: goldColor.withOpacity(0.8),
                   visualDensity: VisualDensity.compact,
@@ -197,14 +238,14 @@ class HadithDetailSheet extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                hadith.chapterName,
+                widget.hadith.chapterName,
                 style: TextStyle(color: secTxt, fontSize: 13, height: 1.4),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
             Text(
-              'Hadith#${hadith.hadithNumber}',
+              '#${widget.hadith.hadithNumber}',
               style: TextStyle(
                 color: txt,
                 fontSize: 18,
@@ -217,38 +258,36 @@ class HadithDetailSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildArabicTextBlock(
-    Color darkGreen,
-    Color textColor,
-    Color cardColor,
-  ) {
+  // আরবী টেক্সট ব্লক
+  Widget _buildArabicTextBlock(Color darkGreen, Color textColor) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDarkMode ? Colors.black26 : darkGreen.withOpacity(0.04),
+        color: widget.isDarkMode ? Colors.black26 : darkGreen.withOpacity(0.04),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Text(
-        hadith.arabicText,
+        widget.hadith.arabicText,
         textAlign: TextAlign.right,
         textDirection: TextDirection.rtl,
         style: TextStyle(
-          fontSize: 28,
+          fontSize: 26,
           fontFamily: 'Amiri',
-          height: 1.7,
-          color: isDarkMode ? Colors.white : darkGreen,
+          height: 1.8,
+          color: widget.isDarkMode ? Colors.white : darkGreen,
         ),
       ),
     );
   }
 
-  Widget _buildTranslationBlock(Color goldColor, Color txt, Color secTxt) {
+  // অনুবাদ ব্লক
+  Widget _buildTranslationBlock(Color goldColor, Color txt) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'বর্ণনায়: ${hadith.narrator}',
+          'বর্ণনায়: ${widget.hadith.narrator}',
           style: TextStyle(
             color: goldColor,
             fontSize: 13,
@@ -258,14 +297,15 @@ class HadithDetailSheet extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         Text(
-          hadith.translation,
-          style: TextStyle(color: txt, fontSize: 17, height: 1.5),
+          widget.hadith.translation,
+          style: TextStyle(color: txt, fontSize: 16, height: 1.6),
         ),
       ],
     );
   }
 
-  Widget _buildTags(List<String> tags, Color goldColor, Color textColor) {
+  // ট্যাগস উইজেট
+  Widget _buildTags(List<String> tags, Color goldColor) {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -291,6 +331,7 @@ class HadithDetailSheet extends StatelessWidget {
     );
   }
 
+  // জেনারেল সেকশন (ব্যাখ্যা, পরিচিতি, রেফারেন্স এর জন্য)
   Widget _buildSection(
     IconData icon,
     String title,

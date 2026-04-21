@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:hadith_ai/logic/bookmark_service.dart';
+import 'package:hadith_ai/model/hadith_model.dart';
 import 'package:hadith_ai/screens/chapter_list_screen.dart';
 import 'package:hadith_ai/screens/dashboard_screen.dart';
 import 'package:hadith_ai/screens/splash_screen.dart';
 import 'package:hadith_ai/widgets/app_theme.dart';
 
-void main() {
+void main() async {
   // final apiService = HadithApiService();
   // WidgetsFlutterBinding.ensureInitialized();
   // // চেক করার জন্য কল করুন
@@ -12,6 +14,10 @@ void main() {
   // await apiService.checkBookData("musnad-ahmad");
   // await apiService.checkBookData("silsila-sahiha");
   // print("--- API Debugging End ---");
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Hive ইনিশিয়ালাইজ এবং বক্স ওপেন করা
+  await BookmarkService.init();
 
   runApp(const MyApp());
 }
