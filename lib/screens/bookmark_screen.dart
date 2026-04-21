@@ -156,68 +156,88 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
   ) {
     return GestureDetector(
       key: ValueKey(hadith.hadithId),
+      // এখানে ক্লিক করলে ফুল ডিটেইলস শিট ওপেন হবে
       onTap: () => _showHadithDetail(hadith),
       child: Card(
         color: bg,
-        elevation: 2,
+        elevation: 1,
+        margin: const EdgeInsets.only(bottom: 12),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(12),
           side: BorderSide(
             color: widget.isDark ? Colors.white10 : Colors.grey.shade200,
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
             children: [
+              // ১. টপ হেডার (বইয়ের নাম এবং গ্রেড)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.menu_book_rounded, color: gold, size: 16),
-                      const SizedBox(width: 8),
+                      Icon(Icons.menu_book_rounded, color: gold, size: 14),
+                      const SizedBox(width: 6),
                       Text(
                         hadith.bookName,
                         style: TextStyle(
                           color: gold,
                           fontWeight: FontWeight.bold,
-                          fontSize: 13,
+                          fontSize: 12,
                         ),
                       ),
                     ],
                   ),
                   Text(
                     hadith.grade,
-                    style: TextStyle(color: gold, fontSize: 11),
+                    style: TextStyle(
+                      color: gold.withOpacity(0.8),
+                      fontSize: 10,
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 12),
+
+              // ২. আরবি টেক্সট (টাইটেলের মতো ছোট করে - ২ লাইন)
               Align(
                 alignment: Alignment.centerRight,
                 child: Text(
                   hadith.arabicText,
                   textAlign: TextAlign.right,
                   textDirection: TextDirection.rtl,
+                  maxLines: 2, // ২ লাইনের বেশি দেখাবে না
+                  overflow: TextOverflow.ellipsis, // বেশি হলে ... দেখাবে
                   style: const TextStyle(
                     fontFamily: 'Amiri',
-                    fontSize: 22,
+                    fontSize: 18,
                     color: Color(0xFF4CAF50),
-                    height: 1.4,
+                    height: 1.5,
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
+
+              // ৩. অনুবাদ (টাইটেলের মতো ছোট করে - ২ লাইন)
               Text(
                 hadith.translation,
-                style: TextStyle(color: txt, fontSize: 14, height: 1.5),
+                maxLines: 2, // ২ লাইনের বেশি দেখাবে না
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: txt.withOpacity(0.9),
+                  fontSize: 14,
+                  height: 1.4,
+                ),
               ),
-              const SizedBox(height: 15),
-              const Divider(height: 1),
-              const SizedBox(height: 10),
+
+              const SizedBox(height: 12),
+              const Divider(height: 1, thickness: 0.3),
+              const SizedBox(height: 8),
+
+              // ৪. হাদিস নম্বর এবং অ্যাকশন বাটন
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -228,19 +248,23 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                   Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.share_outlined, size: 20),
+                        icon: const Icon(Icons.share_outlined, size: 18),
                         onPressed: () => shareHadith(hadith),
+                        constraints: const BoxConstraints(),
+                        padding: const EdgeInsets.all(8),
                       ),
                       IconButton(
                         icon: const Icon(
                           Icons.bookmark_remove_rounded,
-                          size: 22,
+                          size: 20,
                           color: Colors.redAccent,
                         ),
                         onPressed: () async {
                           await BookmarkService.removeBookmark(hadith.hadithId);
                           _loadBookmarks();
                         },
+                        constraints: const BoxConstraints(),
+                        padding: const EdgeInsets.all(8),
                       ),
                     ],
                   ),
