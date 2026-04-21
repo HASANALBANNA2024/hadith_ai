@@ -196,10 +196,6 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
               builder: (context) => HadithListScreen(
                 bookTitle: widget.bookTitle,
                 bookSlug: widget.bookSlug,
-
-                // এখানে chapter.chapterId এর বদলে chapter.id ব্যবহার করে দেখুন
-                // কারণ এপিআই সাধারণত ইউনিক 'id' দিয়ে হাদিস খুঁজে পায়
-                // chapterId: chapter.id.toString(),
                 chapterId: chapter.chapterNumber,
 
                 chapterTitle: chapter.chapterTitle,

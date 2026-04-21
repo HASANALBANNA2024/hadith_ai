@@ -4,11 +4,11 @@ class HadithModel {
   final String narrator;
   final String arabicText;
   final String translation;
-  final String grade; // এপিআই থেকে আসা 'status'
+  final String grade; // এপিআই-এর 'status'
   final String gradeColor;
   final String bookName;
   final String chapterName;
-  final String explanation;
+  final String explanation; // এপিআই-এর 'heading'
   final String narratorBio;
   final List<String> tags;
   final String reference;
@@ -30,42 +30,50 @@ class HadithModel {
   });
 
   factory HadithModel.fromJson(Map<String, dynamic> json) {
+    // নেস্টেড ডাটা (book এবং chapter) হ্যান্ডেল করা
     final bookData = json['book'] ?? {};
     final chapterData = json['chapter'] ?? {};
 
-    // ১. চেক করা হচ্ছে ইংরেজি ডাটা আছে কি না (খালি স্ট্রিং বা নাল কি না)
+    // ১. অনুবাদ লজিক: ইংরেজি না থাকলে উর্দু দেখাবে
     String rawEnglish = (json['hadithEnglish'] ?? "").toString().trim();
     String rawUrdu = (json['hadithUrdu'] ?? "").toString().trim();
-
-    // ২. যদি ইংরেজি থাকে তবে ইংরেজি দেখাবে, নাহলে উর্দু দেখাবে
     String finalTranslation = rawEnglish.isNotEmpty
         ? rawEnglish
         : (rawUrdu.isNotEmpty ? rawUrdu : "No translation available");
 
-    // ৩. বর্ণনাকারীর (Narrator) ক্ষেত্রেও একই লজিক
+    // ২. বর্ণনাকারী লজিক: ইংরেজি না থাকলে উর্দু
     String rawNarratorEn = (json['englishNarrator'] ?? "").toString().trim();
     String rawNarratorUr = (json['urduNarrator'] ?? "").toString().trim();
     String finalNarrator = rawNarratorEn.isNotEmpty
         ? rawNarratorEn
         : (rawNarratorUr.isNotEmpty ? rawNarratorUr : "Narrator info missing");
 
+    // ৩. ব্যাখ্যা (Heading) লজিক: ইংরেজি না থাকলে উর্দু
+    String rawHeadingEn = (json['headingEnglish'] ?? "").toString().trim();
+    String rawHeadingUr = (json['headingUrdu'] ?? "").toString().trim();
+    String finalExplanation = rawHeadingEn.isNotEmpty
+        ? rawHeadingEn
+        : (rawHeadingUr.isNotEmpty ? rawHeadingUr : "কোনো ব্যাখ্যা নেই");
+
+    // ৪. গ্রেড কালার লজিক (Sahih হলে সবুজ, অন্যথায় সোনালী)
+    String status = json['status'] ?? "Unknown";
+    String color = (status == "Sahih") ? "#4CAF50" : "#E4C381";
+
     return HadithModel(
       hadithId: json['id'] ?? 0,
       hadithNumber: (json['hadithNumber'] ?? "").toString(),
       narrator: finalNarrator,
       arabicText: json['hadithArabic'] ?? "",
-      translation: finalTranslation, // এখানে আমাদের সেই ডায়নামিক অনুবাদ
-      grade: json['status'] ?? "Unknown",
-      gradeColor: json['grade_color'] ?? "#E4C381",
+      translation: finalTranslation,
+      grade: status,
+      gradeColor: color,
       bookName: bookData['bookName'] ?? "Unknown Book",
       chapterName: chapterData['chapterEnglish'] ?? "Unknown Chapter",
-      explanation: (json['headingEnglish'] ?? "").toString().isNotEmpty
-          ? json['headingEnglish']
-          : (json['headingUrdu'] ?? "ব্যাখ্যা নেই"),
+      explanation: finalExplanation,
       narratorBio: bookData['aboutWriter'] ?? "তথ্য নেই।",
       tags: json['tags'] is List ? List<String>.from(json['tags']) : [],
       reference:
-          "Book: ${bookData['bookName']}, Hadith: ${json['hadithNumber']}",
+          "Book: ${bookData['bookName'] ?? ""}, Hadith: ${json['hadithNumber'] ?? ""}",
     );
   }
 }

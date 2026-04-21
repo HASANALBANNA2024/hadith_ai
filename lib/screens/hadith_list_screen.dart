@@ -192,7 +192,7 @@ class _HadithListScreenState extends State<HadithListScreen> {
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
             builder: (context) =>
-                HadithDetailSheet(hadith: currentHadith, isDark: isDark),
+                HadithDetailSheet(hadith: currentHadith, isDarkMode: isDark),
           );
         },
         borderRadius: BorderRadius.circular(15),
