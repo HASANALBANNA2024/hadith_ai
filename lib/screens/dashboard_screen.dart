@@ -19,6 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _showAllQuickAccess = false;
   bool _showAllCategories = false;
   bool _showAllDailyLife = false;
+  bool isExpanded = false; // এটি স্টেট ক্লাসের ভেতরে থাকতে হবে
 
   @override
   Widget build(BuildContext context) {
@@ -196,14 +197,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       },
                     ),
-
-                    _buildSeeAllButton(
-                      _showAllBooks,
-                      () => setState(() => _showAllBooks = !_showAllBooks),
-                      gold,
-                      isWeb,
-                    ),
-
                     // const SizedBox(height: 20),
                     _buildHeader('দ্রুত অ্যাক্সেস', textColor, isWeb),
                     _buildQuickAccessRow(
@@ -213,26 +206,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       textColor,
                       isWeb,
                     ),
-                    _buildSeeAllButton(
-                      _showAllQuickAccess,
-                      () => setState(
-                        () => _showAllQuickAccess = !_showAllQuickAccess,
-                      ),
-                      gold,
-                      isWeb,
-                    ),
 
                     // const SizedBox(height: 20),
                     _buildHeader('হাদীস বিষয়ভিত্তিক', textColor, isWeb),
                     _buildCategoryWrap(borderColor, textColor, cardBg, isWeb),
-                    _buildSeeAllButton(
-                      _showAllCategories,
-                      () => setState(
-                        () => _showAllCategories = !_showAllCategories,
-                      ),
-                      gold,
-                      isWeb,
-                    ),
 
                     // const SizedBox(height: 20),
                     _buildHeader('দৈনন্দিন জীবনের হাদীস', textColor, isWeb),
@@ -241,14 +218,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderColor,
                       textColor,
                       AppThemes.primaryGreen,
-                      isWeb,
-                    ),
-                    _buildSeeAllButton(
-                      _showAllDailyLife,
-                      () => setState(
-                        () => _showAllDailyLife = !_showAllDailyLife,
-                      ),
-                      gold,
                       isWeb,
                     ),
 
@@ -294,16 +263,20 @@ class _HomeScreenState extends State<HomeScreen> {
       'sahih-muslim',
       'al-tirmidhi',
       'abu-dawood',
-      'ibn-e-majah', // আপনার কনসোলে এটি 'ibn-e-majah' এসেছে
+      'ibn-e-majah',
       'sunan-nasai',
     ];
 
-    // আপনার লিস্ট ফিল্টার করুন এভাবে:
     final filteredBooks = books
         .where((b) => sahihSittahSlugs.contains(b.bookSlug))
         .toList();
 
-    int columns = width > 1100 ? 6 : (width > 800 ? 4 : (width > 500 ? 3 : 2));
+    // --- আপডেট: কলাম সংখ্যা লজিক ---
+    // আপনার রিকোয়ারমেন্ট অনুযায়ী ৭০০ এর বেশি হলে ৪টি, ১১০০ এর বেশি হলে ৬টি
+    int columns = width > 1100 ? 6 : (width > 700 ? 4 : (width > 500 ? 3 : 2));
+
+    // আইটেম কাউন্ট নির্ধারণ (Toggle Logic)
+    int displayCount = (width <= 500 && !isExpanded) ? 2 : filteredBooks.length;
 
     final List<IconData> islamicIcons = [
       Icons.menu_book_rounded,
@@ -323,84 +296,121 @@ class _HomeScreenState extends State<HomeScreen> {
       const Color(0xFF9C27B0),
     ];
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: filteredBooks.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: columns,
-        mainAxisSpacing: 10,
-        crossAxisSpacing: 10,
-        childAspectRatio: isWeb ? 1.0 : 0.92,
-      ),
-      itemBuilder: (context, i) {
-        final book = filteredBooks[i]; // এখান থেকে বইয়ের ডেটা পাওয়া যাচ্ছে
-        final dynamicIcon = islamicIcons[i % islamicIcons.length];
-        final dynamicColor = iconColors[i % iconColors.length];
-
-        return Container(
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: border.withOpacity(0.3), width: 1),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end, // বাটনকে ডানপাশে রাখবে
+      children: [
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: displayCount,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: columns,
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+            childAspectRatio: isWeb ? 1.0 : 0.92,
           ),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(15),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ChapterListScreen(
-                    bookTitle:
-                        book.bookName, // 'book' অবজেক্ট থেকে নাম নেওয়া হয়েছে
-                    bookSlug: book
-                        .bookSlug, // 'book' অবজেক্ট থেকে স্ল্যাগ নেওয়া হয়েছে
-                    isDarkStatus: _isDark, // আপনার বর্তমান থিম স্ট্যাটাস
+          itemBuilder: (context, i) {
+            final book = filteredBooks[i];
+            final dynamicIcon = islamicIcons[i % islamicIcons.length];
+            final dynamicColor = iconColors[i % iconColors.length];
+
+            return Container(
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: border.withOpacity(0.3), width: 1),
+              ),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(15),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChapterListScreen(
+                        bookTitle: book.bookName,
+                        bookSlug: book.bookSlug,
+                        isDarkStatus: _isDark,
+                      ),
+                      settings: RouteSettings(
+                        name: '/chapters/${book.bookSlug}',
+                      ),
+                    ),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 10,
                   ),
-                  // ওয়েব ইউজারদের জন্য রাউট সেটিংস
-                  settings: RouteSettings(name: '/chapters/${book.bookSlug}'),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        dynamicIcon,
+                        color: dynamicColor,
+                        size: isWeb ? 28 : 24,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        book.bookNameArabic ?? "",
+                        style: const TextStyle(
+                          color: Color(0xFFB8860B),
+                          fontSize: 14,
+                          fontFamily: 'Amiri',
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        book.bookName,
+                        style: TextStyle(
+                          color: textC,
+                          fontWeight: FontWeight.w900,
+                          fontSize: isWeb ? 12 : 10.5,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
                 ),
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(dynamicIcon, color: dynamicColor, size: isWeb ? 28 : 24),
-                  const SizedBox(height: 6),
-                  Text(
-                    book.bookNameArabic ?? "",
-                    style: const TextStyle(
-                      color: Color(0xFFB8860B),
-                      fontSize: 14,
-                      fontFamily: 'Amiri',
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    book.bookName,
-                    style: TextStyle(
-                      color: textC,
-                      fontWeight: FontWeight.w900,
-                      fontSize: isWeb ? 12 : 10.5,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                ],
+              ),
+            );
+          },
+        ),
+
+        // বাটন শুধুমাত্র মোবাইল ভিউতে এবং কিতাব বেশি থাকলে ডানপাশে দেখাবে
+        if (width <= 500 && filteredBooks.length > 2)
+          Padding(
+            padding: const EdgeInsets.only(top: 8, right: 4),
+            child: TextButton.icon(
+              onPressed: () {
+                setState(() {
+                  isExpanded = !isExpanded;
+                });
+              },
+              icon: Icon(
+                isExpanded
+                    ? Icons.arrow_back_ios_new_outlined
+                    : Icons.arrow_drop_down_circle_outlined,
+                color: const Color(0xFFB8860B),
+                size: 18,
+              ),
+              label: Text(
+                isExpanded ? "কম দেখুন" : "সব দেখুন",
+                style: const TextStyle(
+                  color: Color(0xFFB8860B),
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
-        );
-      },
+      ],
     );
   }
   // (বাকি সকল হেল্পার মেথড যেমন Header, SearchSection, HeroCard, BottomNav ইত্যাদি আপনার অরিজিনাল কোডের মতোই থাকবে)
