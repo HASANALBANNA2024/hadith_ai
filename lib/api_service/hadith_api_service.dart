@@ -10,6 +10,8 @@ class HadithApiService {
   static const String baseUrl = "https://hadithapi.com/api";
   static const String cacheBoxName = 'app_cache';
 
+
+
   // --- ১. চ্যাপ্টার লোড (Offline-First) ---
   Future<List<ChapterModel>> fetchChapters(String bookSlug) async {
     final String cacheKey = "chapters_$bookSlug";

@@ -5,7 +5,6 @@ import 'package:hadith_ai/model/hadith_model.dart';
 import 'package:hadith_ai/widgets/custom_bottom_Nav.dart';
 import 'package:hadith_ai/widgets/hadith_details_sheet.dart';
 import 'package:http/http.dart' as http;
-import 'package:hadith_ai/download/download_logic.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class HadithListScreen extends StatefulWidget {
