@@ -3,7 +3,6 @@ import 'package:hadith_ai/api_service/hadith_api_service.dart';
 import 'package:hadith_ai/model/hadith_book_model.dart';
 import 'package:hadith_ai/screens/chapter_list_screen.dart';
 import 'package:hadith_ai/widgets/app_theme.dart';
-import 'package:hadith_ai/widgets/build_quick_access_row.dart';
 import 'package:hadith_ai/widgets/custom_bottom_Nav.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -193,16 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
                     // const SizedBox(height: 20),
-                    _buildHeader('দ্রুত অ্যাক্সেস', textColor, isWeb),
-                    buildQuickAccessRow(
-                      context,
-                      _isDark,
-                      cardBg, // আপনার ডিফাইন করা ব্যাকগ্রাউন্ড কালার
-                      gold, // গোল্ড কালার
-                      borderColor, // বর্ডার কালার
-                      textColor, // টেক্সট কালার
-                      isWeb, // আপনার ইজওয়েব বুলিয়ান ভেরিয়েবল
-                    ),
+
 
                     // const SizedBox(height: 20),
                     _buildHeader('হাদীস বিষয়ভিত্তিক', textColor, isWeb),

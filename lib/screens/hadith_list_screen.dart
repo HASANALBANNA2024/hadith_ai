@@ -47,22 +47,23 @@ class _HadithListScreenState extends State<HadithListScreen> {
   Future<void> fetchHadiths() async {
     setState(() => isLoading = true);
 
-    // ১. চেক করা হচ্ছে এই চ্যাপ্টারটি মেটাডাটায় ডাউনলোড করা হিসেবে মার্ক করা কি না
-    bool isDownloaded = DownloadLogic.isDownloaded(widget.bookSlug, widget.chapterId);
     final String cacheKey = "hadiths_${widget.bookSlug}_${widget.chapterId}";
-    var box = Hive.box(DownloadLogic.cacheBoxName);
 
-    if (isDownloaded && box.containsKey(cacheKey)) {
-      print("🚀 Loading PERMANENTLY from Hive...");
+    // ১. বক্স ওপেন আছে কি না নিশ্চিত হয়ে নেওয়া (DownloadLogic এর নাম ব্যবহার করে)
+    var box = Hive.box('app_cache'); // আপনার সার্ভিস ফাইলে cacheBoxName 'app_cache' দেওয়া আছে
+
+    // ২. ক্যাশ চেক করা (isDownloaded লজিক ছাড়াই)
+    if (box.containsKey(cacheKey)) {
+      print("🚀 Loading from Hive Cache...");
       List cachedData = box.get(cacheKey);
       setState(() {
-        hadiths = cachedData; // এখানে সরাসরি লজিক অ্যাপ্লাই হবে
+        hadiths = cachedData;
         isLoading = false;
       });
-      return; // এপিআই-তে আর যাবেই না
+      return; // ডাটা পেলে এপিআই কল হবে না
     }
 
-    // ২. যদি ডাউনলোড করা না থাকে তবেই কেবল এপিআই কল
+    // ৩. ক্যাশে ডাটা না থাকলে সরাসরি এপিআই কল
     print("🌐 Loading from API...");
     final String url = "https://hadithapi.com/api/hadiths?apiKey=$apiKey&book=${widget.bookSlug}&chapter=${widget.chapterId}";
 
@@ -71,15 +72,19 @@ class _HadithListScreenState extends State<HadithListScreen> {
       if (response.statusCode == 200) {
         final data = json.decode(utf8.decode(response.bodyBytes));
         if (data['hadiths'] != null && data['hadiths']['data'] != null) {
+          final List fetchedData = data['hadiths']['data'];
+
           setState(() {
-            hadiths = data['hadiths']['data'];
+            hadiths = fetchedData;
             isLoading = false;
           });
-          // এপিআই থেকে আসার পর ডাটাটি অটো ক্যাশ হয়ে যাবে যেন নেক্সট টাইম অফলাইনে পাওয়া যায়
-          await box.put(cacheKey, hadiths);
+
+          // ডাটা অটো সেভ করে রাখা হচ্ছে পরের বারের জন্য
+          await box.put(cacheKey, fetchedData);
         }
       }
     } catch (e) {
+      print("Error: $e");
       setState(() => isLoading = false);
     }
   }
