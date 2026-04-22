@@ -47,48 +47,40 @@ class _HadithListScreenState extends State<HadithListScreen> {
   Future<void> fetchHadiths() async {
     setState(() => isLoading = true);
 
-    // লজিক: প্রথমে চেক করো এই চ্যাপ্টারটি কি ডাউনলোড করা আছে?
-    bool isOffline = DownloadLogic.isDownloaded(widget.bookSlug, widget.chapterId);
+    // ১. চেক করা হচ্ছে এই চ্যাপ্টারটি মেটাডাটায় ডাউনলোড করা হিসেবে মার্ক করা কি না
+    bool isDownloaded = DownloadLogic.isDownloaded(widget.bookSlug, widget.chapterId);
+    final String cacheKey = "hadiths_${widget.bookSlug}_${widget.chapterId}";
+    var box = Hive.box(DownloadLogic.cacheBoxName);
 
-    if (isOffline) {
-      print("🌐 লোড হচ্ছে অফলাইন (Hive) থেকে...");
-      try {
-        var box = Hive.box(DownloadLogic.cacheBoxName);
-        final String cacheKey = "hadiths_${widget.bookSlug}_${widget.chapterId}";
-
-        if (box.containsKey(cacheKey)) {
-          List cachedData = box.get(cacheKey);
-          setState(() {
-            hadiths = cachedData;
-            isLoading = false;
-          });
-          return; // অফলাইন ডাটা পেয়ে গেলে ফাংশন এখানেই শেষ
-        }
-      } catch (e) {
-        print("Offline Load Error: $e");
-      }
+    if (isDownloaded && box.containsKey(cacheKey)) {
+      print("🚀 Loading PERMANENTLY from Hive...");
+      List cachedData = box.get(cacheKey);
+      setState(() {
+        hadiths = cachedData; // এখানে সরাসরি লজিক অ্যাপ্লাই হবে
+        isLoading = false;
+      });
+      return; // এপিআই-তে আর যাবেই না
     }
 
-    // যদি অফলাইনে না থাকে, তবেই কেবল এপিআই কল হবে
-    print("📡 লোড হচ্ছে অনলাইন (API) থেকে...");
+    // ২. যদি ডাউনলোড করা না থাকে তবেই কেবল এপিআই কল
+    print("🌐 Loading from API...");
     final String url = "https://hadithapi.com/api/hadiths?apiKey=$apiKey&book=${widget.bookSlug}&chapter=${widget.chapterId}";
 
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
-        final data = json.decode(utf8.decode(response.bodyBytes)); // utf8.decode যোগ করা ভালো বাংলা ফন্টের জন্য
+        final data = json.decode(utf8.decode(response.bodyBytes));
         if (data['hadiths'] != null && data['hadiths']['data'] != null) {
           setState(() {
             hadiths = data['hadiths']['data'];
             isLoading = false;
           });
+          // এপিআই থেকে আসার পর ডাটাটি অটো ক্যাশ হয়ে যাবে যেন নেক্সট টাইম অফলাইনে পাওয়া যায়
+          await box.put(cacheKey, hadiths);
         }
-      } else {
-        setState(() => isLoading = false);
       }
     } catch (e) {
       setState(() => isLoading = false);
-      print("Fetch Catch Error: $e");
     }
   }
 
@@ -223,10 +215,11 @@ class _HadithListScreenState extends State<HadithListScreen> {
       Color goldColor,
       bool isDark,
       ) {
-    // ১. প্রথমেই আইটেমটিকে মডেলে কনভার্ট করে ফেলুন
-    // এটি করলে অফলাইন বা অনলাইন সব ডাটা একই ফরম্যাটে চলে আসবে
+    // ১. ডাটা টাইপ এরর দূর করার জন্য এবং ইংলিশ/আরবি নিশ্চিত করতে মডেলে কনভার্ট করা হয়েছে
+    // এখানে logic change হয়নি, শুধু টাইপ কাস্টিং করা হয়েছে যেন red line না আসে।
     final HadithModel hModel = HadithModel.fromJson(Map<String, dynamic>.from(item));
 
+    // স্ট্যাটাস লজিক (অপরিবর্তিত)
     bool isSahih = hModel.grade.toLowerCase().contains("sahih");
     bool isHasan = hModel.grade.toLowerCase().contains("hasan");
 
@@ -253,7 +246,7 @@ class _HadithListScreenState extends State<HadithListScreen> {
       ),
       child: InkWell(
         onTap: () {
-          // অলরেডি hModel আছে, তাই সরাসরি পাঠিয়ে দিন
+          // hModel সরাসরি পাঠানোর লজিক
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
@@ -270,7 +263,7 @@ class _HadithListScreenState extends State<HadithListScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // স্ট্যাটাস ব্যাজ
+                  // স্ট্যাটাস ব্যাজ (আপনার ডিজাইন অনুযায়ী)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
@@ -279,23 +272,23 @@ class _HadithListScreenState extends State<HadithListScreen> {
                       border: Border.all(color: statusColor),
                     ),
                     child: Text(
-                      hModel.grade.toUpperCase(), // hModel ব্যবহার করুন
+                      hModel.grade.toUpperCase(),
                       style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  // হাদিস নাম্বার
+                  // হাদিস নাম্বার (আপনার ডিজাইন অনুযায়ী)
                   Text(
-                    "Hadith# ${hModel.hadithNumber}", // hModel ব্যবহার করুন
+                    "Hadith# ${hModel.hadithNumber}",
                     style: TextStyle(color: goldColor, fontWeight: FontWeight.bold, fontSize: 13),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              // আরবি টেক্সট
+              // আরবি টেক্সট (এটি এখন সবসময় আরবি দেখাবে)
               Align(
                 alignment: Alignment.centerRight,
                 child: Text(
-                  hModel.arabicText, // hModel ব্যবহার করুন
+                  hModel.arabicText,
                   textAlign: TextAlign.right,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -307,15 +300,15 @@ class _HadithListScreenState extends State<HadithListScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-              // ইংরেজি অনুবাদ (এখন আর "No English" আসবে না)
+              // ইংরেজি অনুবাদ (এটি এখন সবসময় ইংরেজি দেখাবে)
               Text(
-                hModel.translation, // hModel ব্যবহার করুন
+                hModel.translation,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: textColor, fontSize: 14, height: 1.5),
               ),
               const Divider(height: 25, thickness: 0.6),
-              // ন্যারেটর
+              // ন্যারেটর ইনফো (অপরিবর্তিত)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

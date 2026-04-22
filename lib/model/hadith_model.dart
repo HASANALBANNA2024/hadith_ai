@@ -47,14 +47,14 @@ class HadithModel {
   };
 
   factory HadithModel.fromJson(Map<String, dynamic> json) {
-    // যদি ডাটা হাইভ (ক্যাশ) থেকে আসে, তবে সরাসরি নিচের ম্যাপ কি-গুলো ব্যবহার করবে
+    // যদি ডাটা হাইভ (ক্যাশ) থেকে আসে
     if (json.containsKey('translation')) {
       return HadithModel(
         hadithId: json['id'] ?? 0,
         hadithNumber: json['hadithNumber'] ?? "",
         narrator: json['narrator'] ?? "",
         arabicText: json['hadithArabic'] ?? "",
-        translation: json['translation'] ?? "",
+        translation: json['translation'] ?? "", // এখানে ইংলিশ থাকবে
         grade: json['status'] ?? "",
         gradeColor: json['gradeColor'] ?? "",
         bookName: json['bookName'] ?? "",
@@ -66,30 +66,18 @@ class HadithModel {
       );
     }
 
-    // --- আপনার আগের এপিআই লজিক (অপরিবর্তিত) ---
+    // এপিআই থেকে আসার সময় ইংলিশ ফিল্ডগুলো প্রায়োরিটি দেওয়া হয়েছে
     final bookData = json['book'] ?? {};
     final chapterData = json['chapter'] ?? {};
 
-    String rawEnglish = (json['hadithEnglish'] ?? "").toString().trim();
-    String rawUrdu = (json['hadithUrdu'] ?? "").toString().trim();
-    String finalTranslation = rawEnglish.isNotEmpty
-        ? rawEnglish
-        : (rawUrdu.isNotEmpty ? rawUrdu : "No translation available");
+    // সরাসরি ইংরেজি ফিল্ড 'hadithEnglish' থেকে ডাটা নেওয়া হচ্ছে
+    String finalTranslation = (json['hadithEnglish'] ?? "").toString().trim();
+    if (finalTranslation.isEmpty) {
+      finalTranslation = (json['hadithUrdu'] ?? "No English Translation available").toString().trim();
+    }
 
-    String rawNarratorEn = (json['englishNarrator'] ?? "").toString().trim();
-    String rawNarratorUr = (json['urduNarrator'] ?? "").toString().trim();
-    String finalNarrator = rawNarratorEn.isNotEmpty
-        ? rawNarratorEn
-        : (rawNarratorUr.isNotEmpty ? rawNarratorUr : "Narrator info missing");
-
-    String rawHeadingEn = (json['headingEnglish'] ?? "").toString().trim();
-    String rawHeadingUr = (json['headingUrdu'] ?? "").toString().trim();
-    String finalExplanation = rawHeadingEn.isNotEmpty
-        ? rawHeadingEn
-        : (rawHeadingUr.isNotEmpty ? rawHeadingUr : "");
-
-    String status = json['status'] ?? "Unknown";
-    String color = (status == "Sahih") ? "#4CAF50" : "#E4C381";
+    String finalNarrator = (json['englishNarrator'] ?? "Narrator info missing").toString().trim();
+    String finalExplanation = (json['headingEnglish'] ?? "").toString().trim();
 
     return HadithModel(
       hadithId: json['id'] ?? 0,
@@ -97,15 +85,14 @@ class HadithModel {
       narrator: finalNarrator,
       arabicText: json['hadithArabic'] ?? "",
       translation: finalTranslation,
-      grade: status,
-      gradeColor: color,
+      grade: json['status'] ?? "Unknown",
+      gradeColor: (json['status'] == "Sahih") ? "#4CAF50" : "#E4C381",
       bookName: bookData['bookName'] ?? "Unknown Book",
       chapterName: chapterData['chapterEnglish'] ?? "Unknown Chapter",
       explanation: finalExplanation,
       narratorBio: bookData['aboutWriter'] ?? "",
       tags: json['tags'] is List ? List<String>.from(json['tags']) : [],
-      reference:
-      "Book: ${bookData['bookName'] ?? ""}, Hadith: ${json['hadithNumber'] ?? ""}",
+      reference: "Book: ${bookData['bookName']}, Hadith: ${json['hadithNumber']}",
     );
   }
 }
