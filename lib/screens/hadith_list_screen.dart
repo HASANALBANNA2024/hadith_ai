@@ -321,7 +321,7 @@ class _HadithListScreenState extends State<HadithListScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      "Narrator: ${hModel.narrator}", // hModel ব্যবহার করুন
+                      "Narrator: ${hModel.narrator}",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(color: isDark ? Colors.white70 : Colors.black54, fontSize: 11, fontStyle: FontStyle.italic),
