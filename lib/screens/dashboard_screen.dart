@@ -75,6 +75,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const Spacer(),
 
+                  IconButton(
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    icon: Icon(
+                      Icons.search_rounded,
+                      color: gold,
+                      size: isWeb ? 26 : 22,
+                    ),
+                    onPressed: () {
+                      // সার্চ লজিক
+                    },
+                  ),
+                  const SizedBox(width: 10),
                   // থিম টগল (আইকন এবং সুইচকে একটি ছোট রো-তে রাখা হয়েছে)
                   Row(
                     mainAxisSize: MainAxisSize.min,
@@ -99,18 +112,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
 
                   // সার্চ বাটন - যদি চ্যাটবট থাকে তবে এটি ছোট রাখা ভালো
-                  IconButton(
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    icon: Icon(
-                      Icons.search_rounded,
-                      color: gold,
-                      size: isWeb ? 26 : 22,
-                    ),
-                    onPressed: () {
-                      // সার্চ লজিক
-                    },
-                  ),
                 ],
               ),
             ),
@@ -192,7 +193,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
                     // const SizedBox(height: 20),
-
 
                     // const SizedBox(height: 20),
                     _buildHeader('হাদীস বিষয়ভিত্তিক', textColor, isWeb),

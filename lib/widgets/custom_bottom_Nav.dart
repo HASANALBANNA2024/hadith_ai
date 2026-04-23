@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hadith_ai/screens/bookmark_screen.dart';
+import 'package:hadith_ai/widgets/settings_sheet.dart';
 
 class CustomBottomNav extends StatelessWidget {
   final bool isDark;
@@ -48,6 +49,20 @@ class CustomBottomNav extends StatelessWidget {
               MaterialPageRoute(
                 builder: (context) => BookmarkScreen(isDark: isDark),
               ),
+            );
+          } else if (index == 3) {
+            // সেটিংস আইটেমে ক্লিক করলে এই শিটটি ওপেন হবে
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (context) {
+                // নতুন সেটিংস শিট কল করা (ডার্ক মোড সুইচ ছাড়া)
+                return SettingsSheet(
+                  isDarkMode:
+                      isDark, // এটি আপনার কন্ট্রোলারের বর্তমান স্টেট থেকে আসবে
+                );
+              },
             );
           } else {
             // অন্য ট্যাবের জন্য মেইন স্ক্রিনের স্টেট আপডেট করবে
