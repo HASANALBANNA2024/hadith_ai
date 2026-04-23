@@ -10,16 +10,13 @@ class SettingsSheet extends StatefulWidget {
 }
 
 class _SettingsSheetState extends State<SettingsSheet> {
-  // কন্টেন্ট কন্ট্রোল ভ্যারিয়েবল
-  bool _showTranslation = true;
-  bool _showArabic = true;
-  bool _showNarrator = true;
+  // সাময়িকভাবে লোকাল স্টেট রাখা হয়েছে শুধুমাত্র UI দেখার জন্য
+  bool _isNotifOn = true;
 
   @override
   Widget build(BuildContext context) {
     const Color goldColor = Color(0xFFE4C381);
 
-    // থিমের উপর ভিত্তি করে ব্যাকগ্রাউন্ড ও টেক্সট কালার
     final Color bgColor = widget.isDarkMode
         ? const Color(0xFF121212)
         : Colors.white;
@@ -28,7 +25,7 @@ class _SettingsSheetState extends State<SettingsSheet> {
 
     return Container(
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.75,
+        maxHeight: MediaQuery.of(context).size.height * 0.60,
       ),
       decoration: BoxDecoration(
         color: bgColor,
@@ -65,54 +62,32 @@ class _SettingsSheetState extends State<SettingsSheet> {
             child: ListView(
               physics: const BouncingScrollPhysics(),
               children: [
-                _buildSectionTitle("Content Controls"),
+                _buildSectionTitle("Preferences"),
 
+                // --- নোটিফিকেশন কন্ট্রোল ---
                 _buildSettingItem(
-                  Icons.translate,
-                  "Show Translation",
+                  Icons.notifications_none_outlined,
+                  "Notifications",
                   Switch(
-                    value: _showTranslation,
+                    value: _isNotifOn,
                     activeColor: goldColor,
-                    onChanged: (v) => setState(() => _showTranslation = v),
+                    onChanged: (v) {
+                      setState(() => _isNotifOn = v);
+                      // পরে এখানে লজিক অ্যাড করতে পারবেন
+                    },
                   ),
                   goldColor,
                   txtColor,
                   cardIconBg,
                 ),
 
+                const SizedBox(height: 20),
+                _buildSectionTitle("Support & Legal"),
+
+                // --- প্রাইভেসী পলিসি ---
                 _buildSettingItem(
-                  Icons.menu_book_outlined,
-                  "Show Arabic Text",
-                  Switch(
-                    value: _showArabic,
-                    activeColor: goldColor,
-                    onChanged: (v) => setState(() => _showArabic = v),
-                  ),
-                  goldColor,
-                  txtColor,
-                  cardIconBg,
-                ),
-
-                _buildSettingItem(
-                  Icons.person_outline,
-                  "Show Narrator",
-                  Switch(
-                    value: _showNarrator,
-                    activeColor: goldColor,
-                    onChanged: (v) => setState(() => _showNarrator = v),
-                  ),
-                  goldColor,
-                  txtColor,
-                  cardIconBg,
-                ),
-
-                const SizedBox(height: 10),
-
-                _buildSectionTitle("Support & About"),
-
-                _buildSettingItem(
-                  Icons.info_outline,
-                  "About App",
+                  Icons.privacy_tip_outlined,
+                  "Privacy Policy",
                   const Icon(
                     Icons.arrow_forward_ios,
                     size: 14,
@@ -122,41 +97,11 @@ class _SettingsSheetState extends State<SettingsSheet> {
                   txtColor,
                   cardIconBg,
                   onTap: () {
-                    // About App লজিক এখানে
+                    // লজিক পরে অ্যাড করবেন
                   },
                 ),
 
-                _buildSettingItem(
-                  Icons.share_outlined,
-                  "Share App",
-                  const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 14,
-                    color: Colors.grey,
-                  ),
-                  goldColor,
-                  txtColor,
-                  cardIconBg,
-                  onTap: () {
-                    // শেয়ার লজিক
-                  },
-                ),
-                _buildSettingItem(
-                  Icons.star_outline,
-                  "Rate the App",
-                  const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 14,
-                    color: Colors.grey,
-                  ),
-                  goldColor,
-                  txtColor,
-                  cardIconBg,
-                  onTap: () {
-                    // রেটিং লজিক
-                  },
-                ),
-
+                // --- ফিডব্যাক ---
                 _buildSettingItem(
                   Icons.report_problem_outlined,
                   "Send Feedback",
@@ -169,8 +114,38 @@ class _SettingsSheetState extends State<SettingsSheet> {
                   txtColor,
                   cardIconBg,
                   onTap: () {
-                    // Report Issue লজিক এখানে
+                    // লজিক পরে অ্যাড করবেন
                   },
+                ),
+
+                // --- অ্যাপ সম্পর্কে ---
+                _buildSettingItem(
+                  Icons.info_outline,
+                  "About App",
+                  const Icon(
+                    Icons.arrow_forward_ios,
+                    size: 14,
+                    color: Colors.grey,
+                  ),
+                  goldColor,
+                  txtColor,
+                  cardIconBg,
+                  onTap: () {},
+                ),
+
+                // --- শেয়ার অ্যাপ ---
+                _buildSettingItem(
+                  Icons.share_outlined,
+                  "Share App",
+                  const Icon(
+                    Icons.arrow_forward_ios,
+                    size: 14,
+                    color: Colors.grey,
+                  ),
+                  goldColor,
+                  txtColor,
+                  cardIconBg,
+                  onTap: () {},
                 ),
 
                 const SizedBox(height: 40),
@@ -182,23 +157,21 @@ class _SettingsSheetState extends State<SettingsSheet> {
     );
   }
 
-  // সেকশন টাইটেল উইজেট
   Widget _buildSectionTitle(String title) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 12, left: 5),
       child: Text(
         title.toUpperCase(),
         style: const TextStyle(
           color: Colors.grey,
           fontWeight: FontWeight.bold,
-          fontSize: 12,
+          fontSize: 11,
           letterSpacing: 1.2,
         ),
       ),
     );
   }
 
-  // সেটিংস আইটেম উইজেট
   Widget _buildSettingItem(
     IconData icon,
     String title,
@@ -210,7 +183,7 @@ class _SettingsSheetState extends State<SettingsSheet> {
   }) {
     return ListTile(
       onTap: onTap,
-      contentPadding: EdgeInsets.zero,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 5),
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(

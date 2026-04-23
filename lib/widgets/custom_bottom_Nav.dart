@@ -51,17 +51,14 @@ class CustomBottomNav extends StatelessWidget {
               ),
             );
           } else if (index == 3) {
-            // সেটিংস আইটেমে ক্লিক করলে এই শিটটি ওপেন হবে
+            // সেটিংস আইটেমে ক্লিক করলে শুধুমাত্র UI শিটটি ওপেন হবে
             showModalBottomSheet(
               context: context,
               isScrollControlled: true,
               backgroundColor: Colors.transparent,
               builder: (context) {
-                // নতুন সেটিংস শিট কল করা (ডার্ক মোড সুইচ ছাড়া)
-                return SettingsSheet(
-                  isDarkMode:
-                      isDark, // এটি আপনার কন্ট্রোলারের বর্তমান স্টেট থেকে আসবে
-                );
+                // শুধু ডার্ক মোড স্ট্যাটাস পাস করছি, বাকিগুলো পরে অ্যাড করবেন
+                return SettingsSheet(isDarkMode: isDark);
               },
             );
           } else {
