@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hadith_ai/sendfeedback/about_app_screen.dart';
 import 'package:hadith_ai/sendfeedback/feedback_screen.dart';
 import 'package:hadith_ai/widgets/privacy_policy_screen.dart';
+import 'package:hadith_ai/widgets/share_app.dart';
 
 class SettingsSheet extends StatefulWidget {
   final bool isDarkMode;
@@ -172,7 +173,10 @@ class _SettingsSheetState extends State<SettingsSheet> {
                   goldColor,
                   txtColor,
                   cardIconBg,
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.pop(context);
+                    AppShare.share();
+                  },
                 ),
 
                 const SizedBox(height: 40),
