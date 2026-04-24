@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hadith_ai/sendfeedback/about_app_screen.dart';
 import 'package:hadith_ai/sendfeedback/feedback_screen.dart';
 import 'package:hadith_ai/widgets/privacy_policy_screen.dart';
 
@@ -147,7 +148,16 @@ class _SettingsSheetState extends State<SettingsSheet> {
                   goldColor,
                   txtColor,
                   cardIconBg,
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            AboutAppScreen(isDark: widget.isDarkMode),
+                      ),
+                    );
+                  },
                 ),
 
                 // --- শেয়ার অ্যাপ ---
