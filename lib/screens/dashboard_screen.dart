@@ -4,6 +4,7 @@ import 'package:hadith_ai/model/hadith_book_model.dart';
 import 'package:hadith_ai/screens/chapter_list_screen.dart';
 import 'package:hadith_ai/widgets/app_theme.dart';
 import 'package:hadith_ai/widgets/custom_bottom_Nav.dart';
+import 'package:hadith_ai/widgets/category_helper.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -196,8 +197,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     // const SizedBox(height: 20),
                     _buildHeader('হাদীস বিষয়ভিত্তিক', textColor, isWeb),
-                    _buildCategoryWrap(borderColor, textColor, cardBg, isWeb),
+                    // _buildCategoryWrap(borderColor, textColor, cardBg, isWeb),
 
+                     CategoryHelper.buildDashboardCategories(
+                         context: context,
+                          border: borderColor, // আপনার গোল্ডেন কালার ভ্যারিয়েবল
+                          textC: textColor,     // আপনার টেক্সট কালার ভ্যারিয়েবল
+                          bg: cardBg,           // কন্টেইনার ব্যাকগ্রাউন্ড কালার
+                         isWeb: isWeb,         // ওয়েব রেসপন্সিভ চেক
+                         isDark: _isDark, // ডার্ক বা লাইট মোড কানেকশন
+                        ),
                     // const SizedBox(height: 20),
                     _buildHeader('দৈনন্দিন জীবনের হাদীস', textColor, isWeb),
                     _buildDailyLifeSection(
@@ -431,35 +440,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildCategoryWrap(Color border, Color textC, Color bg, bool isWeb) {
-    final allTags = ['ঈমান', 'নামায', 'রোযা', 'হজ্জ', 'আখলাক', 'দুয়া ও যিকির'];
-    return SizedBox(
-      width: double.infinity,
-      child: Wrap(
-        spacing: 10,
-        runSpacing: 10,
-        children: allTags
-            .map(
-              (t) => Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isWeb ? 25 : 16,
-                  vertical: isWeb ? 12 : 8,
-                ),
-                decoration: BoxDecoration(
-                  color: bg,
-                  borderRadius: BorderRadius.circular(30),
-                  border: Border.all(color: border),
-                ),
-                child: Text(
-                  t,
-                  style: TextStyle(color: textC, fontSize: isWeb ? 15 : 13),
-                ),
-              ),
-            )
-            .toList(),
-      ),
-    );
-  }
 
   Widget _buildDailyLifeSection(
     Color bg,
