@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hadith_ai/screens/hadith_detail_screen.dart';
 
 class CategoryHelper {
   static final List<String> allHadithSubjects = [
@@ -20,7 +21,7 @@ class CategoryHelper {
 
   static Widget buildDashboardCategories({
     required BuildContext context,
-    required Color border, // Dark Mode এ আপনার গোল্ডেন কালার আসবে
+    required Color border,
     required Color textC,
     required Color bg,
     required bool isWeb,
@@ -28,8 +29,6 @@ class CategoryHelper {
   }) {
     final int showLimit = isWeb ? 5 : 2;
     final displayTags = allHadithSubjects.take(showLimit).toList();
-
-    // লাইট মোডে বর্ডার কালো করার লজিক
     final Color effectiveBorder = isDark ? border : Colors.black87;
 
     return Center(
@@ -41,7 +40,12 @@ class CategoryHelper {
           runSpacing: 10,
           alignment: WrapAlignment.start,
           children: [
-            ...displayTags.map((t) => _buildItem(t, effectiveBorder, textC, bg, isWeb)),
+            // ড্যাশবোর্ডের আইটেমগুলোতে ক্লিক লজিক
+            ...displayTags.map((t) => InkWell(
+              borderRadius: BorderRadius.circular(30),
+              onTap: () => _navigateToDetails(context, t, isDark),
+              child: _buildItem(t, effectiveBorder, textC, bg, isWeb),
+            )),
 
             InkWell(
               onTap: () => showAllCategories(context, border, textC, bg, isWeb, isDark),
@@ -81,7 +85,6 @@ class CategoryHelper {
   static void showAllCategories(
       BuildContext context, Color border, Color textC, Color bg, bool isWeb, bool isDark
       ) {
-    // লাইট মোডে টাইটেল এবং বর্ডার কালো করার লজিক
     final Color effectiveBorder = isDark ? border : Colors.black87;
 
     showModalBottomSheet(
@@ -94,7 +97,6 @@ class CategoryHelper {
           child: Container(
             constraints: const BoxConstraints(maxWidth: 1100),
             width: double.infinity,
-            // আপনার রিকোয়েস্ট অনুযায়ী স্ক্রিনের ৭০% হাইট লিমিট
             height: MediaQuery.of(context).size.height * 0.70,
             margin: const EdgeInsets.fromLTRB(15, 0, 15, 0),
             decoration: BoxDecoration(
@@ -104,7 +106,6 @@ class CategoryHelper {
             ),
             child: Column(
               children: [
-                // ড্র্যাগ হ্যান্ডেল
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 18),
                   width: 40, height: 4,
@@ -116,7 +117,7 @@ class CategoryHelper {
                 Text(
                   "Explore All Subjects",
                   style: TextStyle(
-                    color: effectiveBorder, // লাইট মোডে এটি কালো দেখাবে
+                    color: effectiveBorder,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.1,
@@ -124,8 +125,7 @@ class CategoryHelper {
                 ),
                 const SizedBox(height: 25),
 
-                // স্ক্রল এরিয়া যাতে ওভারফ্লো না হয়
-                Expanded( // Flexible এর বদলে Expanded দিলে লিস্টটি বাকি পুরো জায়গা নিবে
+                Expanded(
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
                     padding: const EdgeInsets.fromLTRB(20, 0, 20, 30),
@@ -133,7 +133,15 @@ class CategoryHelper {
                       spacing: 12,
                       runSpacing: 12,
                       alignment: WrapAlignment.center,
-                      children: allHadithSubjects.map((t) => _buildItem(t, effectiveBorder, textC, bg, isWeb)).toList(),
+                      children: allHadithSubjects.map((t) => InkWell(
+                        borderRadius: BorderRadius.circular(30),
+                        // বটম শিটের আইটেমে ক্লিক লজিক
+                        onTap: () {
+                          Navigator.pop(context); // প্রথমে শিট বন্ধ হবে
+                          _navigateToDetails(context, t, isDark);
+                        },
+                        child: _buildItem(t, effectiveBorder, textC, bg, isWeb),
+                      )).toList(),
                     ),
                   ),
                 ),
@@ -142,6 +150,19 @@ class CategoryHelper {
           ),
         );
       },
+    );
+  }
+
+  // নেভিগেশন লজিক
+  static void _navigateToDetails(BuildContext context, String category, bool isDark) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HadithDetailScreen(
+          categoryName: category,
+          isDark: isDark,
+        ),
+      ),
     );
   }
 
