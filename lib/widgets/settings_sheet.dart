@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hadith_ai/sendfeedback/feedback_screen.dart';
 import 'package:hadith_ai/widgets/privacy_policy_screen.dart';
 
 class SettingsSheet extends StatefulWidget {
@@ -122,7 +123,15 @@ class _SettingsSheetState extends State<SettingsSheet> {
                   txtColor,
                   cardIconBg,
                   onTap: () {
-                    // লজিক পরে অ্যাড করবেন
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FeedbackScreen(
+                          isDark: widget.isDarkMode,
+                        ), // isDarkMode আপনার থিম স্টেট থেকে আসবে
+                      ),
+                    );
                   },
                 ),
 
