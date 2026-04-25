@@ -3,7 +3,7 @@ import 'package:hadith_ai/screens/hadith_detail_screen.dart';
 
 class CategoryHelper {
   static final List<String> allHadithSubjects = [
-    'Faith (Iman)', 'Prayer', 'Fast (Ramadan)', 'Zakat & Charity', 'Hajj & Umrah',
+    'Faith', 'Prayer', 'Ramadan', 'Zakat & Charity', 'Hajj & Umrah',
     'Ethics (Akhlaq)', 'Purity (Taharah)', 'Supplications (Dua)', 'Good Character', 'Honesty',
     'Patience (Sabr)', 'Gratitude (Shukr)', 'Modesty (Haya)', 'Repentance (Tawbah)', 'Sincerity',
     'Marriage (Nikah)', 'Divorce', 'Family Life', 'Parental Rights', 'Neighbor Rights',
