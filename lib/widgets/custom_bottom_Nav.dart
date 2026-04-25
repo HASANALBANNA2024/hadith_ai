@@ -20,11 +20,10 @@ class CustomBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // স্ক্রিন সাইজ চেক করা
+    // screen size check
     final double screenWidth = MediaQuery.of(context).size.width;
 
     return Container(
-      // ওয়েব হলে একটা নির্দিষ্ট চওড়া থাকবে, মোবাইল হলে পুরো স্ক্রিন
       width: isWeb ? 1100 : screenWidth,
       padding: EdgeInsets.symmetric(horizontal: isWeb ? 0 : 10),
       decoration: BoxDecoration(
@@ -43,7 +42,6 @@ class CustomBottomNav extends StatelessWidget {
         iconSize: isWeb ? 32 : 24,
         onTap: (index) {
           if (index == 2) {
-            // বুকমার্ক স্ক্রিনে যাওয়ার জন্য
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -51,18 +49,15 @@ class CustomBottomNav extends StatelessWidget {
               ),
             );
           } else if (index == 3) {
-            // সেটিংস আইটেমে ক্লিক করলে শুধুমাত্র UI শিটটি ওপেন হবে
             showModalBottomSheet(
               context: context,
               isScrollControlled: true,
               backgroundColor: Colors.transparent,
               builder: (context) {
-                // শুধু ডার্ক মোড স্ট্যাটাস পাস করছি, বাকিগুলো পরে অ্যাড করবেন
                 return SettingsSheet(isDarkMode: isDark);
               },
             );
           } else {
-            // অন্য ট্যাবের জন্য মেইন স্ক্রিনের স্টেট আপডেট করবে
             onTap(index);
           }
         },

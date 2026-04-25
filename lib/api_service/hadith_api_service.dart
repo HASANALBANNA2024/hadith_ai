@@ -12,7 +12,7 @@ class HadithApiService {
 
 
 
-  // --- ১. চ্যাপ্টার লোড (Offline-First) ---
+  // --- Chapter load (Offline-First) ---
   Future<List<ChapterModel>> fetchChapters(String bookSlug) async {
     final String cacheKey = "chapters_$bookSlug";
     var box = Hive.box(cacheBoxName);
@@ -40,8 +40,7 @@ class HadithApiService {
     return [];
   }
 
-  // --- ২. হাদিস লিস্ট লোড (Offline-First) ---
-// আপনার সার্ভিস ক্লাসে fetchHadiths টিও একই লজিক ফলো করবে
+  // --- hadith list load (Offline-First) ---
   Future<List<HadithModel>> fetchHadiths(String bookSlug, String chapterId) async {
     final String cacheKey = "hadiths_${bookSlug}_$chapterId";
     var box = Hive.box(cacheBoxName);
@@ -66,7 +65,7 @@ class HadithApiService {
     return [];
   }
 
-  // --- ৩. সকল বইয়ের তালিকা (English Titles Only) ---
+  // ---all book list (English Titles Only) ---
   Future<List<HadithBookModel>> fetchAllBooks() async {
     const String cacheKey = "all_books";
     var box = Hive.box(cacheBoxName);
@@ -98,7 +97,7 @@ class HadithApiService {
             .map((item) {
           String slug = item['bookSlug'];
           return HadithBookModel(
-            // bookName এ ইংলিশ টাইটেল নেওয়া হচ্ছে
+            // bookName english title
             bookName: item['bookName'] ?? 'Unknown Book',
             bookSlug: slug,
             hadithCount: (item['hadiths_count'] ?? '0').toString(),

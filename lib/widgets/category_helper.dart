@@ -3,7 +3,7 @@ import 'package:hadith_ai/screens/hadith_detail_screen.dart';
 
 class CategoryHelper {
   static final List<String> allHadithSubjects = [
-    'Faith (Iman)', 'Daily Prayers (Salah)', 'Fast (Ramadan)', 'Zakat & Charity', 'Hajj & Umrah',
+    'Faith (Iman)', 'Prayer', 'Fast (Ramadan)', 'Zakat & Charity', 'Hajj & Umrah',
     'Ethics (Akhlaq)', 'Purity (Taharah)', 'Supplications (Dua)', 'Good Character', 'Honesty',
     'Patience (Sabr)', 'Gratitude (Shukr)', 'Modesty (Haya)', 'Repentance (Tawbah)', 'Sincerity',
     'Marriage (Nikah)', 'Divorce', 'Family Life', 'Parental Rights', 'Neighbor Rights',
@@ -40,7 +40,7 @@ class CategoryHelper {
           runSpacing: 10,
           alignment: WrapAlignment.start,
           children: [
-            // ড্যাশবোর্ডের আইটেমগুলোতে ক্লিক লজিক
+            // dashboard item click
             ...displayTags.map((t) => InkWell(
               borderRadius: BorderRadius.circular(30),
               onTap: () => _navigateToDetails(context, t, isDark),
@@ -135,9 +135,9 @@ class CategoryHelper {
                       alignment: WrapAlignment.center,
                       children: allHadithSubjects.map((t) => InkWell(
                         borderRadius: BorderRadius.circular(30),
-                        // বটম শিটের আইটেমে ক্লিক লজিক
+                        // bottom sheet item click
                         onTap: () {
-                          Navigator.pop(context); // প্রথমে শিট বন্ধ হবে
+                          Navigator.pop(context); // sheet close
                           _navigateToDetails(context, t, isDark);
                         },
                         child: _buildItem(t, effectiveBorder, textC, bg, isWeb),
@@ -153,7 +153,7 @@ class CategoryHelper {
     );
   }
 
-  // নেভিগেশন লজিক
+  // Navigation logic
   static void _navigateToDetails(BuildContext context, String category, bool isDark) {
     Navigator.push(
       context,

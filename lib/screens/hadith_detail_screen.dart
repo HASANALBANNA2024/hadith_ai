@@ -1,37 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:hadith_ai/n8n_services/hadith_service_n8n.dart';
 
-class HadithDetailScreen extends StatelessWidget {
+class HadithDetailScreen extends StatefulWidget {
   final String categoryName;
-  final bool isDark; // থিম স্ট্যাটাস পাস করবেন
+  final bool isDark;
 
-  // আপাতত ডামি ডাটা, পরে n8n থেকে আসবে
-  final List<Map<String, String>> hadithList = [
-    {
-      "text": "The Prophet (ﷺ) said: 'The best among you are those who have the best manners and character.'",
-      "reference": "Sahih Bukhari: 6035"
-    },
-    {
-      "text": "The Prophet (ﷺ) said: 'None of you truly believes until he loves for his brother what he loves for himself.'",
-      "reference": "Sahih Bukhari: 13"
-    },
-    {
-      "text": "The Prophet (ﷺ) said: 'Allah is gentle and He loves gentleness, and He rewards for gentleness what He does not reward for harshness.'",
-      "reference": "Sahih Muslim: 2593"
-    },
-  ];
+  const HadithDetailScreen({super.key, required this.categoryName, required this.isDark});
 
-  HadithDetailScreen({super.key, required this.categoryName, required this.isDark});
+  @override
+  State<HadithDetailScreen> createState() => _HadithDetailScreenState();
+}
+
+class _HadithDetailScreenState extends State<HadithDetailScreen> {
+  // data list and loading status
+  List<Map<String, String>> _hadithList = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  // logic call
+  Future<void> _loadData() async {
+    final data = await HadithServiceN8n.fetchHadithExplanation(widget.categoryName);
+    if (mounted) {
+      setState(() {
+
+        _hadithList = data;
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // কালার স্কিম
     final Color goldColor = const Color(0xFFFFD700);
-    final Color scaffoldBg = isDark ? const Color(0xFF021B19) : Colors.white;
-    final Color cardBg = isDark ? const Color(0xFF03221F) : Colors.grey;
-    final Color textColor = isDark ? Colors.white : Colors.black87;
-    final Color borderCol = isDark ? goldColor.withOpacity(0.4) : Colors.black87.withOpacity(0.2);
+    final Color scaffoldBg = widget.isDark ? const Color(0xFF021B19) : Colors.white;
+    final Color cardBg = widget.isDark ? const Color(0xFF03221F) : const Color(0xFFF5F5F5);
+    final Color textColor = widget.isDark ? Colors.white : Colors.black87;
+    final Color borderCol = widget.isDark ? goldColor.withOpacity(0.4) : Colors.black87.withOpacity(0.2);
 
-    // স্ক্রিন সাইজ চেক (Web vs Mobile)
     double width = MediaQuery.of(context).size.width;
     bool isWeb = width > 800;
 
@@ -40,34 +50,29 @@ class HadithDetailScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        automaticallyImplyLeading: false, // ডিফল্ট ব্যাক বাটন বন্ধ করে আমরা কাস্টম বসাবো
+        automaticallyImplyLeading: false,
         title: Center(
           child: Container(
-            constraints: const BoxConstraints(maxWidth: 1100), // ১১০০ পিক্সেল লিমিট
+            constraints: const BoxConstraints(maxWidth: 1100),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // কাস্টম ব্যাক বাটন (যাতে এটি ১১০০px এর ভেতর থাকে)
                 IconButton(
                   icon: Icon(Icons.arrow_back_ios_new_rounded,
-                      color: isDark ? goldColor : Colors.black87, size: 20),
+                      color: widget.isDark ? goldColor : Colors.black87, size: 20),
                   onPressed: () => Navigator.pop(context),
                 ),
-
-                // টাইটেল
                 Expanded(
                   child: Text(
-                    categoryName,
+                    widget.categoryName,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: isDark ? goldColor : Colors.black87,
+                      color: widget.isDark ? goldColor : Colors.black87,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                     ),
                   ),
                 ),
-
-                // ডান পাশে ব্যালেন্স রাখার জন্য একটি খালি সাইজড বক্স (যাতে টাইটেল ঠিক মাঝখানে থাকে)
                 const SizedBox(width: 48),
               ],
             ),
@@ -76,19 +81,23 @@ class HadithDetailScreen extends StatelessWidget {
       ),
       body: Center(
         child: Container(
-          constraints: const BoxConstraints(maxWidth: 1100), // ওয়েবের জন্য ১১০০ পিক্সেল রুল
+          constraints: const BoxConstraints(maxWidth: 1100),
           padding: EdgeInsets.symmetric(horizontal: isWeb ? 40 : 16),
           child: Column(
             children: [
               const SizedBox(height: 10),
               Expanded(
-                child: ListView.builder(
+                child: _isLoading
+                    ? Center(child: CircularProgressIndicator(color: goldColor)) // লোডিং ইন্ডিকেটর
+                    : _hadithList.isEmpty
+                    ? Center(child: Text("Didn't Found Data", style: TextStyle(color: textColor)))
+                    : ListView.builder(
                   physics: const BouncingScrollPhysics(),
-                  itemCount: hadithList.length,
+                  itemCount: _hadithList.length,
                   itemBuilder: (context, index) {
                     return _buildHadithCard(
-                      hadithList[index]['text']!,
-                      hadithList[index]['reference']!,
+                      _hadithList[index]['text']!,
+                      _hadithList[index]['reference']!,
                       cardBg,
                       textColor,
                       borderCol,
@@ -105,16 +114,7 @@ class HadithDetailScreen extends StatelessWidget {
     );
   }
 
-  // হাদিস কার্ড উইজেট
-  Widget _buildHadithCard(
-      String text,
-      String ref,
-      Color bg,
-      Color textC,
-      Color bColor,
-      Color gold,
-      bool isWeb
-      ) {
+  Widget _buildHadithCard(String text, String ref, Color bg, Color textC, Color bColor, Color gold, bool isWeb) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       padding: EdgeInsets.all(isWeb ? 30 : 20),
@@ -123,7 +123,7 @@ class HadithDetailScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(25),
         border: Border.all(color: bColor, width: 1.5),
         boxShadow: [
-          if (!isDark) BoxShadow(
+          if (!widget.isDark) BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
@@ -133,27 +133,22 @@ class HadithDetailScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // আলংকারিক কোটেশন আইকন
           Icon(Icons.format_quote_rounded, color: gold.withOpacity(0.5), size: 30),
-
           Text(
             text,
             style: TextStyle(
               color: textC,
               fontSize: isWeb ? 20 : 16,
               height: 1.6,
-              fontFamily: 'serif', // হাদিসের জন্য একটু ক্লাসিক লুক
+              fontFamily: 'serif',
             ),
           ),
-
           const SizedBox(height: 20),
           const Divider(thickness: 0.5, color: Colors.grey),
           const SizedBox(height: 10),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // রেফারেন্স ট্যাগ
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
@@ -165,15 +160,13 @@ class HadithDetailScreen extends StatelessWidget {
                   style: TextStyle(color: gold, fontWeight: FontWeight.bold, fontSize: 12),
                 ),
               ),
-
-              // অ্যাকশন বাটনসমূহ
               Row(
                 children: [
-                  _actionButton(Icons.copy_rounded, isDark),
+                  _actionButton(Icons.copy_rounded, widget.isDark),
                   const SizedBox(width: 10),
-                  _actionButton(Icons.share_rounded, isDark),
+                  _actionButton(Icons.share_rounded, widget.isDark),
                   const SizedBox(width: 10),
-                  _actionButton(Icons.bookmark_border_rounded, isDark),
+                  _actionButton(Icons.bookmark_border_rounded, widget.isDark),
                 ],
               ),
             ],

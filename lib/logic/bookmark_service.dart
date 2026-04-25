@@ -4,19 +4,19 @@ import 'package:hive_flutter/hive_flutter.dart';
 class BookmarkService {
   static const String boxName = "hadith_bookmarks";
 
-  // ১. ডাটাবেজ ইনিশিয়ালাইজেশন
+  // Database initialization
   static Future<void> init() async {
     await Hive.initFlutter();
     await Hive.openBox(boxName);
   }
 
-  // ২. চেক করা: হাদিসটি কি অলরেডি বুকমার্ক করা?
+  // check in hadith bookmark status
   static bool isBookmarked(int hadithId) {
     var box = Hive.box(boxName);
     return box.containsKey(hadithId);
   }
 
-  // ৩. একক বুকমার্ক যোগ করা
+  // bookmark
   static Future<void> addBookmark(HadithModel hadith) async {
     var box = Hive.box(boxName);
     await box.put(hadith.hadithId, {
@@ -36,13 +36,13 @@ class BookmarkService {
     });
   }
 
-  // ৪. নির্দিষ্ট একটি বুকমার্ক ডিলিট বা রিমুভ করা
+  // selected bookmark deleted and clear
   static Future<void> removeBookmark(int hadithId) async {
     var box = Hive.box(boxName);
     await box.delete(hadithId);
   }
 
-  // ৫. সব বুকমার্ক লিস্ট আকারে নিয়ে আসা
+  // all bookmark list
   static List<HadithModel> getAllBookmarks() {
     var box = Hive.box(boxName);
     return box.values.map((item) {
@@ -64,7 +64,7 @@ class BookmarkService {
     }).toList();
   }
 
-  // ৬. সব বুকমার্ক একসাথে মুছে ফেলা (Clear All)
+  // all bookmark (Clear All)
   static Future<void> clearAll() async {
     var box = Hive.box(boxName);
     await box.clear();

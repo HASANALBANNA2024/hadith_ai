@@ -6,37 +6,36 @@ class AboutAppScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ছবির অরিজিনাল কালার কোড
     const Color goldColor = Color(0xFFE4C381);
     const Color darkGreenBg = Color(
       0xFF03221F,
-    ); // বর্ডার এর বাইরের ব্যাকগ্রাউন্ড
+    );
     const Color cardInsideColor = Color(
       0xFF042B27,
-    ); // বর্ডার এর ভেতরের হালকা ডার্ক শেড
+    );
 
     final Color outerBg = isDark ? darkGreenBg : Colors.grey[200]!;
     final Color innerContentBg = isDark ? cardInsideColor : Colors.white;
     final Color textColor = isDark ? goldColor : Colors.black87;
 
     return Scaffold(
-      backgroundColor: outerBg, // বর্ডারের বাইরের ব্যাকগ্রাউন্ড
+      backgroundColor: outerBg,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(
           90,
-        ), // জোস লুকের জন্য হাইট বাড়ানো হয়েছে
+        ),
         child: Center(
           child: Container(
             constraints: const BoxConstraints(
               maxWidth: 1100,
-            ), // ওয়েব ১১০০ পিক্সেল
+            ),
             child: Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
                     goldColor,
                     Color(0xFFC5A059),
-                  ], // গ্রেডিয়েন্ট গোল্ডেন অ্যাপবার
+                  ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
@@ -68,7 +67,7 @@ class AboutAppScreen extends StatelessWidget {
                   title: const Text(
                     "About Us",
                     style: TextStyle(
-                      color: Color(0xFF2D1B07), // ছবির মতো ডার্ক ব্রাউন
+                      color: Color(0xFF2D1B07),
                       fontWeight: FontWeight.w900,
                       fontSize: 24,
                       letterSpacing: 1.2,
@@ -84,13 +83,13 @@ class AboutAppScreen extends StatelessWidget {
         child: Container(
           constraints: const BoxConstraints(
             maxWidth: 1100,
-          ), // ওয়েবে ১১০০ পিক্সেল লিমিট
+          ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 25),
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
-                // --- কন্টেন্ট এরিয়ার বর্ডার বক্স ---
+
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(24),
@@ -100,7 +99,7 @@ class AboutAppScreen extends StatelessWidget {
                     border: Border.all(
                       color: goldColor.withOpacity(
                         0.4,
-                      ), // সেই কাঙ্ক্ষিত গোল্ডেন বর্ডার
+                      ),
                       width: 2,
                     ),
                     boxShadow: [
@@ -113,7 +112,7 @@ class AboutAppScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      // অ্যাপ লোগো সেকশন
+                     //app logo section
                       _buildLogoSection(goldColor),
                       const SizedBox(height: 15),
                       Text(
@@ -127,7 +126,7 @@ class AboutAppScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 30),
 
-                      // ভিশন সেকশন
+                      //Vission
                       _buildSectionHeader("OUR VISION", goldColor),
                       _buildSectionText(
                         "To provide authentic and accessible Islamic knowledge, leveraging modern technology for guidance.",
@@ -136,7 +135,7 @@ class AboutAppScreen extends StatelessWidget {
 
                       const SizedBox(height: 20),
 
-                      // মিশন সেকশন
+                      // Mission
                       _buildSectionHeader("MISSION", goldColor),
                       _buildSectionText(
                         "Building a reliable, comprehensive Hadith database with intelligent insights for global seekers of truth.",
@@ -145,14 +144,14 @@ class AboutAppScreen extends StatelessWidget {
 
                       const SizedBox(height: 25),
 
-                      // ফিচার লিস্ট
+                      // Feature LIst
                       _buildSectionHeader("KEY FEATURES", goldColor),
                       const SizedBox(height: 15),
                       Center(
                         child: IntrinsicWidth(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment
-                                .start, // এটি স্কেলের মতো সোজা রাখবে
+                                .start,
                             children: [
                               _buildFeatureItem(
                                 "Verified Hadith Source",
@@ -179,8 +178,6 @@ class AboutAppScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 35),
-
-                      // ভার্সন বাটন (ছবির মতো হুবহু ডিজাইন)
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 40,
@@ -231,7 +228,7 @@ class AboutAppScreen extends StatelessWidget {
     );
   }
 
-  // --- কাস্টম হেল্পার উইজেটস ---
+  // --- Helper widgets---
 
   Widget _buildLogoSection(Color gold) {
     return Container(
@@ -288,16 +285,16 @@ class AboutAppScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: 6,
-      ), // horizontal padding এখন আর প্রয়োজন নেই
+      ),
       child: Row(
-        mainAxisSize: MainAxisSize.min, // প্রয়োজনীয় জায়গা শুধু নিবে
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(
             Icons.check_circle,
             color: gold,
             size: 18,
-          ), // ছবির মতো সলিড টিক আইকন
+          ),
           const SizedBox(width: 12),
           Text(
             text,

@@ -29,7 +29,7 @@ class HadithModel {
     required this.reference,
   });
 
-  // --- এই মেথডটি যোগ করা হয়েছে (এটি আপনার রেড লাইন দূর করবে) ---
+  // --- method add to remove red line  ---
   Map<String, dynamic> toJson() => {
     'id': hadithId,
     'hadithNumber': hadithNumber,
@@ -47,14 +47,14 @@ class HadithModel {
   };
 
   factory HadithModel.fromJson(Map<String, dynamic> json) {
-    // যদি ডাটা হাইভ (ক্যাশ) থেকে আসে
+    // if data exist in data hive cache
     if (json.containsKey('translation')) {
       return HadithModel(
         hadithId: json['id'] ?? 0,
         hadithNumber: json['hadithNumber'] ?? "",
         narrator: json['narrator'] ?? "",
         arabicText: json['hadithArabic'] ?? "",
-        translation: json['translation'] ?? "", // এখানে ইংলিশ থাকবে
+        translation: json['translation'] ?? "",
         grade: json['status'] ?? "",
         gradeColor: json['gradeColor'] ?? "",
         bookName: json['bookName'] ?? "",
@@ -66,11 +66,11 @@ class HadithModel {
       );
     }
 
-    // এপিআই থেকে আসার সময় ইংলিশ ফিল্ডগুলো প্রায়োরিটি দেওয়া হয়েছে
+    // api priority to english field
     final bookData = json['book'] ?? {};
     final chapterData = json['chapter'] ?? {};
 
-    // সরাসরি ইংরেজি ফিল্ড 'hadithEnglish' থেকে ডাটা নেওয়া হচ্ছে
+    // direct english 'hadithEnglish'
     String finalTranslation = (json['hadithEnglish'] ?? "").toString().trim();
     if (finalTranslation.isEmpty) {
       finalTranslation = (json['hadithUrdu'] ?? "No English Translation available").toString().trim();

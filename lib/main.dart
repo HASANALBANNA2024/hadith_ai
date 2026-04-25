@@ -9,14 +9,14 @@ import 'package:hive_flutter/hive_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ১. হাইভ ইনিশিয়ালাইজ করুন
+  // Hive Initialization
   await Hive.initFlutter();
 
-  // ২. বক্স ওপেন করুন (শুধুমাত্র ডাটা সেভ রাখার জন্য)
-  // 'app_cache' নাম ব্যবহার করা হয়েছে যা আমাদের HadithApiService-এ আছে
+
+  // 'app_cache'
   await Hive.openBox('app_cache');
 
-  // ৩. বুকমার্ক সার্ভিস ইনিশিয়ালাইজ
+  // bookmark service initialization
   await BookmarkService.init();
 
   runApp(const MyApp());
@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
       theme: AppThemes.lightTheme,
       darkTheme: AppThemes.darkTheme,
 
-      // প্রথমে স্প্ল্যাশ স্ক্রিন দেখাবে যা ইন্টারনেট চেক করবে
+      // call to splash screen
       home: const SplashScreen(),
 
       onGenerateRoute: (settings) {
@@ -51,13 +51,12 @@ class MyApp extends StatelessWidget {
             ),
           );
         }
-        // ডিফল্ট রাউট
         return MaterialPageRoute(builder: (context) => const HomeScreen());
       },
     );
   }
 
-  // স্লাগ থেকে সুন্দর টাইটেল বানানোর ফাংশন
+
   String _getFormattedTitle(String slug) {
     if (slug.isEmpty) return "Hadith Book";
     return slug

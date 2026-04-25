@@ -2,7 +2,7 @@ import 'package:hadith_ai/model/hadith_model.dart';
 import 'package:share_plus/share_plus.dart';
 
 void shareHadith(HadithModel hadith) {
-  // শেয়ার করার জন্য টেক্সটটি সুন্দর করে সাজানো হচ্ছে
+
   final String shareText =
       '''
 📜 *${hadith.bookName}*

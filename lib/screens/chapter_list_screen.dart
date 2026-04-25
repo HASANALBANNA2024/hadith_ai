@@ -23,7 +23,6 @@ class ChapterListScreen extends StatefulWidget {
 
 class _ChapterListScreenState extends State<ChapterListScreen> {
   int _currentIndex = 0;
-  // কালার ভেরিয়েবলগুলো এখানে ডিফাইন করা হয়েছে যাতে পুরো ক্লাসে ব্যবহার করা যায়
   final Color goldColor = const Color(0xFFE4C381);
   final Color primaryTeal = const Color(0xFF14532D);
   final Color darkBg = const Color(0xFF0D1F1D);
@@ -32,7 +31,6 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
-    // ছোট ওয়েব উইন্ডোতেও ওয়েব লেআউট কাজ করার জন্য ১১০০ পিক্সেল কন্ডিশন
     final bool isLargeScreen = screenWidth > 1100;
 
     return Scaffold(
@@ -40,11 +38,10 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: Container(
-          // পুরো স্ক্রিন জুড়ে ব্যাকগ্রাউন্ড কালার থাকবে
+          // full background
           color: widget.isDarkStatus ? const Color(0xFF112A27) : primaryTeal,
           child: Center(
             child: Container(
-              // কন্টেন্টগুলো (Back Button, Title) ১১০০ পিক্সেলের মধ্যে থাকবে
               constraints: const BoxConstraints(maxWidth: 1100),
               child: AppBar(
                 backgroundColor: Colors.transparent,
@@ -60,7 +57,7 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
                 ),
                 title: Text(
                   widget.bookTitle,
-                  // টাইটেল ওয়েব এবং মোবাইলে স্পষ্ট দেখানোর জন্য স্টাইল আপডেট
+                  // title web and mobile view
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: MediaQuery.of(context).size.width > 1100
@@ -115,7 +112,7 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
                             gridDelegate:
                                 const SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount:
-                                      2, // ওয়েবে পাশাপাশি ২টা কার্ড
+                                      2, // to card show in one row of web view
                                   childAspectRatio: 5.0,
                                   crossAxisSpacing: 16,
                                   mainAxisSpacing: 16,
@@ -155,15 +152,14 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
         ),
       ),
       bottomNavigationBar: Container(
-        // এটি পুরো স্ক্রিন জুড়ে ব্যাকগ্রাউন্ড কালার সেট করবে
+        // full screen background
         color: widget.isDarkStatus ? const Color(0xFF0D1F1D) : Colors.white,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              // কন্টেন্ট এরিয়া ১১০০ পিক্সেলের মধ্যে সীমাবদ্ধ থাকবে
+              // content to fit in area of 1100px web view
               constraints: const BoxConstraints(maxWidth: 1100),
-              // নিচের উইডথটি নিশ্চিত করে যে কন্টেইনারটি যতটুকু সম্ভব জায়গা নেবে (১১০০ পর্যন্ত)
               width: MediaQuery.of(context).size.width,
               child: CustomBottomNav(
                 isDark: widget.isDarkStatus,
@@ -174,7 +170,7 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
                   setState(() {
                     _currentIndex = index;
                   });
-                  // বুকমার্ক স্ক্রিন থেকে অন্য স্ক্রিনে যাওয়ার জন্য পপ লজিক (যদি প্রয়োজন হয়)
+                  // call to bookmark screen
                   if (index != 2) Navigator.pop(context);
                 },
               ),

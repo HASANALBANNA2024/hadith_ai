@@ -48,19 +48,19 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
 
     return Scaffold(
       backgroundColor: scaffoldBg,
-      // AppBar কে ১১০০ পিক্সেলের মধ্যে রাখার জন্য PreferredSize ব্যবহার করা হয়েছে
+      // AppBar
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: Container(
-          color: appBarBg, // এটি পুরো স্ক্রিন জুড়ে AppBar-এর রঙ সেট করবে
+          color: appBarBg,
           child: Center(
             child: Container(
               constraints: const BoxConstraints(
                 maxWidth: 1100,
-              ), // কন্টেন্ট ১১০০ পিক্সেলের মধ্যে রাখবে
+              ), // content area in web view 1100px
               child: AppBar(
                 backgroundColor: Colors
-                    .transparent, // কন্টেইনারের রঙ দেখানোর জন্য এটিকে ট্রান্সপারেন্ট করা হয়েছে
+                    .transparent,
                 elevation: 0,
                 centerTitle: true,
                 leading: isWeb
@@ -123,7 +123,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                 ),
               ),
             ),
-      // BottomNav কে ১১০০ পিক্সেলের মধ্যে রাখার জন্য লজিক
+      // BottomNav
       bottomNavigationBar: Container(
         color: widget.isDark ? const Color(0xFF0D1F1D) : Colors.white,
         child: Row(
@@ -156,7 +156,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
   ) {
     return GestureDetector(
       key: ValueKey(hadith.hadithId),
-      // এখানে ক্লিক করলে ফুল ডিটেইলস শিট ওপেন হবে
+      // to click full details sheet open for hadith
       onTap: () => _showHadithDetail(hadith),
       child: Card(
         color: bg,
@@ -173,7 +173,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ১. টপ হেডার (বইয়ের নাম এবং গ্রেড)
+              // Top Header Book and Grade
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -202,15 +202,15 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
               ),
               const SizedBox(height: 12),
 
-              // ২. আরবি টেক্সট (টাইটেলের মতো ছোট করে - ২ লাইন)
+              // arabic text in short on card
               Align(
                 alignment: Alignment.centerRight,
                 child: Text(
                   hadith.arabicText,
                   textAlign: TextAlign.right,
                   textDirection: TextDirection.rtl,
-                  maxLines: 2, // ২ লাইনের বেশি দেখাবে না
-                  overflow: TextOverflow.ellipsis, // বেশি হলে ... দেখাবে
+                  maxLines: 2, // 2 line text
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontFamily: 'Amiri',
                     fontSize: 18,
@@ -221,10 +221,9 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
               ),
               const SizedBox(height: 8),
 
-              // ৩. অনুবাদ (টাইটেলের মতো ছোট করে - ২ লাইন)
               Text(
                 hadith.translation,
-                maxLines: 2, // ২ লাইনের বেশি দেখাবে না
+                maxLines: 2, // only  two first in card
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: txt.withOpacity(0.9),
@@ -237,12 +236,12 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
               const Divider(height: 1, thickness: 0.3),
               const SizedBox(height: 8),
 
-              // ৪. হাদিস নম্বর এবং অ্যাকশন বাটন
+              // Hadith number and action button
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "হাদিস নং: ${hadith.hadithNumber}",
+                    "Hadith#: ${hadith.hadithNumber}",
                     style: TextStyle(color: txt.withOpacity(0.5), fontSize: 11),
                   ),
                   Row(
@@ -292,11 +291,11 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: widget.isDark ? const Color(0xFF1E1E1E) : Colors.white,
-        title: const Text("সব মুছে ফেলবেন?"),
+        title: const Text("all clear ?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("না"),
+            child: const Text("NO"),
           ),
           TextButton(
             onPressed: () async {
@@ -304,7 +303,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
               _loadBookmarks();
               Navigator.pop(context);
             },
-            child: const Text("হ্যাঁ", style: TextStyle(color: Colors.red)),
+            child: const Text("yes", style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -323,7 +322,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
           ),
           const SizedBox(height: 15),
           Text(
-            "কোনো বুকমার্ক নেই",
+            "No Bookmark",
             style: TextStyle(color: txt.withOpacity(0.5), fontSize: 16),
           ),
         ],

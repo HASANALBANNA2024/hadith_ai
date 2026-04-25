@@ -30,9 +30,9 @@ class HadithListScreen extends StatefulWidget {
 class _HadithListScreenState extends State<HadithListScreen> {
   List<dynamic> hadiths = [];
   bool isLoading = true;
-  int _selectedIndex = 1; // 'গ্রন্থসমূহ' সিলেক্টেড থাকবে
+  int _selectedIndex = 1;
 
-  // API Key - ডলারে আগে অবশ্যই ব্যাকস্ল্যাশ (\$) থাকবে
+  // API Key
   final String apiKey =
       "\$2y\$10\$K92YhAwUhG4o6upA4YPrGO4pfUM8DdBznR6Zueejhg9zPevBI6e";
 
@@ -48,10 +48,10 @@ class _HadithListScreenState extends State<HadithListScreen> {
 
     final String cacheKey = "hadiths_${widget.bookSlug}_${widget.chapterId}";
 
-    // ১. বক্স ওপেন আছে কি না নিশ্চিত হয়ে নেওয়া (DownloadLogic এর নাম ব্যবহার করে)
-    var box = Hive.box('app_cache'); // আপনার সার্ভিস ফাইলে cacheBoxName 'app_cache' দেওয়া আছে
 
-    // ২. ক্যাশ চেক করা (isDownloaded লজিক ছাড়াই)
+    var box = Hive.box('app_cache');
+
+
     if (box.containsKey(cacheKey)) {
       print("🚀 Loading from Hive Cache...");
       List cachedData = box.get(cacheKey);
@@ -59,10 +59,12 @@ class _HadithListScreenState extends State<HadithListScreen> {
         hadiths = cachedData;
         isLoading = false;
       });
-      return; // ডাটা পেলে এপিআই কল হবে না
+      return;
+
     }
 
-    // ৩. ক্যাশে ডাটা না থাকলে সরাসরি এপিআই কল
+
+
     print("🌐 Loading from API...");
     final String url = "https://hadithapi.com/api/hadiths?apiKey=$apiKey&book=${widget.bookSlug}&chapter=${widget.chapterId}";
 
@@ -78,7 +80,8 @@ class _HadithListScreenState extends State<HadithListScreen> {
             isLoading = false;
           });
 
-          // ডাটা অটো সেভ করে রাখা হচ্ছে পরের বারের জন্য
+
+
           await box.put(cacheKey, fetchedData);
         }
       }
@@ -109,17 +112,17 @@ class _HadithListScreenState extends State<HadithListScreen> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(
           kToolbarHeight + 10,
-        ), // দুই লাইনের টাইটেলের জন্য উচ্চতা সামান্য বাড়ানো হয়েছে
+        ),
         child: Container(
-          color: darkGreen, // পুরো স্ক্রিন জুড়ে AppBar-এর ব্যাকগ্রাউন্ড কালার
-          child: Center(
+          color: darkGreen,
+                    child: Center(
             child: Container(
               constraints: const BoxConstraints(
                 maxWidth: 1100,
-              ), // কন্টেন্ট ১১০০ পিক্সেলের মধ্যে থাকবে
+              ),
               child: AppBar(
                 backgroundColor: Colors
-                    .transparent, // বাইরের কন্টেইনারের রঙ দেখানোর জন্য স্বচ্ছ করা হয়েছে
+                    .transparent,
                 elevation: 0,
                 centerTitle: true,
                 iconTheme: const IconThemeData(color: goldColor),
@@ -132,7 +135,6 @@ class _HadithListScreenState extends State<HadithListScreen> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        // ওয়েব ভিউতে ফন্ট ১৬ আর মোবাইলে ১৪
                         fontSize: MediaQuery.of(context).size.width > 1100
                             ? 16
                             : 14,
@@ -147,7 +149,6 @@ class _HadithListScreenState extends State<HadithListScreen> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        // ওয়েব ভিউতে ফন্ট ১২ আর মোবাইলে ১০
                         fontSize: MediaQuery.of(context).size.width > 1100
                             ? 12
                             : 10,
@@ -170,7 +171,7 @@ class _HadithListScreenState extends State<HadithListScreen> {
           child: isLoading
               ? const Center(child: CircularProgressIndicator(color: goldColor))
               : hadiths.isEmpty
-              ? const Center(child: Text("কোনো হাদিস পাওয়া যায়নি।"))
+              ? const Center(child: Text("Didn't found in hadith"))
               : ListView.builder(
                   padding: const EdgeInsets.all(15),
                   itemCount: hadiths.length,
@@ -188,18 +189,16 @@ class _HadithListScreenState extends State<HadithListScreen> {
         ),
       ),
       bottomNavigationBar: Container(
-        // পুরো বারের ব্যাকগ্রাউন্ড কালার সেট করা
         color: widget.isDarkStatus ? const Color(0xFF0D1F1D) : Colors.white,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // আমাদের নতুন কাস্টম নেভিগেশন বার
             CustomBottomNav(
               isDark: widget.isDarkStatus,
               gold: goldColor,
               isWeb: isWeb,
               currentIndex:
-                  _selectedIndex, // আপনার স্ক্রিনে ভেরিয়েবল নাম '_selectedIndex'
+                  _selectedIndex,
               onTap: (index) {
                 setState(() {
                   _selectedIndex = index;
@@ -219,11 +218,7 @@ class _HadithListScreenState extends State<HadithListScreen> {
       Color goldColor,
       bool isDark,
       ) {
-    // ১. ডাটা টাইপ এরর দূর করার জন্য এবং ইংলিশ/আরবি নিশ্চিত করতে মডেলে কনভার্ট করা হয়েছে
-    // এখানে logic change হয়নি, শুধু টাইপ কাস্টিং করা হয়েছে যেন red line না আসে।
     final HadithModel hModel = HadithModel.fromJson(Map<String, dynamic>.from(item));
-
-    // স্ট্যাটাস লজিক (অপরিবর্তিত)
     bool isSahih = hModel.grade.toLowerCase().contains("sahih");
     bool isHasan = hModel.grade.toLowerCase().contains("hasan");
 
@@ -250,7 +245,7 @@ class _HadithListScreenState extends State<HadithListScreen> {
       ),
       child: InkWell(
         onTap: () {
-          // hModel সরাসরি পাঠানোর লজিক
+          // hModel
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
@@ -267,7 +262,7 @@ class _HadithListScreenState extends State<HadithListScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // স্ট্যাটাস ব্যাজ (আপনার ডিজাইন অনুযায়ী)
+                  // status badge of hadith grade
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
@@ -280,7 +275,7 @@ class _HadithListScreenState extends State<HadithListScreen> {
                       style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  // হাদিস নাম্বার (আপনার ডিজাইন অনুযায়ী)
+                  // hadith number
                   Text(
                     "Hadith# ${hModel.hadithNumber}",
                     style: TextStyle(color: goldColor, fontWeight: FontWeight.bold, fontSize: 13),
@@ -288,7 +283,6 @@ class _HadithListScreenState extends State<HadithListScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-              // আরবি টেক্সট (এটি এখন সবসময় আরবি দেখাবে)
               Align(
                 alignment: Alignment.centerRight,
                 child: Text(
@@ -304,7 +298,6 @@ class _HadithListScreenState extends State<HadithListScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-              // ইংরেজি অনুবাদ (এটি এখন সবসময় ইংরেজি দেখাবে)
               Text(
                 hModel.translation,
                 maxLines: 2,
@@ -312,7 +305,7 @@ class _HadithListScreenState extends State<HadithListScreen> {
                 style: TextStyle(color: textColor, fontSize: 14, height: 1.5),
               ),
               const Divider(height: 25, thickness: 0.6),
-              // ন্যারেটর ইনফো (অপরিবর্তিত)
+              // Narrator
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

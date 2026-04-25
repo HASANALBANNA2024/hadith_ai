@@ -1,7 +1,6 @@
 import 'package:share_plus/share_plus.dart';
 
 class AppShare {
-  // Static method ব্যবহারের ফলে সরাসরি AppShare.share() কল করা যাবে
   static void share() {
     const String appName = "Hadith AI 🌙";
     const String appLink =

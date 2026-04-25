@@ -24,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _showAllQuickAccess = false;
   bool _showAllCategories = false;
   bool _showAllDailyLife = false;
-  bool isExpanded = false; // এটি স্টেট ক্লাসের ভেতরে থাকতে হবে
+  bool isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -48,28 +48,25 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: scaffoldBg,
 
       appBar: PreferredSize(
-        // এখানে হাইট কমিয়ে ৪৫-৫০ এর মধ্যে রাখলে এটি অনেক স্লিম দেখাবে
         preferredSize: Size.fromHeight(isWeb ? 60 : 48),
         child: AppBar(
           backgroundColor: appBarBg,
           elevation: 0,
-          automaticallyImplyLeading: false, // বাড়তি জায়গা খালি করবে
+          automaticallyImplyLeading: false,
           title: Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 1100),
-              // মোবাইল এবং ওয়েব অনুযায়ী প্যাডিং অ্যাডজাস্ট করা হয়েছে
               padding: EdgeInsets.symmetric(horizontal: isWeb ? 0 : 8),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // টাইটেল - ফন্ট সাইজ এবং স্পেসিং অপ্টিমাইজড
                   Text(
-                    'আল-হাদীস',
+                    'Al-Hadith',
                     style: TextStyle(
                       color: gold,
                       fontSize: isWeb
                           ? 24
-                          : 20, // সামান্য কমানো হয়েছে ক্লিনিংয়ের জন্য
+                          : 20,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 0.5,
                     ),
@@ -85,11 +82,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       size: isWeb ? 26 : 22,
                     ),
                     onPressed: () {
-                      // সার্চ লজিক
+                      // Search Logic
                     },
                   ),
                   const SizedBox(width: 10),
-                  // থিম টগল (আইকন এবং সুইচকে একটি ছোট রো-তে রাখা হয়েছে)
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -100,7 +96,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: gold.withOpacity(0.8),
                         size: isWeb ? 22 : 18,
                       ),
-                      // ট্রান্সফর্ম ব্যবহার করে সুইচটিকে ছোট করা হয়েছে
                       Transform.scale(
                         scale: isWeb ? 0.8 : 0.7,
                         child: Switch(
@@ -112,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
 
-                  // সার্চ বাটন - যদি চ্যাটবট থাকে তবে এটি ছোট রাখা ভালো
+                  // search button of chatbot
                 ],
               ),
             ),
@@ -137,15 +132,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 5),
-                    _buildHeader('আজকের হাদিস', textColor, isWeb),
+                    _buildHeader("Today's Hadith", textColor, isWeb),
                     _buildHeroCard(cardBg, gold, borderColor, textColor, isWeb),
 
                     // const SizedBox(height: 20),
-                    _buildHeader('হাদীস গ্রন্থসমূহ', textColor, isWeb),
+                    _buildHeader('All Hadith Book', textColor, isWeb),
 
                     // --- API API Integration Started ---
                     FutureBuilder<List<HadithBookModel>>(
-                      // এখানে আপনার সার্ভিস মেথডটি কল হচ্ছে
+                      // Call to api in book name
                       future: HadithApiService().fetchAllBooks(),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
@@ -163,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         if (snapshot.hasError) {
                           return const Center(
                             child: Text(
-                              "ডাটা লোড করতে সমস্যা হয়েছে!",
+                              "Al-Hadith Data has been loaded!",
                               style: TextStyle(color: Colors.grey),
                             ),
                           );
@@ -172,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         if (!snapshot.hasData || snapshot.data!.isEmpty) {
                           return const Center(
                             child: Text(
-                              "কোনো গ্রন্থ পাওয়া যায়নি।",
+                              "Didn't hadith book in found।",
                               style: TextStyle(color: Colors.grey),
                             ),
                           );
@@ -196,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     // const SizedBox(height: 20),
 
                     // const SizedBox(height: 20),
-                    _buildHeader('হাদীস বিষয়ভিত্তিক', textColor, isWeb),
+                    _buildHeader('Topic-based Hadith', textColor, isWeb),
                     // _buildCategoryWrap(borderColor, textColor, cardBg, isWeb),
 
                      CategoryHelper.buildDashboardCategories(
@@ -208,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen> {
                          isDark: _isDark, // ডার্ক বা লাইট মোড কানেকশন
                         ),
                     // const SizedBox(height: 20),
-                    _buildHeader('দৈনন্দিন জীবনের হাদীস', textColor, isWeb),
+                    _buildHeader('Daily life hadith', textColor, isWeb),
                     _buildDailyLifeSection(
                       cardBg,
                       borderColor,
@@ -218,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
 
                     // const SizedBox(height: 20),
-                    _buildHeader('সাম্প্রতিক পঠিত', textColor, isWeb),
+                    _buildHeader('Recent Reading', textColor, isWeb),
                     _buildRecentReadCard(cardBg, borderColor, textColor, isWeb),
 
                     const SizedBox(height: 12),
@@ -230,12 +225,11 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       bottomNavigationBar: Container(
-        // পুরো বারের ব্যাকগ্রাউন্ড কালার সেট করা
         color: _isDark ? const Color(0xFF0D1F1D) : Colors.white,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // আপনার তৈরি করা আলাদা উইজেটটি এখানে কল করুন
+            // call to custom BottomNav
             CustomBottomNav(
               isDark: _isDark,
               gold: gold,
@@ -275,14 +269,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final filteredBooks = books
         .where((b) => sahihSittahSlugs.contains(b.bookSlug))
         .toList();
-
-    // --- আপডেট: কলাম সংখ্যা লজিক ---
-    // আপনার রিকোয়ারমেন্ট অনুযায়ী ৭০০ এর বেশি হলে ৪টি, ১১০০ এর বেশি হলে ৬টি
     int columns = width > 1100 ? 6 : (width > 700 ? 4 : (width > 500 ? 3 : 2));
-
-    // আইটেম কাউন্ট নির্ধারণ (Toggle Logic)
     int displayCount = (width <= 500 && !isExpanded) ? 2 : filteredBooks.length;
-
     final List<IconData> islamicIcons = [
       Icons.menu_book_rounded,
       Icons.auto_stories,
@@ -389,7 +377,7 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ),
 
-        // বাটন শুধুমাত্র মোবাইল ভিউতে এবং কিতাব বেশি থাকলে ডানপাশে দেখাবে
+        // condition of mobile view
         if (width <= 500 && filteredBooks.length > 2)
           Padding(
             padding: EdgeInsets.zero,
@@ -407,7 +395,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 size: 18,
               ),
               label: Text(
-                isExpanded ? "কম দেখুন" : "সব দেখুন",
+                isExpanded ? "close" : "see more",
                 style: const TextStyle(
                   color: Color(0xFFB8860B),
                   fontSize: 12,
@@ -424,15 +412,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       width: double.infinity,
       margin: EdgeInsets.only(
-        // ওয়েবে ২০ গ্যাপ থাকবে, কিন্তু মোবাইলে ২ বা ০ করে দিলাম
         top: isWeb ? 20 : 2,
-        bottom: isWeb ? 10 : 4, // নিচের গ্যাপটাও একইভাবে কন্ট্রোল করা হয়েছে
+        bottom: isWeb ? 10 : 4,
         left: isWeb ? 0 : 4,
       ),
       child: Text(
         title,
         style: TextStyle(
-          fontSize: isWeb ? 22 : 17, // মোবাইলে সামান্য ছোট যাতে স্লিম লাগে
+          fontSize: isWeb ? 22 : 17,
           fontWeight: FontWeight.bold,
           color: color,
         ),
@@ -513,7 +500,7 @@ class _HomeScreenState extends State<HomeScreen> {
         border: Border.all(color: border.withOpacity(0.4)),
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min, // এটিই ওভারফ্লো আটকানোর প্রধান অস্ত্র
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // ছোট আইকন
@@ -526,7 +513,7 @@ class _HomeScreenState extends State<HomeScreen> {
             textAlign: TextAlign.center,
             style: TextStyle(
               color: textC,
-              fontSize: isWeb ? 17 : 13, // স্লিম লুকের জন্য সাইজ কমানো
+              fontSize: isWeb ? 17 : 13,
               fontStyle: FontStyle.italic,
               height: 1.4,
             ),
@@ -535,7 +522,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 6),
 
           Text(
-            "- সহীহ বুখারী",
+            "- Shahih Bukhari",
             style: TextStyle(
               color: gold,
               fontWeight: FontWeight.bold,
@@ -566,7 +553,7 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "সহীহ বুখারী - হাদিস নং ১",
+                  "Shahih Bukhari - Hadith#01",
                   style: TextStyle(color: textC, fontWeight: FontWeight.bold),
                 ),
                 const Text(

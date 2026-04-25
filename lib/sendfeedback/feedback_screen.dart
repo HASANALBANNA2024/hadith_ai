@@ -30,7 +30,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     const Color goldColor = Color(0xFFE4C381);
     const Color darkGreen = Color(0xFF03221F);
 
-    // থিম অনুযায়ী কালার সেটআপ
+    //Theme connect
     final Color bgColor = widget.isDark ? darkGreen : Colors.grey[100]!;
     final Color appBarColor = widget.isDark ? goldColor : Colors.white;
     final Color appBarElementColor = widget.isDark
@@ -42,16 +42,15 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
     return Scaffold(
       backgroundColor: bgColor,
-      // --- ১১০০ পিক্সেল রেসপন্সিভ অ্যাপবার ---
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: Container(
-          color: appBarColor, // পুরো টপ বার কালার
+          color: appBarColor,
           child: Center(
             child: Container(
               constraints: const BoxConstraints(
                 maxWidth: 1100,
-              ), // অ্যাপবার কন্টেন্ট লিমিট
+              ),
               child: AppBar(
                 backgroundColor: Colors.transparent,
                 elevation: 0,
@@ -156,14 +155,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     _buildAttachmentBox(goldColor),
                     const SizedBox(height: 30),
 
-                    // সাবমিট বাটন
+                    // submit button
                     SizedBox(
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
                         onPressed: _isLoading
                             ? null
-                            : () {}, // লজিক আপনার আগের মতই থাকবে
+                            : () {},
                         style: ElevatedButton.styleFrom(
                           backgroundColor: goldColor,
                           shape: RoundedRectangleBorder(
@@ -214,7 +213,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     );
   }
 
-  // --- হেল্পার উইজেট (ডিজাইন অপরিবর্তিত) ---
+  // --- Helper widgets---
 
   Widget _buildLabel(String label) {
     return Padding(

@@ -13,7 +13,7 @@ class AppThemes {
   static final ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
-    // colorScheme যোগ করলে বাটন এবং অন্যান্য উইজেট অটোমেটিক কালার পাবে
+    // colorScheme
     colorScheme: ColorScheme.fromSeed(
       seedColor: primaryGreen,
       primary: primaryGreen,
@@ -33,7 +33,7 @@ class AppThemes {
       ),
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      backgroundColor: Colors.white, // লাইট থিমে সাদা বা হালকা কালার ভালো দেখায়
+      backgroundColor: Colors.white,
       selectedItemColor: primaryGreen,
       unselectedItemColor: Colors.grey,
       type: BottomNavigationBarType.fixed,
@@ -46,7 +46,7 @@ class AppThemes {
     useMaterial3: true,
     brightness: Brightness.dark,
     colorScheme: const ColorScheme.dark(
-      primary: accentGold, // ডার্ক মোডে গোল্ড কালারকে প্রাইমারি হিসেবে রাখা যায়
+      primary: accentGold,
       surface: darkBackground,
     ),
     scaffoldBackgroundColor: darkBackground,

@@ -14,7 +14,6 @@ class SettingsSheet extends StatefulWidget {
 }
 
 class _SettingsSheetState extends State<SettingsSheet> {
-  // সাময়িকভাবে লোকাল স্টেট রাখা হয়েছে শুধুমাত্র UI দেখার জন্য
   bool _isNotifOn = true;
 
   @override
@@ -68,7 +67,7 @@ class _SettingsSheetState extends State<SettingsSheet> {
               children: [
                 _buildSectionTitle("Preferences"),
 
-                // --- নোটিফিকেশন কন্ট্রোল ---
+                // --- Notification control ---
                 _buildSettingItem(
                   Icons.notifications_none_outlined,
                   "Notifications",
@@ -77,7 +76,7 @@ class _SettingsSheetState extends State<SettingsSheet> {
                     activeColor: goldColor,
                     onChanged: (v) {
                       setState(() => _isNotifOn = v);
-                      // পরে এখানে লজিক অ্যাড করতে পারবেন
+
                     },
                   ),
                   goldColor,
@@ -88,7 +87,7 @@ class _SettingsSheetState extends State<SettingsSheet> {
                 const SizedBox(height: 20),
                 _buildSectionTitle("Support & Legal"),
 
-                // --- প্রাইভেসী পলিসি ---
+                // --- Privacy Policy ---
                 _buildSettingItem(
                   Icons.privacy_tip_outlined,
                   "Privacy Policy",
@@ -112,7 +111,7 @@ class _SettingsSheetState extends State<SettingsSheet> {
                   },
                 ),
 
-                // --- ফিডব্যাক ---
+                // --- Feedback ---
                 _buildSettingItem(
                   Icons.report_problem_outlined,
                   "Send Feedback",
@@ -131,13 +130,13 @@ class _SettingsSheetState extends State<SettingsSheet> {
                       MaterialPageRoute(
                         builder: (context) => FeedbackScreen(
                           isDark: widget.isDarkMode,
-                        ), // isDarkMode আপনার থিম স্টেট থেকে আসবে
+                        ), // isDarkMode
                       ),
                     );
                   },
                 ),
 
-                // --- অ্যাপ সম্পর্কে ---
+                // ---About App ---
                 _buildSettingItem(
                   Icons.info_outline,
                   "About App",
@@ -161,7 +160,7 @@ class _SettingsSheetState extends State<SettingsSheet> {
                   },
                 ),
 
-                // --- শেয়ার অ্যাপ ---
+                // --- Share App---
                 _buildSettingItem(
                   Icons.share_outlined,
                   "Share App",

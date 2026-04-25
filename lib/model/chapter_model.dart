@@ -1,7 +1,7 @@
 class ChapterModel {
   final int id;
   final String chapterNumber;
-  final String chapterTitle; // এটি এখন ইংলিশ টাইটেল ধারণ করবে
+  final String chapterTitle; // english title
   final String bookSlug;
   final String hadithCount;
 
@@ -16,7 +16,7 @@ class ChapterModel {
   Map<String, dynamic> toJson() => {
     'id': id,
     'chapterNumber': chapterNumber,
-    'chapterEnglish': chapterTitle, // ইংলিশ কী-তে সেভ হবে
+    'chapterEnglish': chapterTitle, // english key save
     'bookSlug': bookSlug,
     'hadiths_count': hadithCount,
   };
@@ -25,7 +25,6 @@ class ChapterModel {
     return ChapterModel(
       id: json['id'] is int ? json['id'] : int.tryParse(json['id'].toString()) ?? 0,
       chapterNumber: json['chapterNumber']?.toString() ?? '0',
-      // আপনার প্রিন্ট অনুযায়ী সঠিক কী: chapterEnglish
       chapterTitle: json['chapterEnglish'] ??
           json['chapterTitle'] ??
           json['chapter_english'] ?? 'No Title Found',

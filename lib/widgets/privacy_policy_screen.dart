@@ -14,7 +14,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
         ? Colors.white.withOpacity(0.05)
         : Colors.grey.withOpacity(0.05);
 
-    // রেসপনসিভ উইথ ক্যালকুলেশন
+    // Responsive with calculation
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isWeb = screenWidth > 1100;
 
@@ -39,7 +39,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
       ),
       body: Center(
         child: Container(
-          // ওয়েব ভিউতে ১১০০ পিক্সেলের বেশি হবে না
+          // Web view
           width: isWeb ? 1100 : screenWidth,
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
@@ -47,12 +47,12 @@ class PrivacyPolicyScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ১. ডোনেশন সেকশন
+                // Donation
                 _buildDonationCard(goldColor, txtColor),
 
                 const SizedBox(height: 25),
 
-                // ২. ডাটা সোভারেন্টি (আগের কন্টেন্ট)
+
                 _buildInfoSection(
                   Icons.security_outlined,
                   "Data Sovereignty",
@@ -62,7 +62,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
                   cardBg,
                 ),
 
-                // ৩. এআই ইন্টারপ্রিটেশন (আগের কন্টেন্ট)
                 _buildInfoSection(
                   Icons.auto_awesome_outlined,
                   "AI & Ethical Interpretation",
@@ -72,7 +71,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
                   cardBg,
                 ),
 
-                // ৪. অথেন্টিসিটি (আগের কন্টেন্ট)
                 _buildInfoSection(
                   Icons.gavel_outlined,
                   "Commitment to Authenticity",
@@ -82,7 +80,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
                   cardBg,
                 ),
 
-                // ৫. অ্যানালিটিক্স (আগের কন্টেন্ট)
                 _buildInfoSection(
                   Icons.analytics_outlined,
                   "Usage Analytics",
@@ -92,7 +89,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
                   cardBg,
                 ),
 
-                // ৬. কন্টাক্ট (আগের কন্টেন্ট)
                 _buildInfoSection(
                   Icons.contact_support_outlined,
                   "Rights & Contact",
@@ -106,7 +102,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 const Divider(color: Colors.grey, thickness: 0.3),
                 const SizedBox(height: 20),
 
-                // --- ৭. প্ল্যাটফর্ম সেকশন (নতুন আপডেট) ---
+                // --- Platform section ---
                 Center(
                   child: Column(
                     children: [
@@ -159,7 +155,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
     );
   }
 
-  // প্ল্যাটফর্ম আইকন তৈরির মেথড
+  // Platform Icon
   Widget _buildPlatformIcon(IconData icon, String label, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,

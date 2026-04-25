@@ -11,7 +11,7 @@ class HadithBookModel {
     this.bookNameArabic,
   });
 
-  // Hive এ ডাটা সেভ করার জন্য toJson মেথড
+  // Hive data save for  toJson
   Map<String, dynamic> toJson() => {
     'bookName': bookName,
     'bookSlug': bookSlug,
