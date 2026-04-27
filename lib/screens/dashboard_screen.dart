@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:hadith_ai/api_service/hadith_api_service.dart';
 import 'package:hadith_ai/model/hadith_book_model.dart';
 import 'package:hadith_ai/screens/chapter_list_screen.dart';
+import 'package:hadith_ai/screens/hadith_search_delegate.dart';
 import 'package:hadith_ai/widgets/app_theme.dart';
-import 'package:hadith_ai/widgets/custom_bottom_Nav.dart';
 import 'package:hadith_ai/widgets/category_helper.dart';
+import 'package:hadith_ai/widgets/custom_bottom_Nav.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -64,9 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     'Al-Hadith',
                     style: TextStyle(
                       color: gold,
-                      fontSize: isWeb
-                          ? 24
-                          : 20,
+                      fontSize: isWeb ? 24 : 20,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 0.5,
                     ),
@@ -82,7 +81,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       size: isWeb ? 26 : 22,
                     ),
                     onPressed: () {
-                      // Search Logic
+                      showSearch(
+                        context: context,
+                        delegate: HadithSearchDelegate(isDark: _isDark),
+                      );
                     },
                   ),
                   const SizedBox(width: 10),
@@ -192,16 +194,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     // const SizedBox(height: 20),
                     _buildHeader('Topic-based Hadith', textColor, isWeb),
-                    // _buildCategoryWrap(borderColor, textColor, cardBg, isWeb),
 
-                     CategoryHelper.buildDashboardCategories(
-                         context: context,
-                          border: borderColor, // আপনার গোল্ডেন কালার ভ্যারিয়েবল
-                          textC: textColor,     // আপনার টেক্সট কালার ভ্যারিয়েবল
-                          bg: cardBg,           // কন্টেইনার ব্যাকগ্রাউন্ড কালার
-                         isWeb: isWeb,         // ওয়েব রেসপন্সিভ চেক
-                         isDark: _isDark, // ডার্ক বা লাইট মোড কানেকশন
-                        ),
+                    // _buildCategoryWrap(borderColor, textColor, cardBg, isWeb),
+                    CategoryHelper.buildDashboardCategories(
+                      context: context,
+                      border: borderColor, // আপনার গোল্ডেন কালার ভ্যারিয়েবল
+                      textC: textColor, // আপনার টেক্সট কালার ভ্যারিয়েবল
+                      bg: cardBg, // কন্টেইনার ব্যাকগ্রাউন্ড কালার
+                      isWeb: isWeb, // ওয়েব রেসপন্সিভ চেক
+                      isDark: _isDark, // ডার্ক বা লাইট মোড কানেকশন
+                    ),
                     // const SizedBox(height: 20),
                     _buildHeader('Daily life hadith', textColor, isWeb),
                     _buildDailyLifeSection(
@@ -426,7 +428,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 
   Widget _buildDailyLifeSection(
     Color bg,
