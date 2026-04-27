@@ -7,17 +7,14 @@ import 'package:hadith_ai/screens/splash_screen.dart';
 import 'package:hadith_ai/widgets/app_theme.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+// ১. navigatorKey-কে ক্লাসের বাইরে (Global) নিয়ে আসতে হবে
+// যাতে অন্য সব ফাইল থেকে একে অ্যাক্সেস করা যায়।
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
-  // Required for plugin initialization
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize Hive for local storage
   await Hive.initFlutter();
-
-  // Open necessary boxes
   await Hive.openBox('app_cache');
-
-  // Initialize the bookmark service
   await BookmarkService.init();
 
   runApp(const MyApp());
@@ -32,30 +29,25 @@ class MyApp extends StatelessWidget {
       title: 'Hadith AI',
       debugShowCheckedModeBanner: false,
 
-      // Theme configuration
-      // Setting themeMode to system ensures it follows mobile settings
+      // ২. এখানে গ্লোবাল কী-টি সেট করুন
+      navigatorKey: navigatorKey,
+
       themeMode: ThemeMode.system,
       theme: AppThemes.lightTheme,
       darkTheme: AppThemes.darkTheme,
 
-      // Using builder to wrap the entire app with Aura ChatBot.
-      // We pass the global 'child' so it stays on top of every page.
       builder: (context, child) {
         return AuraChatBot(
-          // Logic: Service is ready when child is not null
           isServiceReady: child != null,
           child: child!,
         );
       },
 
-      // Initial route
       home: const SplashScreen(),
 
       onGenerateRoute: (settings) {
         if (settings.name != null && settings.name!.startsWith('/chapters/')) {
           final String bookSlug = settings.name!.replaceFirst('/chapters/', '');
-
-          // Better way to detect brightness from context
           final isDark = Theme.of(context).brightness == Brightness.dark;
 
           return MaterialPageRoute(
@@ -66,7 +58,6 @@ class MyApp extends StatelessWidget {
             ),
           );
         }
-
         return MaterialPageRoute(builder: (context) => const HomeScreen());
       },
     );
@@ -78,8 +69,8 @@ class MyApp extends StatelessWidget {
         .split('-')
         .map(
           (word) =>
-              word.isNotEmpty ? word[0].toUpperCase() + word.substring(1) : "",
-        )
+      word.isNotEmpty ? word[0].toUpperCase() + word.substring(1) : "",
+    )
         .join(' ');
   }
 }

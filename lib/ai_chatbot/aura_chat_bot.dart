@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hadith_ai/screens/payment_screen.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hadith_ai/widgets/aura_initial_messages.dart';
+import 'package:hadith_ai/main.dart';
 
 class AuraChatBot extends StatefulWidget {
   final Widget child;
@@ -190,10 +192,7 @@ class _AuraChatBotState extends State<AuraChatBot> {
             borderRadius: BorderRadius.circular(useFullScreen ? 0 : 16),
             child: Column(
               children: [
-                // ১. হেডার
                 _buildHeader(isDesktop, useFullScreen),
-
-                // ২. চ্যাট এরিয়া (এখানে হাদিস এবং কার্ড সব একসাথে থাকবে)
                 Expanded(
                   child: Container(
                     color: isDark ? const Color(0xFF121212) : Colors.grey[50],
@@ -210,22 +209,24 @@ class _AuraChatBotState extends State<AuraChatBot> {
                       itemCount: _messages.length,
                       itemBuilder: (context, index) {
                         final msg = _messages[index];
-
-                        // ১. যদি টাইপ 'hadith', 'text' বা 'donation' হয়—তবে এগুলো সেন্টারে দেখাবে
-                        // (এগুলোই আপনার ডিফল্ট মেসেজ)
                         if (msg['type'] == 'hadith' || msg['type'] == 'text' || msg['type'] == 'donation') {
-
-                          // ডোনেশন কার্ডের জন্য আলাদা উইজেট
                           if (msg['type'] == 'donation') {
                             return Center(
                               child: DonationMessageCard(
                                 text: msg['content'],
-                                onDonatePressed: () {},
+                                onDonatePressed: () {
+                                  setState(() {
+                                    isExpanded = false;
+                                  });
+                                  navigatorKey.currentState?.push(
+                                    MaterialPageRoute(builder: (context) => const PaymentScreen()),
+                                  );
+                                },
                               ),
                             );
                           }
 
-                          // হাদিস এবং ওয়েলকাম টেক্সটের জন্য সেন্টারে রাখা বাবল
+
                           return Align(
                             alignment: Alignment.center,
                             child: Container(
@@ -238,7 +239,7 @@ class _AuraChatBotState extends State<AuraChatBot> {
                               ),
                               child: Text(
                                 msg['content'],
-                                textAlign: TextAlign.center, // টেক্সট সেন্টারে থাকবে
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: isDark ? Colors.white70 : Colors.black87,
                                   fontSize: 14,
@@ -248,8 +249,6 @@ class _AuraChatBotState extends State<AuraChatBot> {
                             ),
                           );
                         }
-
-                        // ২. ইউজার নিজে চ্যাট করলে বা বট রিপ্লাই দিলে সেগুলো ডানে-বামে (Left-Right) থাকবে
                         return _buildChatBubble(
                             msg['content'],
                             isDark,
@@ -260,7 +259,7 @@ class _AuraChatBotState extends State<AuraChatBot> {
                   ),
                 ),
 
-                // ৫. ইনপুট এরিয়া
+                // input area
                 _buildInput(isDark, useFullScreen),
               ],
             ),
@@ -307,18 +306,55 @@ class _AuraChatBotState extends State<AuraChatBot> {
       color: const Color(0xFF202124),
       child: Row(
         children: [
+          // বাম পাশে শুধু লোগো এবং নাম
           const Icon(Icons.bolt, color: Colors.cyanAccent, size: 20),
           const SizedBox(width: 10),
-          const Text("Aura AI", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          const Text(
+              "Aura AI",
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+          ),
+
           const Spacer(),
+
+
+          TextButton(
+            onPressed: () {
+              // first chatbot windows close
+              setState(() {
+                isExpanded = false;
+              });
+
+              // Payment screen navigate
+              navigatorKey.currentState?.push(
+                MaterialPageRoute(builder: (context) => const PaymentScreen()),
+              );
+            },
+            child: const Text(
+              "Subscription",
+              style: TextStyle(
+                color: Colors.amberAccent,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+          ),
+
           if (isDesktop)
             IconButton(
-              icon: Icon(isFull ? Icons.fullscreen_exit : Icons.fullscreen, color: Colors.white70, size: 22),
+              icon: Icon(
+                  isFull ? Icons.fullscreen_exit : Icons.fullscreen,
+                  color: Colors.white70,
+                  size: 22
+              ),
               onPressed: () => setState(() => isFullScreen = !isFullScreen),
             ),
+
           IconButton(
             icon: const Icon(Icons.close, color: Colors.white70, size: 20),
-            onPressed: () => setState(() { isExpanded = false; isFullScreen = false; }),
+            onPressed: () => setState(() {
+              isExpanded = false;
+              isFullScreen = false;
+            }),
           ),
         ],
       ),

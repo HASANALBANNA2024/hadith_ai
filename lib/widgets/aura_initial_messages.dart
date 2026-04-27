@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hadith_ai/screens/payment_screen.dart';
 
 class AuraInitialMessages {
   // first time open of Aura AI
@@ -26,7 +27,7 @@ class AuraInitialMessages {
           return[
                    {
                      "type":"donation",
-                     "content":"দ্বীনের এই খেদমতকে সচল রাখতে এবং অ্যাপটিকে আরও উন্নত করতে আপনি আমাদের ডোনেশন দিয়ে সহযোগিতা করতে পারেন। এটি আপনার জন্য একটি সদকায়ে জারিয়া হতে পারে।",
+                     "content":"এটি কেবল একটি সাবস্ক্রিপশন নয়, এটি আমাদের হাদিস প্রজেক্টকে এগিয়ে নেওয়ার একটি ক্ষুদ্র প্রয়াস। আপনার এই সহযোগিতা আমাদের সার্ভার খরচ মেটাতে এবং নতুন নতুন ফিচার নিয়ে আসতে সাহায্য করবে।",
                    }
 
                 ];
@@ -74,10 +75,10 @@ class DonationMessageCard extends StatelessWidget
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
             child: const Text(
-              "Donation",
-              style: TextStyle(fontWeight: FontWeight.bold),
+              "Subscription",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
-          ),
+          )
         ],
       ),
 
