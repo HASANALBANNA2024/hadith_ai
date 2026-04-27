@@ -44,13 +44,20 @@ class _AuraChatBotState extends State<AuraChatBot> {
 
   void _initializeWelcomeMessages() {
     var box = Hive.box('app_cache');
-    bool isFirstChat = box.get('isFirstChatOpen', defaultValue: true);
+
+    // আমরা 'hasOpenedBefore' কী (Key) ব্যবহার করছি
+    bool hasOpenedBefore = box.get('hasOpenedBefore', defaultValue: false);
 
     setState(() {
-      if (isFirstChat) {
+      _messages.clear(); // আগের মেসেজ ক্লিয়ার করে নেওয়া নিরাপদ
+
+      if (!hasOpenedBefore) {
+        // প্রথমবার ওপেন করলে: হাদিস + পরিচয় + ডোনেশন
         _messages.addAll(AuraInitialMessages.getFirstTimeMessage());
-        box.put('isFirstChatOpen', false);
+        // প্রথমবার ওপেন হয়ে গেছে, তাই true সেভ করে রাখছি
+        box.put('hasOpenedBefore', true);
       } else {
+        // দ্বিতীয়বার বা তারপরের বার: শুধু ডোনেশন মেসেজ
         _messages.addAll(AuraInitialMessages.getReturningMessages());
       }
     });
@@ -183,25 +190,77 @@ class _AuraChatBotState extends State<AuraChatBot> {
             borderRadius: BorderRadius.circular(useFullScreen ? 0 : 16),
             child: Column(
               children: [
+                // ১. হেডার
                 _buildHeader(isDesktop, useFullScreen),
+
+                // ২. চ্যাট এরিয়া (এখানে হাদিস এবং কার্ড সব একসাথে থাকবে)
                 Expanded(
                   child: Container(
                     color: isDark ? const Color(0xFF121212) : Colors.grey[50],
                     child: _messages.isEmpty
-                        ? Center(child: Icon(Icons.auto_awesome, size: 60, color: isDark ? Colors.white10 : Colors.black12))
+                        ? Center(
+                      child: Icon(
+                        Icons.auto_awesome,
+                        size: 60,
+                        color: isDark ? Colors.white10 : Colors.black12,
+                      ),
+                    )
                         : ListView.builder(
                       padding: const EdgeInsets.all(12),
                       itemCount: _messages.length,
                       itemBuilder: (context, index) {
                         final msg = _messages[index];
-                        if (msg['type'] == 'donation') {
-                          return DonationMessageCard(text: msg['content'], onDonatePressed: () {});
+
+                        // ১. যদি টাইপ 'hadith', 'text' বা 'donation' হয়—তবে এগুলো সেন্টারে দেখাবে
+                        // (এগুলোই আপনার ডিফল্ট মেসেজ)
+                        if (msg['type'] == 'hadith' || msg['type'] == 'text' || msg['type'] == 'donation') {
+
+                          // ডোনেশন কার্ডের জন্য আলাদা উইজেট
+                          if (msg['type'] == 'donation') {
+                            return Center(
+                              child: DonationMessageCard(
+                                text: msg['content'],
+                                onDonatePressed: () {},
+                              ),
+                            );
+                          }
+
+                          // হাদিস এবং ওয়েলকাম টেক্সটের জন্য সেন্টারে রাখা বাবল
+                          return Align(
+                            alignment: Alignment.center,
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: isDark ? const Color(0xFF2D2D2D) : const Color(0xFFF5F5F5),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
+                              ),
+                              child: Text(
+                                msg['content'],
+                                textAlign: TextAlign.center, // টেক্সট সেন্টারে থাকবে
+                                style: TextStyle(
+                                  color: isDark ? Colors.white70 : Colors.black87,
+                                  fontSize: 14,
+                                  fontStyle: msg['type'] == 'hadith' ? FontStyle.italic : FontStyle.normal,
+                                ),
+                              ),
+                            ),
+                          );
                         }
-                        return _buildChatBubble(msg['content'], isDark);
+
+                        // ২. ইউজার নিজে চ্যাট করলে বা বট রিপ্লাই দিলে সেগুলো ডানে-বামে (Left-Right) থাকবে
+                        return _buildChatBubble(
+                            msg['content'],
+                            isDark,
+                            isUser: msg['type'] == 'user'
+                        );
                       },
-                    ),
+                    )
                   ),
                 ),
+
+                // ৫. ইনপুট এরিয়া
                 _buildInput(isDark, useFullScreen),
               ],
             ),
@@ -211,24 +270,32 @@ class _AuraChatBotState extends State<AuraChatBot> {
     );
   }
 
-  Widget _buildChatBubble(String text, bool isDark) {
+  Widget _buildChatBubble(String text, bool isDark, {bool isUser = false}) {
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.75,
+        ),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF2D2D2D) : const Color(0xFFE3F2FD),
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(16),
-            topRight: Radius.circular(16),
-            bottomRight: Radius.circular(16),
-            bottomLeft: Radius.circular(4),
+          color: isUser
+              ? Colors.blueAccent
+              : (isDark ? const Color(0xFF2D2D2D) : const Color(0xFFE3F2FD)),
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(16),
+            topRight: const Radius.circular(16),
+            bottomLeft: Radius.circular(isUser ? 16 : 4),
+            bottomRight: Radius.circular(isUser ? 4 : 16),
           ),
         ),
         child: Text(
           text,
-          style: TextStyle(color: isDark ? Colors.white : Colors.black87, fontSize: 14),
+          style: TextStyle(
+            color: isUser ? Colors.white : (isDark ? Colors.white : Colors.black87),
+            fontSize: 14,
+          ),
         ),
       ),
     );
