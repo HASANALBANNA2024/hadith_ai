@@ -3,6 +3,7 @@ import 'package:hadith_ai/api_service/hadith_api_service.dart';
 import 'package:hadith_ai/model/hadith_book_model.dart';
 import 'package:hadith_ai/screens/chapter_list_screen.dart';
 import 'package:hadith_ai/screens/hadith_search_delegate.dart';
+import 'package:hadith_ai/screens/profile_screen.dart';
 import 'package:hadith_ai/widgets/app_theme.dart';
 import 'package:hadith_ai/widgets/category_helper.dart';
 import 'package:hadith_ai/widgets/custom_bottom_Nav.dart';
@@ -23,7 +24,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // badge status update
   bool isLoggedIn = true; // অথবা true, আপনার টেস্ট অনুযায়ী
-  String planType = "Lifetime";
 
   // all section control variable
   bool _showAllBooks = false;
@@ -118,13 +118,25 @@ class _HomeScreenState extends State<HomeScreen> {
                     // icon
                     icon: ProfileActionButton(
                       isLoggedIn: isLoggedIn,
-                      planType: "Lifetime",
-                      onTap:
-                          () {}, // এখানে ফাঁকা রাখতে পারেন কারণ IconButton এর নিজস্ব onPressed আছে
+                      planType: "basic",
+                      onLoginTap: () {},
+                      onProfileTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ProfileScreen(
+                              userName: "Md. Hasan Al Banna",
+                              userEmail: "albannamdhasan48@gmail.com",
+                              planType: "standard",
+                            ),
+                          ),
+                        );
+                      },
+                      onLogoutTap: () {},
                     ),
                     onPressed: () {
-                      print("Profile Clicked");
-                      //
+                      print("clicked on Badge");
                     },
                   ),
 
