@@ -8,7 +8,10 @@ import 'package:hadith_ai/widgets/share_hadith.dart';
 
 class BookmarkScreen extends StatefulWidget {
   final bool isDark;
-  const BookmarkScreen({super.key, required this.isDark});
+  final Function(bool) onThemeChanged;
+
+
+  const BookmarkScreen({super.key, required this.isDark,required this.onThemeChanged,});
 
   @override
   State<BookmarkScreen> createState() => _BookmarkScreenState();
@@ -18,10 +21,13 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
   List<HadithModel> bookmarkedHadiths = [];
   final int _currentIndex = 2;
 
+  late bool _localIsDark;
+
   @override
   void initState() {
     super.initState();
     _loadBookmarks();
+    _localIsDark = widget.isDark;
   }
 
   void _loadBookmarks() {
@@ -124,8 +130,9 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
               ),
             ),
       // BottomNav
+
       bottomNavigationBar: Container(
-        color: widget.isDark ? const Color(0xFF0D1F1D) : Colors.white,
+        color: _localIsDark ? const Color(0xFF0D1F1D) : Colors.white,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -133,18 +140,29 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
               constraints: const BoxConstraints(maxWidth: 1100),
               width: screenWidth,
               child: CustomBottomNav(
-                isDark: widget.isDark,
+                isDark: _localIsDark,       // লোকাল ভেরিয়েবল ব্যবহার করুন
                 gold: gold,
                 isWeb: isWeb,
                 currentIndex: _currentIndex,
+                onThemeChanged: (newThemeValue) {
+                  setState(() {
+                    _localIsDark = newThemeValue; // থিম চেঞ্জ হলে স্টেট আপডেট হবে
+                  });
+                  // যদি মেইন অ্যাপের থিমও আপডেট করতে চান তবে নিচের লাইনটি কল করুন
+                  widget.onThemeChanged(newThemeValue);
+                },
                 onTap: (index) {
-                  if (index != 2) Navigator.pop(context);
+                  // বুকমার্ক স্ক্রিন থেকে অন্য ট্যাবে যাওয়ার লজিক
+                  if (index != 2) {
+                    Navigator.pop(context);
+                  }
                 },
               ),
             ),
           ],
         ),
       ),
+
     );
   }
 

@@ -8,6 +8,7 @@ class CustomBottomNav extends StatelessWidget {
   final bool isWeb;
   final int currentIndex;
   final Function(int) onTap;
+  final Function(bool) onThemeChanged;
 
   const CustomBottomNav({
     super.key,
@@ -16,6 +17,7 @@ class CustomBottomNav extends StatelessWidget {
     required this.isWeb,
     required this.currentIndex,
     required this.onTap,
+    required this.onThemeChanged,
   });
 
   @override
@@ -45,7 +47,7 @@ class CustomBottomNav extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => BookmarkScreen(isDark: isDark),
+                builder: (context) => BookmarkScreen(isDark: isDark, onThemeChanged: onThemeChanged),
               ),
             );
           } else if (index == 3) {
@@ -54,7 +56,11 @@ class CustomBottomNav extends StatelessWidget {
               isScrollControlled: true,
               backgroundColor: Colors.transparent,
               builder: (context) {
-                return SettingsSheet(isDarkMode: isDark);
+                // এখন আর এখানে রেড লাইন আসবে না
+                return SettingsSheet(
+                  isDarkMode: isDark,
+                  onThemeChanged: onThemeChanged,
+                );
               },
             );
           } else {

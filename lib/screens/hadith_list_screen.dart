@@ -32,6 +32,8 @@ class _HadithListScreenState extends State<HadithListScreen> {
   bool isLoading = true;
   int _selectedIndex = 1;
 
+  late bool _isDark;
+
   // API Key
   final String apiKey =
       "\$2y\$10\$K92YhAwUhG4o6upA4YPrGO4pfUM8DdBznR6Zueejhg9zPevBI6e";
@@ -40,6 +42,7 @@ class _HadithListScreenState extends State<HadithListScreen> {
   void initState() {
     super.initState();
     fetchHadiths();
+    _isDark = widget.isDarkStatus;
   }
 
   // fethch hadith
@@ -189,16 +192,24 @@ class _HadithListScreenState extends State<HadithListScreen> {
         ),
       ),
       bottomNavigationBar: Container(
-        color: widget.isDarkStatus ? const Color(0xFF0D1F1D) : Colors.white,
+        // এখানেও _isDark ব্যবহার করুন
+        color: _isDark ? const Color(0xFF0D1F1D) : Colors.white,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CustomBottomNav(
-              isDark: widget.isDarkStatus,
+              isDark: _isDark,           // আপডেট করা লোকাল ভেরিয়েবল
               gold: goldColor,
-              isWeb: isWeb,
-              currentIndex:
-                  _selectedIndex,
+              isWeb: isWeb,              // আপনার স্ক্রিন সাইজ লজিক
+              currentIndex: _selectedIndex,
+
+              // এটিই মেইন কাজ করবে থিম পরিবর্তনের জন্য
+              onThemeChanged: (newThemeValue) {
+                setState(() {
+                  _isDark = newThemeValue;
+                });
+              },
+
               onTap: (index) {
                 setState(() {
                   _selectedIndex = index;

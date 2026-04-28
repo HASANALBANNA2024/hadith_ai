@@ -6,8 +6,13 @@ import 'package:hadith_ai/widgets/share_app.dart';
 
 class SettingsSheet extends StatefulWidget {
   final bool isDarkMode;
+  final Function(bool) onThemeChanged;
 
-  const SettingsSheet({super.key, required this.isDarkMode});
+  const SettingsSheet({
+    super.key,
+    required this.isDarkMode,
+    required this.onThemeChanged
+  });
 
   @override
   State<SettingsSheet> createState() => _SettingsSheetState();
@@ -15,6 +20,16 @@ class SettingsSheet extends StatefulWidget {
 
 class _SettingsSheetState extends State<SettingsSheet> {
   bool _isNotifOn = true;
+
+  late bool _isDarkLocal;
+
+  @override
+  void initState()
+  {
+    super.initState();
+    _isDarkLocal = widget.isDarkMode;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +98,27 @@ class _SettingsSheetState extends State<SettingsSheet> {
                   txtColor,
                   cardIconBg,
                 ),
+
+                // switch
+                // --- Theme / Dark Mode Control ---
+                _buildSettingItem(
+                  _isDarkLocal ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                  "Dark Mode",
+                  Switch(
+                    value: _isDarkLocal, // এটি আপনার সেটিংস শিটের লোকাল ডার্ক মোড স্টেট
+                    activeColor: goldColor,
+                    onChanged: (v) {
+                      setState(() => _isDarkLocal = v);
+
+                      widget.onThemeChanged(v);
+                    },
+                  ),
+                  goldColor,
+                  txtColor,
+                  cardIconBg,
+                ),
+
+
 
                 const SizedBox(height: 20),
                 _buildSectionTitle("Support & Legal"),

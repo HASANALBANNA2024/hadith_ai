@@ -51,7 +51,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final Color appBarColor = isDarkMode ? const Color(0xFF1E1F22) : const Color(0xFF004D40);
     final Color scaffoldBg = isDarkMode ? const Color(0xFF121212) : const Color(0xFF2B2B2B);
 
-    return Scaffold(
+
+    // this close of default gesture
+    return PopScope(
+      canPop: false,
+        onPopInvokedWithResult: (didPop, resutl){
+        if(didPop) return;
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => HomeScreen()),
+              (route) => false,
+        );
+        },
+
+      // the end of default gesture close
+
+        child: Scaffold(
       backgroundColor: scaffoldBg,
       // ১. AppBar (Height 45)
       appBar: PreferredSize(
@@ -63,42 +79,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
           // default back button
           automaticallyImplyLeading: false,
           title: Center(
-        child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 900),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              // back button of home screen
-              Align(
-                alignment: Alignment.centerLeft,
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 18),
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
-                  },
-                ),
-              ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 900),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // back button of home screen
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 18),
+                        onPressed: () {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (_) => const HomeScreen()),
+                                (route) => false,
+                          );
+                        },
+                      ),
+                    ),
 
-              // Profile text
-              const Text(
-                "Profile",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                    // Profile text
+                    const Text(
+                      "Profile",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),
-    ),
-  ),
-),
 
       // body of content
       body: SingleChildScrollView(
@@ -145,7 +165,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ),
+    ),
     );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   }
 
   Widget _buildIdentityCard(Color cardBg, bool isDark) {

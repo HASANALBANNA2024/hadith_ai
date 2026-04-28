@@ -62,7 +62,7 @@ class ProfileActionButton extends StatelessWidget {
         if (value == 'logout') onLogoutTap();
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 5),
         child: Icon(Icons.verified, size: 35, color: badgeColor),
       ),
       itemBuilder: (context) => [

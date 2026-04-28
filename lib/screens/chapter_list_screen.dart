@@ -27,7 +27,13 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
   final Color primaryTeal = const Color(0xFF14532D);
   final Color darkBg = const Color(0xFF0D1F1D);
   final Color darkCardBg = const Color(0xFF111817);
+  late bool _currentDarkStatus;
 
+  @override
+  void initState() {
+    super.initState();
+    _currentDarkStatus = widget.isDarkStatus;
+  }
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -153,7 +159,7 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
       ),
       bottomNavigationBar: Container(
         // full screen background
-        color: widget.isDarkStatus ? const Color(0xFF0D1F1D) : Colors.white,
+        color: _currentDarkStatus ? const Color(0xFF0D1F1D) : Colors.white,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -162,16 +168,19 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
               constraints: const BoxConstraints(maxWidth: 1100),
               width: MediaQuery.of(context).size.width,
               child: CustomBottomNav(
-                isDark: widget.isDarkStatus,
+                isDark:widget.isDarkStatus,
                 gold: goldColor,
                 isWeb: isLargeScreen,
                 currentIndex: _currentIndex,
+                onThemeChanged: (newThemeValue) {
+                  setState(() {
+                    _currentDarkStatus = newThemeValue; // মেইন স্ক্রিনের থিম বদলে যাবে
+                  });
+                },
                 onTap: (index) {
                   setState(() {
                     _currentIndex = index;
                   });
-                  // call to bookmark screen
-                  if (index != 2) Navigator.pop(context);
                 },
               ),
             ),

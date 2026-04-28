@@ -5,7 +5,6 @@ import 'package:hadith_ai/screens/chapter_list_screen.dart';
 import 'package:hadith_ai/screens/hadith_search_delegate.dart';
 import 'package:hadith_ai/screens/profile_screen.dart';
 import 'package:hadith_ai/widgets/app_theme.dart';
-import 'package:hadith_ai/widgets/category_helper.dart';
 import 'package:hadith_ai/widgets/custom_bottom_Nav.dart';
 import 'package:hadith_ai/widgets/profile_action_button.dart';
 
@@ -83,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: Icon(
                       Icons.search_rounded,
                       color: gold,
-                      size: isWeb ? 26 : 22,
+                      size: isWeb ? 35 : 28,
                     ),
                     onPressed: () {
                       showSearch(
@@ -92,27 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     },
                   ),
-                  const SizedBox(width: 10),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _isDark
-                            ? Icons.dark_mode_rounded
-                            : Icons.light_mode_rounded,
-                        color: gold.withOpacity(0.8),
-                        size: isWeb ? 22 : 18,
-                      ),
-                      Transform.scale(
-                        scale: isWeb ? 0.8 : 0.7,
-                        child: Switch(
-                          value: _isDark,
-                          activeColor: gold,
-                          onChanged: (value) => setState(() => _isDark = value),
-                        ),
-                      ),
-                    ],
-                  ),
+
                   // icon button on badge
                   IconButton(
                     // icon
@@ -164,11 +143,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 5),
+
                     _buildHeader("Today's Hadith", textColor, isWeb),
                     _buildHeroCard(cardBg, gold, borderColor, textColor, isWeb),
 
-                    // const SizedBox(height: 20),
+
                     _buildHeader('All Hadith Book', textColor, isWeb),
 
                     // --- API API Integration Started ---
@@ -221,31 +200,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       },
                     ),
-                    // const SizedBox(height: 20),
 
-                    // const SizedBox(height: 20),
-                    _buildHeader('Topic-based Hadith', textColor, isWeb),
-
-                    // _buildCategoryWrap(borderColor, textColor, cardBg, isWeb),
-                    CategoryHelper.buildDashboardCategories(
-                      context: context,
-                      border: borderColor, // আপনার গোল্ডেন কালার ভ্যারিয়েবল
-                      textC: textColor, // আপনার টেক্সট কালার ভ্যারিয়েবল
-                      bg: cardBg, // কন্টেইনার ব্যাকগ্রাউন্ড কালার
-                      isWeb: isWeb, // ওয়েব রেসপন্সিভ চেক
-                      isDark: _isDark, // ডার্ক বা লাইট মোড কানেকশন
-                    ),
-                    // const SizedBox(height: 20),
-                    _buildHeader('Daily life hadith', textColor, isWeb),
-                    _buildDailyLifeSection(
-                      cardBg,
-                      borderColor,
-                      textColor,
-                      AppThemes.primaryGreen,
-                      isWeb,
-                    ),
-
-                    // const SizedBox(height: 20),
                     _buildHeader('Recent Reading', textColor, isWeb),
                     _buildRecentReadCard(cardBg, borderColor, textColor, isWeb),
 
@@ -258,16 +213,25 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       bottomNavigationBar: Container(
+        // এখানে _isDark অনুযায়ী ব্যাকগ্রাউন্ড কালার সেট হবে
         color: _isDark ? const Color(0xFF0D1F1D) : Colors.white,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // call to custom BottomNav
             CustomBottomNav(
-              isDark: _isDark,
-              gold: gold,
-              isWeb: isWeb,
+              isDark: _isDark,       // বর্তমান থিম স্ট্যাটাস
+              gold: gold,            // আপনার গোল্ড কালার ভেরিয়েবল
+              isWeb: isWeb,          // স্ক্রিন সাইজ চেক
               currentIndex: _currentIndex,
+
+              // এটিই সেই গুরুত্বপূর্ণ অংশ যা সেটিংস শিট থেকে থিম আপডেট করবে
+              onThemeChanged: (newThemeValue) {
+                setState(() {
+                  _isDark = newThemeValue;
+                });
+              },
+
               onTap: (index) {
                 setState(() {
                   _currentIndex = index;
@@ -303,7 +267,7 @@ class _HomeScreenState extends State<HomeScreen> {
         .where((b) => sahihSittahSlugs.contains(b.bookSlug))
         .toList();
     int columns = width > 1100 ? 6 : (width > 700 ? 4 : (width > 500 ? 3 : 2));
-    int displayCount = (width <= 500 && !isExpanded) ? 2 : filteredBooks.length;
+    int displayCount = (width <= 500 && !isExpanded) ? 4  : filteredBooks.length;
     final List<IconData> islamicIcons = [
       Icons.menu_book_rounded,
       Icons.auto_stories,
@@ -460,55 +424,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildDailyLifeSection(
-    Color bg,
-    Color border,
-    Color textC,
-    Color iconC,
-    bool isWeb,
-  ) {
-    final allItems = [
-      'সকালে ও সন্ধ্যায় পড়ার দোয়া',
-      'খাওয়ার আদব ও সুন্নাত',
-      'ঘুমের দোয়া ও আমল',
-    ];
-    return Column(
-      children: allItems
-          .map(
-            (item) => Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: EdgeInsets.all(isWeb ? 25 : 15),
-              decoration: BoxDecoration(
-                color: bg,
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: border),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.stars_rounded,
-                    size: isWeb ? 28 : 22,
-                    color: iconC,
-                  ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: Text(
-                      item,
-                      style: TextStyle(color: textC, fontSize: isWeb ? 18 : 14),
-                    ),
-                  ),
-                  const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 14,
-                    color: Colors.grey,
-                  ),
-                ],
-              ),
-            ),
-          )
-          .toList(),
-    );
-  }
 
   // daily hadith section
   Widget _buildHeroCard(
