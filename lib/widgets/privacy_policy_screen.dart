@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-
+import 'package:hadith_ai/screens/dashboard_screen.dart';
+import 'package:hadith_ai/screens/payment_screen.dart';
 class PrivacyPolicyScreen extends StatelessWidget {
   final bool isDark;
 
@@ -21,20 +22,38 @@ class PrivacyPolicyScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: bgColor,
       appBar: AppBar(
-        title: const Text(
-          "Privacy & Support",
-          style: TextStyle(
-            color: goldColor,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: goldColor),
-          onPressed: () => Navigator.pop(context),
+        automaticallyImplyLeading: false,
+        title: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1100),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back_ios, color: goldColor, size: 20),
+                    onPressed: () {
+                     Navigator.pop(context);
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+                    },
+                  ),
+                ),
+
+                // ২. টাইটেল টেক্সট (যা ১১০০ পিক্সেলের একদম মাঝখানে থাকবে)
+                const Text(
+                  "Privacy & Support",
+                  style: TextStyle(
+                    color: goldColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
       body: Center(
@@ -48,7 +67,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Donation
-                _buildDonationCard(goldColor, txtColor),
+                _buildDonationCard(goldColor, txtColor, context),
 
                 const SizedBox(height: 25),
 
@@ -169,7 +188,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDonationCard(Color gold, Color txt) {
+  Widget _buildDonationCard(Color gold, Color txt, BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -205,12 +224,21 @@ class PrivacyPolicyScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
+          // IconButton এ কনভার্ট করা হলো
           ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PaymentScreen(), // এখানে আপনার পেমেন্ট স্ক্রিন ক্লাসটি দিন
+                ),
+              );
+            },
             icon: const Icon(Icons.favorite, size: 18),
-            label: const Text("Support the Project"),
+            label: const Text("Support the Project (use subscriptions)"),
             style: ElevatedButton.styleFrom(
-              backgroundColor: gold,
+              backgroundColor: gold, // আপনার ডিফাইন করা গোল্ড কালার
               foregroundColor: Colors.black,
               elevation: 0,
               padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
