@@ -6,6 +6,7 @@ import 'package:hadith_ai/screens/hadith_search_delegate.dart';
 import 'package:hadith_ai/widgets/app_theme.dart';
 import 'package:hadith_ai/widgets/category_helper.dart';
 import 'package:hadith_ai/widgets/custom_bottom_Nav.dart';
+import 'package:hadith_ai/widgets/profile_action_button.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,6 +20,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // index
   int _currentIndex = 0;
+
+  // badge status update
+  bool isLoggedIn = true; // অথবা true, আপনার টেস্ট অনুযায়ী
+  String planType = "Lifetime";
 
   // all section control variable
   bool _showAllBooks = false;
@@ -107,6 +112,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ],
+                  ),
+                  // icon button on badge
+                  IconButton(
+                    // icon
+                    icon: ProfileActionButton(
+                      isLoggedIn: isLoggedIn,
+                      planType: "Lifetime",
+                      onTap:
+                          () {}, // এখানে ফাঁকা রাখতে পারেন কারণ IconButton এর নিজস্ব onPressed আছে
+                    ),
+                    onPressed: () {
+                      print("Profile Clicked");
+                      //
+                    },
                   ),
 
                   // search button of chatbot
