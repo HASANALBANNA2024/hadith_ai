@@ -318,6 +318,8 @@ class _HadithListScreenState extends State<HadithListScreen> {
                 child: Text(
                   hModel.arabicText,
                   textAlign: TextAlign.right,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: isDark ? goldColor : const Color(0xFF1B5E20),
                     fontSize: 20,
