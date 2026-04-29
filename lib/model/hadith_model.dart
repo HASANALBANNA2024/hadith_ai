@@ -63,8 +63,8 @@ class HadithModel {
         grade: json['status'] ?? "",
         gradeColor: json['gradeColor'] ?? "",
         bookName: json['bookName'] ?? "",
-        bookSlug: json['bookSlug'] ?? "", // মিসিং ছিল
-        chapterId: json['chapterId'] ?? "", // মিসিং ছিল
+        bookSlug: json['bookSlug'] ?? "",
+        chapterId: json['chapterId'] ?? "",
         chapterName: json['chapterName'] ?? "",
         explanation: json['explanation'] ?? "",
         narratorBio: json['narratorBio'] ?? "",
@@ -77,6 +77,19 @@ class HadithModel {
     final bookData = json['book'] ?? {};
     final chapterData = json['chapter'] ?? {};
 
+    // --- Narrator Logic (English -> Urdu) ---
+    // আপনার API-তে 'arabicNarrator' নেই, তাই ইংলিশ না থাকলে আমরা উর্দূ চেক করবো।
+    String narratorText = (json['englishNarrator'] ?? "").toString().trim();
+
+    if (narratorText.isEmpty) {
+      narratorText = (json['urduNarrator'] ?? "").toString().trim();
+    }
+
+    if (narratorText.isEmpty) {
+      narratorText = "Narrator in text";
+    }
+
+    // --- Translation Logic (English -> Urdu) ---
     String finalTranslation = (json['hadithEnglish'] ?? "").toString().trim();
     if (finalTranslation.isEmpty) {
       finalTranslation = (json['hadithUrdu'] ?? "No Translation")
@@ -87,9 +100,7 @@ class HadithModel {
     return HadithModel(
       hadithId: json['id'] ?? 0,
       hadithNumber: (json['hadithNumber'] ?? "").toString(),
-      narrator: (json['englishNarrator'] ?? "Narrator missing")
-          .toString()
-          .trim(),
+      narrator: narratorText, // আমাদের নতুন লজিক অনুযায়ী ভ্যালু
       arabicText: json['hadithArabic'] ?? "",
       translation: finalTranslation,
       grade: json['status'] ?? "Unknown",

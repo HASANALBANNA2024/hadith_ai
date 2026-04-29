@@ -7,6 +7,7 @@ import 'package:hadith_ai/widgets/hadith_details_sheet.dart';
 import 'package:hadith_ai/widgets/last_read_service.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class HadithListScreen extends StatefulWidget {
   final String bookTitle;
@@ -33,6 +34,13 @@ class _HadithListScreenState extends State<HadithListScreen> {
   List<dynamic> hadiths = [];
   bool isLoading = true;
   int _selectedIndex = 1;
+
+  final ItemScrollController _itemScrollController = ItemScrollController();
+
+  // subject create scrollable
+
+  final ItemPositionsListener _itemPositionsListener =
+      ItemPositionsListener.create();
 
   late bool _isDark;
 
@@ -88,6 +96,41 @@ class _HadithListScreenState extends State<HadithListScreen> {
       print("Error: $e");
       setState(() => isLoading = false);
     }
+  }
+
+  void _scrollToTarget() {
+    if (widget.targetHadithId != null && hadiths.isNotEmpty) {
+      int index = hadiths.indexWhere(
+        (h) => h['id'].toString() == widget.targetHadithId.toString(),
+      );
+
+      if (index != -1) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (_itemScrollController.isAttached) {
+            _itemScrollController.scrollTo(
+              index: index,
+              duration: const Duration(seconds: 1),
+              curve: Curves.easeInOutCubic,
+              alignment: 0.1,
+            );
+            _openDetailSheet(index);
+          }
+        });
+      }
+    }
+  }
+
+  void _openDetailSheet(int index) {
+    final targetItem = hadiths[index];
+    final hModel = HadithModel.fromJson(Map<String, dynamic>.from(targetItem));
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) =>
+          HadithDetailSheet(hadith: hModel, isDarkMode: _isDark),
+    );
   }
 
   @override
@@ -220,7 +263,7 @@ class _HadithListScreenState extends State<HadithListScreen> {
     Color goldColor,
     bool isDark,
   ) {
-    // ১. আইটেমটিকে মডেলে কনভার্ট করা
+    // Automatic model done
     final HadithModel hModel = HadithModel.fromJson(
       Map<String, dynamic>.from(item),
     );
