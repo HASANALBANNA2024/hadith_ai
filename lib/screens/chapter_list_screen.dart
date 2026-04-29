@@ -34,6 +34,7 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
     super.initState();
     _currentDarkStatus = widget.isDarkStatus;
   }
+
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -168,13 +169,14 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
               constraints: const BoxConstraints(maxWidth: 1100),
               width: MediaQuery.of(context).size.width,
               child: CustomBottomNav(
-                isDark:widget.isDarkStatus,
+                isDark: widget.isDarkStatus,
                 gold: goldColor,
                 isWeb: isLargeScreen,
                 currentIndex: _currentIndex,
                 onThemeChanged: (newThemeValue) {
                   setState(() {
-                    _currentDarkStatus = newThemeValue; // মেইন স্ক্রিনের থিম বদলে যাবে
+                    _currentDarkStatus =
+                        newThemeValue; // মেইন স্ক্রিনের থিম বদলে যাবে
                   });
                 },
                 onTap: (index) {
@@ -240,6 +242,7 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
                 chapterId: chapter.chapterNumber,
 
                 chapterTitle: chapter.chapterTitle,
+                targetHadithId: null,
                 isDarkStatus: isDark,
               ),
             ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hadith_ai/logic/bookmark_service.dart';
 import 'package:hadith_ai/model/hadith_model.dart';
+import 'package:hadith_ai/widgets/last_read_service.dart';
 import 'package:hadith_ai/widgets/share_hadith.dart';
 
 class HadithDetailSheet extends StatefulWidget {
@@ -18,6 +19,22 @@ class HadithDetailSheet extends StatefulWidget {
 }
 
 class _HadithDetailSheetState extends State<HadithDetailSheet> {
+  @override
+  @override
+  void initState() {
+    super.initState();
+
+    // হাদিস ওপেন হওয়া মাত্রই নতুন ফরম্যাটে সেভ হবে
+    LastReadService.saveLastRead(
+      bookName: widget.hadith.bookName,
+      bookSlug: widget.hadith.bookSlug, // নিশ্চিত করুন এটি আপনার মডেলে আছে
+      chapterId: widget.hadith.chapterId.toString(), // চ্যাপ্টার আইডি
+      hadithNumber: widget.hadith.hadithNumber,
+      translation: widget.hadith.translation,
+      hadithId: widget.hadith.hadithId,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // Theme configuration
@@ -330,6 +347,7 @@ class _HadithDetailSheetState extends State<HadithDetailSheet> {
           .toList(),
     );
   }
+
   // General Section (explain, introduction and reference)
   Widget _buildSection(
     IconData icon,

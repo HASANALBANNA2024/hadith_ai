@@ -7,6 +7,8 @@ class HadithModel {
   final String grade;
   final String gradeColor;
   final String bookName;
+  final String bookSlug;
+  final String chapterId;
   final String chapterName;
   final String explanation;
   final String narratorBio;
@@ -22,6 +24,8 @@ class HadithModel {
     required this.grade,
     required this.gradeColor,
     required this.bookName,
+    required this.bookSlug,
+    required this.chapterId,
     required this.chapterName,
     required this.explanation,
     required this.narratorBio,
@@ -29,7 +33,6 @@ class HadithModel {
     required this.reference,
   });
 
-  // --- method add to remove red line  ---
   Map<String, dynamic> toJson() => {
     'id': hadithId,
     'hadithNumber': hadithNumber,
@@ -39,6 +42,8 @@ class HadithModel {
     'status': grade,
     'gradeColor': gradeColor,
     'bookName': bookName,
+    'bookSlug': bookSlug, // যোগ করা হলো
+    'chapterId': chapterId, // যোগ করা হলো
     'chapterName': chapterName,
     'explanation': explanation,
     'narratorBio': narratorBio,
@@ -47,8 +52,8 @@ class HadithModel {
   };
 
   factory HadithModel.fromJson(Map<String, dynamic> json) {
-    // if data exist in data hive cache
-    if (json.containsKey('translation')) {
+    // ১. ডাটা যদি Hive বা Local থেকে আসে
+    if (json.containsKey('narrator') && !json.containsKey('book')) {
       return HadithModel(
         hadithId: json['id'] ?? 0,
         hadithNumber: json['hadithNumber'] ?? "",
@@ -58,6 +63,8 @@ class HadithModel {
         grade: json['status'] ?? "",
         gradeColor: json['gradeColor'] ?? "",
         bookName: json['bookName'] ?? "",
+        bookSlug: json['bookSlug'] ?? "", // মিসিং ছিল
+        chapterId: json['chapterId'] ?? "", // মিসিং ছিল
         chapterName: json['chapterName'] ?? "",
         explanation: json['explanation'] ?? "",
         narratorBio: json['narratorBio'] ?? "",
@@ -66,33 +73,36 @@ class HadithModel {
       );
     }
 
-    // api priority to english field
+    // ২. ডাটা যদি সরাসরি API থেকে আসে
     final bookData = json['book'] ?? {};
     final chapterData = json['chapter'] ?? {};
 
-    // direct english 'hadithEnglish'
     String finalTranslation = (json['hadithEnglish'] ?? "").toString().trim();
     if (finalTranslation.isEmpty) {
-      finalTranslation = (json['hadithUrdu'] ?? "No English Translation available").toString().trim();
+      finalTranslation = (json['hadithUrdu'] ?? "No Translation")
+          .toString()
+          .trim();
     }
-
-    String finalNarrator = (json['englishNarrator'] ?? "Narrator info missing").toString().trim();
-    String finalExplanation = (json['headingEnglish'] ?? "").toString().trim();
 
     return HadithModel(
       hadithId: json['id'] ?? 0,
       hadithNumber: (json['hadithNumber'] ?? "").toString(),
-      narrator: finalNarrator,
+      narrator: (json['englishNarrator'] ?? "Narrator missing")
+          .toString()
+          .trim(),
       arabicText: json['hadithArabic'] ?? "",
       translation: finalTranslation,
       grade: json['status'] ?? "Unknown",
       gradeColor: (json['status'] == "Sahih") ? "#4CAF50" : "#E4C381",
       bookName: bookData['bookName'] ?? "Unknown Book",
+      bookSlug: json['bookSlug'] ?? "",
+      chapterId: json['chapterId']?.toString() ?? "",
       chapterName: chapterData['chapterEnglish'] ?? "Unknown Chapter",
-      explanation: finalExplanation,
+      explanation: (json['headingEnglish'] ?? "").toString().trim(),
       narratorBio: bookData['aboutWriter'] ?? "",
       tags: json['tags'] is List ? List<String>.from(json['tags']) : [],
-      reference: "Book: ${bookData['bookName']}, Hadith: ${json['hadithNumber']}",
+      reference:
+          "Book: ${bookData['bookName']}, Hadith: ${json['hadithNumber']}",
     );
   }
 }

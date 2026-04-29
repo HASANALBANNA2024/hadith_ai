@@ -10,13 +10,13 @@ class BookmarkService {
     await Hive.openBox(boxName);
   }
 
-  // check in hadith bookmark status
+  // Check in hadith bookmark status
   static bool isBookmarked(int hadithId) {
     var box = Hive.box(boxName);
     return box.containsKey(hadithId);
   }
 
-  // bookmark
+  // Add Bookmark (Updated to include new fields)
   static Future<void> addBookmark(HadithModel hadith) async {
     var box = Hive.box(boxName);
     await box.put(hadith.hadithId, {
@@ -28,6 +28,8 @@ class BookmarkService {
       'status': hadith.grade,
       'gradeColor': hadith.gradeColor,
       'bookName': hadith.bookName,
+      'bookSlug': hadith.bookSlug, // নতুন যোগ করা হয়েছে
+      'chapterId': hadith.chapterId, // নতুন যোগ করা হয়েছে
       'chapterEnglish': hadith.chapterName,
       'explanation': hadith.explanation,
       'aboutWriter': hadith.narratorBio,
@@ -36,13 +38,13 @@ class BookmarkService {
     });
   }
 
-  // selected bookmark deleted and clear
+  // Remove Bookmark
   static Future<void> removeBookmark(int hadithId) async {
     var box = Hive.box(boxName);
     await box.delete(hadithId);
   }
 
-  // all bookmark list
+  // Get All Bookmarks (Updated constructor to remove red lines)
   static List<HadithModel> getAllBookmarks() {
     var box = Hive.box(boxName);
     return box.values.map((item) {
@@ -55,6 +57,8 @@ class BookmarkService {
         grade: item['status'] ?? '',
         gradeColor: item['gradeColor'] ?? '#E4C381',
         bookName: item['bookName'] ?? '',
+        bookSlug: item['bookSlug'] ?? '', // নতুন যোগ করা হয়েছে
+        chapterId: item['chapterId'] ?? '', // নতুন যোগ করা হয়েছে
         chapterName: item['chapterEnglish'] ?? '',
         explanation: item['explanation'] ?? '',
         narratorBio: item['aboutWriter'] ?? '',
@@ -64,7 +68,7 @@ class BookmarkService {
     }).toList();
   }
 
-  // all bookmark (Clear All)
+  // Clear All Bookmarks
   static Future<void> clearAll() async {
     var box = Hive.box(boxName);
     await box.clear();

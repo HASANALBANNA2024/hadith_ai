@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:hadith_ai/model/hadith_model.dart';
 import 'package:hadith_ai/widgets/custom_bottom_Nav.dart';
 import 'package:hadith_ai/widgets/hadith_details_sheet.dart';
-import 'package:http/http.dart' as http;
+import 'package:hadith_ai/widgets/last_read_service.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:http/http.dart' as http;
 
 class HadithListScreen extends StatefulWidget {
   final String bookTitle;
@@ -13,7 +14,7 @@ class HadithListScreen extends StatefulWidget {
   final String chapterId;
   final String chapterTitle;
   final bool isDarkStatus;
-
+  final int? targetHadithId;
   const HadithListScreen({
     Key? key,
     required this.bookTitle,
@@ -21,6 +22,7 @@ class HadithListScreen extends StatefulWidget {
     required this.chapterId,
     required this.chapterTitle,
     required this.isDarkStatus,
+    required this.targetHadithId,
   }) : super(key: key);
 
   @override
@@ -51,9 +53,7 @@ class _HadithListScreenState extends State<HadithListScreen> {
 
     final String cacheKey = "hadiths_${widget.bookSlug}_${widget.chapterId}";
 
-
     var box = Hive.box('app_cache');
-
 
     if (box.containsKey(cacheKey)) {
       print("🚀 Loading from Hive Cache...");
@@ -63,13 +63,11 @@ class _HadithListScreenState extends State<HadithListScreen> {
         isLoading = false;
       });
       return;
-
     }
 
-
-
     print("🌐 Loading from API...");
-    final String url = "https://hadithapi.com/api/hadiths?apiKey=$apiKey&book=${widget.bookSlug}&chapter=${widget.chapterId}";
+    final String url =
+        "https://hadithapi.com/api/hadiths?apiKey=$apiKey&book=${widget.bookSlug}&chapter=${widget.chapterId}";
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -82,8 +80,6 @@ class _HadithListScreenState extends State<HadithListScreen> {
             hadiths = fetchedData;
             isLoading = false;
           });
-
-
 
           await box.put(cacheKey, fetchedData);
         }
@@ -113,19 +109,14 @@ class _HadithListScreenState extends State<HadithListScreen> {
     return Scaffold(
       backgroundColor: bgColor,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(
-          kToolbarHeight + 10,
-        ),
+        preferredSize: const Size.fromHeight(kToolbarHeight + 10),
         child: Container(
           color: darkGreen,
-                    child: Center(
+          child: Center(
             child: Container(
-              constraints: const BoxConstraints(
-                maxWidth: 1100,
-              ),
+              constraints: const BoxConstraints(maxWidth: 1100),
               child: AppBar(
-                backgroundColor: Colors
-                    .transparent,
+                backgroundColor: Colors.transparent,
                 elevation: 0,
                 centerTitle: true,
                 iconTheme: const IconThemeData(color: goldColor),
@@ -198,9 +189,9 @@ class _HadithListScreenState extends State<HadithListScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CustomBottomNav(
-              isDark: _isDark,           // আপডেট করা লোকাল ভেরিয়েবল
+              isDark: _isDark, // আপডেট করা লোকাল ভেরিয়েবল
               gold: goldColor,
-              isWeb: isWeb,              // আপনার স্ক্রিন সাইজ লজিক
+              isWeb: isWeb, // আপনার স্ক্রিন সাইজ লজিক
               currentIndex: _selectedIndex,
 
               // এটিই মেইন কাজ করবে থিম পরিবর্তনের জন্য
@@ -223,16 +214,19 @@ class _HadithListScreenState extends State<HadithListScreen> {
   }
 
   Widget _buildCompactHadithCard(
-      dynamic item,
-      Color cardColor,
-      Color textColor,
-      Color goldColor,
-      bool isDark,
-      ) {
-    final HadithModel hModel = HadithModel.fromJson(Map<String, dynamic>.from(item));
+    dynamic item,
+    Color cardColor,
+    Color textColor,
+    Color goldColor,
+    bool isDark,
+  ) {
+    // ১. আইটেমটিকে মডেলে কনভার্ট করা
+    final HadithModel hModel = HadithModel.fromJson(
+      Map<String, dynamic>.from(item),
+    );
+
     bool isSahih = hModel.grade.toLowerCase().contains("sahih");
     bool isHasan = hModel.grade.toLowerCase().contains("hasan");
-
     double screenWidth = MediaQuery.of(context).size.width;
     bool isMobile = screenWidth < 700;
 
@@ -256,13 +250,29 @@ class _HadithListScreenState extends State<HadithListScreen> {
       ),
       child: InkWell(
         onTap: () {
-          // hModel
+          // LastRead সেভ করা
+          LastReadService.saveLastRead(
+            bookName: hModel.bookName,
+            bookSlug: hModel.bookSlug.isEmpty
+                ? widget.bookSlug
+                : hModel.bookSlug,
+            chapterId: hModel.chapterId.isEmpty
+                ? widget.chapterId
+                : hModel.chapterId,
+            hadithNumber: hModel.hadithNumber,
+            translation: hModel.translation,
+            hadithId: hModel.hadithId,
+          );
+
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
-            builder: (context) => HadithDetailSheet(hadith: hModel, isDarkMode: isDark),
-          );
+            builder: (context) =>
+                HadithDetailSheet(hadith: hModel, isDarkMode: isDark),
+          ).then((_) {
+            if (mounted) setState(() {});
+          });
         },
         borderRadius: BorderRadius.circular(15),
         child: Padding(
@@ -273,9 +283,11 @@ class _HadithListScreenState extends State<HadithListScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // status badge of hadith grade
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: statusColor.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(8),
@@ -283,13 +295,20 @@ class _HadithListScreenState extends State<HadithListScreen> {
                     ),
                     child: Text(
                       hModel.grade.toUpperCase(),
-                      style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: statusColor,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                  // hadith number
                   Text(
                     "Hadith# ${hModel.hadithNumber}",
-                    style: TextStyle(color: goldColor, fontWeight: FontWeight.bold, fontSize: 13),
+                    style: TextStyle(
+                      color: goldColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
                   ),
                 ],
               ),
@@ -299,8 +318,6 @@ class _HadithListScreenState extends State<HadithListScreen> {
                 child: Text(
                   hModel.arabicText,
                   textAlign: TextAlign.right,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: isDark ? goldColor : const Color(0xFF1B5E20),
                     fontSize: 20,
@@ -316,7 +333,6 @@ class _HadithListScreenState extends State<HadithListScreen> {
                 style: TextStyle(color: textColor, fontSize: 14, height: 1.5),
               ),
               const Divider(height: 25, thickness: 0.6),
-              // Narrator
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -325,7 +341,11 @@ class _HadithListScreenState extends State<HadithListScreen> {
                       "Narrator: ${hModel.narrator}",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: isDark ? Colors.white70 : Colors.black54, fontSize: 11, fontStyle: FontStyle.italic),
+                      style: TextStyle(
+                        color: isDark ? Colors.white70 : Colors.black54,
+                        fontSize: 11,
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
                   ),
                   Icon(Icons.keyboard_arrow_right, color: goldColor, size: 20),

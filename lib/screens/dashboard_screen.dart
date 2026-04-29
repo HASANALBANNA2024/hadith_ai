@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:hadith_ai/api_service/hadith_api_service.dart';
 import 'package:hadith_ai/model/hadith_book_model.dart';
 import 'package:hadith_ai/screens/chapter_list_screen.dart';
+import 'package:hadith_ai/screens/hadith_list_screen.dart';
 import 'package:hadith_ai/screens/hadith_search_delegate.dart';
 import 'package:hadith_ai/screens/profile_screen.dart';
 import 'package:hadith_ai/widgets/app_theme.dart';
 import 'package:hadith_ai/widgets/custom_bottom_Nav.dart';
+import 'package:hadith_ai/widgets/last_read_service.dart';
 import 'package:hadith_ai/widgets/profile_action_button.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -22,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
   // badge status update
-  bool isLoggedIn = true; // অথবা true, আপনার টেস্ট অনুযায়ী
+  bool isLoggedIn = true;
 
   // all section control variable
   bool _showAllBooks = false;
@@ -30,6 +32,24 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _showAllCategories = false;
   bool _showAllDailyLife = false;
   bool isExpanded = false;
+
+  // Last read
+
+  Map<String, dynamic>? _recenthadith;
+
+  // data load function
+  Future<void> _loadRecentRead() async {
+    final data = await LastReadService.getLastRead();
+    setState(() {
+      _recenthadith = data;
+    });
+  }
+
+  //initState
+  void initState() {
+    super.initState();
+    _loadRecentRead();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -143,10 +163,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
                     _buildHeader("Today's Hadith", textColor, isWeb),
                     _buildHeroCard(cardBg, gold, borderColor, textColor, isWeb),
-
 
                     _buildHeader('All Hadith Book', textColor, isWeb),
 
@@ -220,9 +238,9 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             // call to custom BottomNav
             CustomBottomNav(
-              isDark: _isDark,       // বর্তমান থিম স্ট্যাটাস
-              gold: gold,            // আপনার গোল্ড কালার ভেরিয়েবল
-              isWeb: isWeb,          // স্ক্রিন সাইজ চেক
+              isDark: _isDark, // বর্তমান থিম স্ট্যাটাস
+              gold: gold, // আপনার গোল্ড কালার ভেরিয়েবল
+              isWeb: isWeb, // স্ক্রিন সাইজ চেক
               currentIndex: _currentIndex,
 
               // এটিই সেই গুরুত্বপূর্ণ অংশ যা সেটিংস শিট থেকে থিম আপডেট করবে
@@ -267,7 +285,7 @@ class _HomeScreenState extends State<HomeScreen> {
         .where((b) => sahihSittahSlugs.contains(b.bookSlug))
         .toList();
     int columns = width > 1100 ? 6 : (width > 700 ? 4 : (width > 500 ? 3 : 2));
-    int displayCount = (width <= 500 && !isExpanded) ? 4  : filteredBooks.length;
+    int displayCount = (width <= 500 && !isExpanded) ? 4 : filteredBooks.length;
     final List<IconData> islamicIcons = [
       Icons.menu_book_rounded,
       Icons.auto_stories,
@@ -326,7 +344,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         name: '/chapters/${book.bookSlug}',
                       ),
                     ),
-                  );
+                  ).then((_) {
+                    _loadRecentRead();
+                  });
                 },
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
@@ -424,7 +444,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
   // daily hadith section
   Widget _buildHeroCard(
     Color bg,
@@ -483,35 +502,79 @@ class _HomeScreenState extends State<HomeScreen> {
   // hero card ended
 
   Widget _buildRecentReadCard(Color bg, Color border, Color textC, bool isWeb) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: border),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.menu_book, color: Colors.orange),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Shahih Bukhari - Hadith#01",
-                  style: TextStyle(color: textC, fontWeight: FontWeight.bold),
-                ),
-                const Text(
-                  "নিশ্চয়ই নিয়তের ওপর আমল নির্ভরশীল...",
-                  style: TextStyle(color: Colors.grey, fontSize: 12),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+    // ১. চেক করুন ডেটা আছে কি না
+    final hasData = _recenthadith != null;
+
+    return GestureDetector(
+      onTap: () {
+        if (_recenthadith != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HadithListScreen(
+                bookTitle: _recenthadith!['bookName'],
+                bookSlug: _recenthadith!['bookSlug'],
+                chapterId: _recenthadith!['chapterId']
+                    .toString(), // চ্যাপ্টার আইডি
+                chapterTitle: "অধ্যায় লোড হচ্ছে...",
+                isDarkStatus: _isDark,
+                targetHadithId:
+                    _recenthadith!['hadithId'], // এটি নতুন প্যারামিটার
+              ),
             ),
-          ),
-        ],
+          ).then((_) => _loadRecentRead());
+        }
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(color: hasData ? border : border.withOpacity(0.3)),
+        ),
+        child: Row(
+          children: [
+            // ২. ডেটা থাকলে বইয়ের আইকন, না থাকলে ঘড়ির আইকন
+            Icon(
+              hasData
+                  ? Icons.menu_book_rounded
+                  : Icons.history_toggle_off_rounded,
+              color: hasData ? Colors.orange : Colors.grey,
+            ),
+            const SizedBox(width: 15),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ৩. টাইটেল আপডেট (বইয়ের নাম ও হাদিস নম্বর)
+                  Text(
+                    hasData
+                        ? "${_recenthadith!['bookName']} - Hadith#${_recenthadith!['hadithNumber']}"
+                        : "পড়া শুরু করুন",
+                    style: TextStyle(
+                      color: textC,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  // ৪. হাদিসের টেক্সট বা ডিফল্ট মেসেজ
+                  Text(
+                    hasData
+                        ? _recenthadith!['translation']
+                        : "আপনার শেষ পড়া হাদিসটি এখানে দেখা যাবে।",
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ],
+              ),
+            ),
+            if (hasData)
+              const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+          ],
+        ),
       ),
     );
   }

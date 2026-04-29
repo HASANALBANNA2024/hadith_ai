@@ -10,8 +10,11 @@ class BookmarkScreen extends StatefulWidget {
   final bool isDark;
   final Function(bool) onThemeChanged;
 
-
-  const BookmarkScreen({super.key, required this.isDark,required this.onThemeChanged,});
+  const BookmarkScreen({
+    super.key,
+    required this.isDark,
+    required this.onThemeChanged,
+  });
 
   @override
   State<BookmarkScreen> createState() => _BookmarkScreenState();
@@ -65,8 +68,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                 maxWidth: 1100,
               ), // content area in web view 1100px
               child: AppBar(
-                backgroundColor: Colors
-                    .transparent,
+                backgroundColor: Colors.transparent,
                 elevation: 0,
                 centerTitle: true,
                 leading: isWeb
@@ -129,8 +131,8 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
                 ),
               ),
             ),
-      // BottomNav
 
+      // BottomNav
       bottomNavigationBar: Container(
         color: _localIsDark ? const Color(0xFF0D1F1D) : Colors.white,
         child: Row(
@@ -140,13 +142,14 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
               constraints: const BoxConstraints(maxWidth: 1100),
               width: screenWidth,
               child: CustomBottomNav(
-                isDark: _localIsDark,       // লোকাল ভেরিয়েবল ব্যবহার করুন
+                isDark: _localIsDark, // লোকাল ভেরিয়েবল ব্যবহার করুন
                 gold: gold,
                 isWeb: isWeb,
                 currentIndex: _currentIndex,
                 onThemeChanged: (newThemeValue) {
                   setState(() {
-                    _localIsDark = newThemeValue; // থিম চেঞ্জ হলে স্টেট আপডেট হবে
+                    _localIsDark =
+                        newThemeValue; // থিম চেঞ্জ হলে স্টেট আপডেট হবে
                   });
                   // যদি মেইন অ্যাপের থিমও আপডেট করতে চান তবে নিচের লাইনটি কল করুন
                   widget.onThemeChanged(newThemeValue);
@@ -162,7 +165,6 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
           ],
         ),
       ),
-
     );
   }
 
